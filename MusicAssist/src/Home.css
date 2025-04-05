@@ -1,0 +1,8 @@
+.page-container{
+    position: absolute;
+    top: 60px;
+    padding: 0.5em;
+}
+.homebg{
+    background-color: aqua;
+}
