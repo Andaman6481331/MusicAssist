@@ -8,7 +8,7 @@
   background-size: cover;
   background-repeat: no-repeat;
   background-attachment: fixed;
-  min-height: 100vh;
+  height: 250vh;
   width: 100vw;
   background: linear-gradient(rgb(1, 64, 109),rgb(11, 103, 169));
 

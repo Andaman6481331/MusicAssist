@@ -1,8 +1,33 @@
 .page-container{
-    position: absolute;
-    top: 60px;
-    padding: 0.5em;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin: 2rem auto;
+    /* padding: 0.1rem 1rem; */
+    background: black;
+    width: 90vw;
+    height: 200vh;
+    
 }
-.homebg{
-    background-color: aqua;
+.sidebar{
+    position: relative;
+    width: 15%;
+    margin: 0.5rem 1rem;
+}
+.mainbar{
+    position: relative;
+    width: 85%;
+    padding: 0.2rem 1rem;
+    margin: 0.5rem 1rem;
+    background: linear-gradient(rgb(28, 105, 160),rgb(0, 0, 0));
+}
+.sidebtn{
+    position: relative;
+    width: 10rem;
+    background: rgb(33, 1, 107);
+    margin: 0.5rem;
+    padding: 0.1rem 0.2rem;
+    &:hover{
+        cursor: pointer;
+    }
 }

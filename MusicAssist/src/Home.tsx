@@ -4,9 +4,25 @@ import './Home.css';
 const Home: React.FC = () => {
     return (
       <div className="page-container">
-        <h2>Home Page</h2>
-        <p>Welcome to the homepage!</p>
-      </div>
+        <div className="sidebar">
+          <button className="sidebtn">1adfa</button>
+          <button className="sidebtn">2</button>
+          <button className="sidebtn">3</button>
+          <button className="sidebtn">1</button>
+          <button className="sidebtn">2</button>
+          <button className="sidebtn">3</button>
+          <button className="sidebtn">1</button>
+          <button className="sidebtn">2</button>
+          <button className="sidebtn">3</button>
+          
+        </div>
+        <div className="container mainbar">
+          this is the main
+        </div>
+
+
+
+      </div> //end of page-container
     );
   };
   
