@@ -24,8 +24,8 @@ const chordNotes: Record<string, string[]> = {
 };
 
 export default function CircleOfFifths({ selectedChord, setSelectedChord }: Props) {
-  const radius = 200;
-  const center = 250;
+  const radius = 150;
+  const center = radius*1.25;
 
   // Get the notes of the selected chord
   const selectedChordNotes = selectedChord ? chordNotes[selectedChord] : [];
@@ -47,7 +47,7 @@ export default function CircleOfFifths({ selectedChord, setSelectedChord }: Prop
     .join(" ");
 
   return (
-    <div style={{ display: "flex", justifyContent: "center" }}>
+    <div style={{display: "flex", justifyContent: "center"}}>
       <svg width={2 * center} height={2 * center}>
         <g transform={`translate(${center}, ${center})`}>
           {/* Draw the rotated polygon */}
@@ -61,7 +61,7 @@ export default function CircleOfFifths({ selectedChord, setSelectedChord }: Prop
                   return `${x},${y}`;
                 })
                 .join(" ")}
-              fill="rgba(37, 92, 223, 0.41)"
+              fill="rgb(45, 82, 167)"
               strokeWidth="2"
             />
           </g>
@@ -70,7 +70,7 @@ export default function CircleOfFifths({ selectedChord, setSelectedChord }: Prop
           {selectedPoints.length === 3 && (
             <polyline
               points={pointsForPolyline}
-              fill="rgba(37, 92, 223, 0.41)"
+              fill="rgb(67, 99, 173)"
               strokeLinecap="round"
             />
           )}
@@ -88,7 +88,7 @@ export default function CircleOfFifths({ selectedChord, setSelectedChord }: Prop
                 x={x}
                 y={y}
                 textAnchor="middle"
-                fontSize={isSelected ? "60" : "24"}
+                fontSize={isSelected ? "40" : "24"}
                 fill={isSelected ? "rgb(98, 208, 220)" : "black"}
                 fontWeight={isSelected ? "bold" : "normal"}
                 cursor="pointer"

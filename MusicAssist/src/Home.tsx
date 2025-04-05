@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import "./Home.css";
 import CircleOfFifths from "./component/CircleofFifth";
+import PianoVisualizer from "./component/PianoVisualization";
 
 const keys = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
 
@@ -57,6 +58,7 @@ const Home: React.FC = () => {
           selectedChord={selectedChord}
           setSelectedChord={setSelectedChord}
         />
+        <PianoVisualizer />
       </div>
     </div> //end of page-container
   );
