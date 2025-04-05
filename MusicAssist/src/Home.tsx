@@ -1,23 +1,28 @@
-import React from "react";
+import React, {useState} from "react";
 import './Home.css';
+import CircleOfFifths from './component/CircleofFifth';
+
+const keys = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
 
 const Home: React.FC = () => {
+  const [selectedKey, setSelectedKey] = useState<string | null>(null);
+
     return (
       <div className="page-container">
         <div className="sidebar">
-          <button className="sidebtn">1adfa</button>
-          <button className="sidebtn">2</button>
-          <button className="sidebtn">3</button>
-          <button className="sidebtn">1</button>
-          <button className="sidebtn">2</button>
-          <button className="sidebtn">3</button>
-          <button className="sidebtn">1</button>
-          <button className="sidebtn">2</button>
-          <button className="sidebtn">3</button>
-          
+          {keys.map((key) => (
+            <button
+              key={key}
+              className="sidebtn"
+              onClick={() => setSelectedKey(key)}
+            >
+              {key}
+            </button>
+          ))}
         </div>
         <div className="container mainbar">
-          this is the main
+          <h1>Circle of Fifth</h1>
+          <CircleOfFifths selectedKey={selectedKey} />
         </div>
 
 
