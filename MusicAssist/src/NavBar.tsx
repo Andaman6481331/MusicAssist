@@ -18,13 +18,12 @@ const NavBar: React.FC = () => {
             <a className="btn" href="/about">
               About
             </a>
-            <a className="btn">FAQ</a>
             <svg
               className="outline"
               overflow="visible"
-              width="400"
+              width="90vw"
               height="60"
-              viewBox="0 0 400 60"
+              viewBox="0 0 1000 60"
               xmlns="http://www.w3.org/2000/svg"
             >
               <rect
@@ -32,7 +31,7 @@ const NavBar: React.FC = () => {
                 pathLength="100"
                 x="0"
                 y="0"
-                width="400"
+                width="1300"
                 height="60"
                 fill="transparent"
                 stroke-width="5"
