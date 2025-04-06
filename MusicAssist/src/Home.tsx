@@ -3,6 +3,7 @@ import "./Home.css";
 import CircleOfFifths from "./component/CircleofFifth";
 import PianoVisualizer from "./component/PianoVisualizer";
 import ChordVisualizer from "./component/ChordVisualizer";
+import Octave_ChordVisualizer from "./component/Octave_ChordVisualizer";
 
 const keys = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
 
@@ -55,28 +56,35 @@ const Home: React.FC = () => {
       </div>
       <div className="mainbar">
         <div className="topbg">
-        <h1>Chords : {selectedChord}</h1>
-        <label style={{position: 'absolute', right: '0'}}>
-          <input
-            type="checkbox"
-            checked={isMuted}
-            onChange={() => setIsMuted(!isMuted)}
-            style={{ marginRight: "8px" }}
-          />
-          Mute Piano Sound
-        </label>
-        <CircleOfFifths
-          selectedChord={selectedChord}
-          setSelectedChord={setSelectedChord}
-        />
-        <div style={{ display: 'flex', justifyContent: 'center' }}>
-          <ChordVisualizer 
+          <h1>Chords : {selectedChord}</h1>
+          <label style={{position: 'absolute', right: '0'}}>
+            <input
+              type="checkbox"
+              checked={isMuted}
+              onChange={() => setIsMuted(!isMuted)}
+              style={{ marginRight: "8px" }}
+            />
+            Mute Piano Sound
+          </label>
+          <CircleOfFifths
             selectedChord={selectedChord}
-            isMuted={isMuted}
+            setSelectedChord={setSelectedChord}
           />
+          <div style={{ display: 'flex', justifyContent: 'center' }}>
+            <ChordVisualizer 
+              selectedChord={selectedChord}
+              isMuted={isMuted}
+            />
+          </div>
         </div>
+        <div className="bottombg">
+        <div style={{ display: 'flex', justifyContent: 'center' }}>
+            <Octave_ChordVisualizer 
+              selectedChord={selectedChord}
+              isMuted={isMuted}
+            />
+          </div>
         </div>
-        
       </div>
     </div> //end of page-container
   );
