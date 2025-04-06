@@ -32,12 +32,7 @@ const PianoVisualizer: React.FC = () => {
   
   return (
     <div
-      style={{
-        display: "flex",
-        justifyContent: "center",
-        marginTop: "50px",
-        position: "relative",
-      }}
+      style={{ display: "flex", justifyContent: "center", marginTop: "50px", position: "absolute"}}
     >
       {/* White keys */}
       <div style={{ display: "flex", zIndex: 0 }}>
@@ -74,30 +69,12 @@ const PianoVisualizer: React.FC = () => {
       </div>
 
       {/* Black keys */}
-      <div
-        style={{
-          display: "flex",
-          position: "absolute",
-          top: 0,
-          left: 0,
-          zIndex: 1,
-        }}
-      >
+      <div style={{ display: "flex", zIndex: 1 }}>  
         {blackKeys.map((key, index) => {
           const isSelected = key === selectedKey;
-          const whiteKeyIndex = keys.indexOf(key.charAt(0)); // Find corresponding white key
-          const blackKeyOffset = (whiteKeyIndex % 7) * 40; // Position black keys between white keys
 
           // Use conditional offsets to make sure black keys align properly
-          const position = {
-            C: 40,
-            D: 80,
-            E: 120,
-            F: 160,
-            G: 200,
-            A: 240,
-            B: 280,
-          };
+          const position = { C: 40, D: 80, E: 120, F: 160, G: 200, A: 240, B: 280,};
 
           return (
             <div
@@ -106,9 +83,8 @@ const PianoVisualizer: React.FC = () => {
               style={{
                 width: "25px",
                 height: "90px",
-                backgroundColor: isSelected ? "rgb(98, 208, 220)" : "black",
-                // marginLeft: `${position[key.charAt(0)] - 15}px`,
-                marginLeft: `${position[key.charAt(0)]+400}px`,
+                backgroundColor: isSelected ? "rgb(0, 67, 74)" : "black",
+                marginLeft: `${position[key.charAt(0) as keyof typeof position] - 295}px`,
                 zIndex: 1,
                 position: "absolute",
               }}

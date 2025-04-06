@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import "./Home.css";
 import CircleOfFifths from "./component/CircleofFifth";
-import PianoVisualizer from "./component/PianoVisualization";
+import PianoVisualizer from "./component/PianoVisualizer";
+import ChordVisualizer from "./component/ChordVisualizer";
 
 const keys = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
 
@@ -52,13 +53,17 @@ const Home: React.FC = () => {
         </div>
         
       </div>
-      <div className="container mainbar">
+      <div className="mainbar">
         <h1>Chords : {selectedChord}</h1>
         <CircleOfFifths
           selectedChord={selectedChord}
           setSelectedChord={setSelectedChord}
         />
-        <PianoVisualizer />
+        <div style={{ display: 'flex', justifyContent: 'center' }}>
+          <ChordVisualizer 
+            selectedChord={selectedChord}
+          />
+        </div>
       </div>
     </div> //end of page-container
   );
