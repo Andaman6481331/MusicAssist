@@ -36,16 +36,18 @@ const chordNotes: Record<string, string[]> = {
 
 interface ChordVisualizerProps {
   selectedChord: string;
+  isMuted?: boolean;
 }
 
-const ChordVisualizer: React.FC<ChordVisualizerProps> = ({ selectedChord }) => {
+const ChordVisualizer: React.FC<ChordVisualizerProps> = ({ selectedChord, isMuted = false }) => {
   useEffect(() => {
-    if (keyNotes[selectedChord]) {
-      const synth = new Tone.Synth().toDestination();
-      synth.triggerAttackRelease(keyNotes[selectedChord], "8n");
-    }
-  }, [selectedChord]);
+    if (isMuted) return;
 
+    if (keyNotes[selectedChord]) {
+          const synth = new Tone.Synth().toDestination();
+          synth.triggerAttackRelease(keyNotes[selectedChord], "8n");
+        }
+  }, [selectedChord, isMuted]);
   const whiteKeys = ["C", "D", "E", "F", "G", "A", "B"];
   const blackKeys = ["C#", "D#", "F#", "G#", "A#"];
 
@@ -56,9 +58,7 @@ const ChordVisualizer: React.FC<ChordVisualizerProps> = ({ selectedChord }) => {
   );
   
   return (
-    <div
-      style={{ display: "flex", justifyContent: "center", marginTop: "50px", position: "absolute"}}
-    >
+    <div style={{ display: "flex", justifyContent: "center", position: "absolute"}}>
       {/* White keys */}
       <div style={{ display: "flex", zIndex: 0 }}>
         {whiteKeys.map((key) => {
@@ -83,6 +83,7 @@ const ChordVisualizer: React.FC<ChordVisualizerProps> = ({ selectedChord }) => {
                   width: "100%",
                   textAlign: "center",
                   fontSize: "12px",
+                  color: "black"
                 }}
               >
                 {key}
@@ -106,7 +107,7 @@ const ChordVisualizer: React.FC<ChordVisualizerProps> = ({ selectedChord }) => {
               style={{
                 width: "25px",
                 height: "90px",
-                backgroundColor: isSelected ? "rgb(0, 67, 74)" : "black",
+                backgroundColor: isSelected ? "rgb(1, 57, 121)" : "black",
                 marginLeft: `${position[key.charAt(0) as keyof typeof position] - 295}px`,
                 zIndex: 1,
                 position: "absolute",

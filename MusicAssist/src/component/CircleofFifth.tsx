@@ -27,7 +27,7 @@ export default function CircleOfFifths({
   selectedChord,
   setSelectedChord,
 }: Props) {
-  const radius = 150;
+  const radius = 125;
   const center = radius * 1.25;
 
   // Calculating SelectedNote & Points
@@ -48,7 +48,7 @@ export default function CircleOfFifths({
     .join(" ");
 
   return (
-    <div style={{ display: "flex", justifyContent: "center" }}>
+    <div style={{ display: "flex", justifyContent: "center", paddingTop: '20px'}}>
       <svg width={2 * center} height={2 * center}>
         <g transform={`translate(${center}, ${center})`}>
           {/* Draw the rotated polygon */}
