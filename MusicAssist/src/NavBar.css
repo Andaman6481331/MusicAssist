@@ -4,13 +4,6 @@
     inset: 0;
     pointer-events: none;
   }
-  
-  .rect {
-    stroke-dashoffset: 5;
-    stroke-dasharray: 0 0 10 40 10 40;
-    transition: 0.5s;
-    stroke: #fff;
-  }
 
   .navbar:hover .outline .rect {
     transition: 999999s;
@@ -28,7 +21,6 @@
     justify-self: center;
     justify-content: space-between;
     align-items: center;
-    /* border-radius: 1.25rem; */
     margin: 1rem;
     padding: 0.1rem 1rem;
     height: 8vh;
@@ -39,41 +31,14 @@
     justify-content: space-around;
   }
   
-  .btn {
+  .navbtn {
     padding: 0.5rem 1.5rem;
     /* color: #fff; */
     cursor: pointer;
     transition: 0.1s;
-  }
-  
-  .btn:hover {
-    background: #fff3;
+    &:hover {
+    background-color: #fff3;
     border-radius: 10px;
   }
-  
-  .btn:nth-child(1):hover ~ svg .rect {
-    stroke-dashoffset: 0;
-    stroke-dasharray: 0 2 8 73.3 8 10.7;
-  }
-  
-  .btn:nth-child(2):hover ~ svg .rect {
-    stroke-dashoffset: 0;
-    stroke-dasharray: 0 12.6 9.5 49.3 9.5 31.6;
-  }
-  
-  .btn:nth-child(3):hover ~ svg .rect {
-    stroke-dashoffset: 0;
-    stroke-dasharray: 0 24.5 8.5 27.5 8.5 55.5;
-  }
-  
-  .btn:nth-child(4):hover ~ svg .rect {
-    stroke-dashoffset: 0;
-    stroke-dasharray: 0 34.7 6.9 10.2 6.9 76;
-  }
-  
-  .btn:hover ~ .outline .rect {
-    stroke-dashoffset: 0;
-    stroke-dasharray: 0 0 10 40 10 40;
-    transition: 0.5s !important;
-  }
+}
   

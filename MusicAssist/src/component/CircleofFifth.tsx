@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 interface Props {
   selectedChord: string | null;
@@ -23,17 +23,18 @@ const chordNotes: Record<string, string[]> = {
   B: ["B", "D#", "F#"], // B major
 };
 
-export default function CircleOfFifths({ selectedChord, setSelectedChord }: Props) {
+export default function CircleOfFifths({
+  selectedChord,
+  setSelectedChord,
+}: Props) {
   const radius = 150;
-  const center = radius*1.25;
+  const center = radius * 1.25;
 
-  // Get the notes of the selected chord
+  // Calculating SelectedNote & Points
   const selectedChordNotes = selectedChord ? chordNotes[selectedChord] : [];
   const highlightedIndices = selectedChordNotes.map((note) =>
     keys.indexOf(note)
   );
-
-  // Get the positions of the selected notes (points)
   const selectedPoints = highlightedIndices.map((i) => {
     const angle = (i / 12) * 2 * Math.PI;
     const x = radius * Math.sin(angle);
@@ -47,7 +48,7 @@ export default function CircleOfFifths({ selectedChord, setSelectedChord }: Prop
     .join(" ");
 
   return (
-    <div style={{display: "flex", justifyContent: "center"}}>
+    <div style={{ display: "flex", justifyContent: "center" }}>
       <svg width={2 * center} height={2 * center}>
         <g transform={`translate(${center}, ${center})`}>
           {/* Draw the rotated polygon */}
@@ -62,18 +63,19 @@ export default function CircleOfFifths({ selectedChord, setSelectedChord }: Prop
                 })
                 .join(" ")}
               fill="rgb(45, 82, 167)"
-              strokeWidth="2"
             />
           </g>
 
-          {/* Draw lines connecting the selected points */}
-          {selectedPoints.length === 3 && (
-            <polyline
-              points={pointsForPolyline}
-              fill="rgb(67, 99, 173)"
-              strokeLinecap="round"
-            />
-          )}
+          {selectedPoints.length === 3 &&
+            (() => {
+              return (
+                <polyline
+                  points={pointsForPolyline}
+                  fill="rgb(67, 99, 173)"
+                  strokeLinecap="round"
+                />
+              );
+            })()}
 
           {/* Draw the text for the keys */}
           {keys.map((key, i) => {
@@ -92,7 +94,10 @@ export default function CircleOfFifths({ selectedChord, setSelectedChord }: Prop
                 fill={isSelected ? "rgb(98, 208, 220)" : "black"}
                 fontWeight={isSelected ? "bold" : "normal"}
                 cursor="pointer"
-                style={{ userSelect: "none" }}
+                style={{
+                  userSelect: "none",
+                  transition: "all 0.3s ease-in-out",
+                }}
                 onClick={() => setSelectedChord(key)}
               >
                 {key}
