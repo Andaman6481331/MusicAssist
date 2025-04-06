@@ -1,3 +1,5 @@
+//Feature: Two Octave, Receive input from homepage, Display Root Chord
+
 import React, { useEffect } from "react";
 import * as Tone from "tone";
 
@@ -11,10 +13,10 @@ const keyNotes: Record<string, string> = {
 };
 
 const chordNotes: Record<string, string[]> = {
-  C: ["C", "E", "G"], "C#": ["C#", "F", "G#"], D: ["D", "F#", "A"],
-  "D#": ["D#", "G", "A#"], E: ["E", "G#", "B"], F: ["F", "A", "C"],
-  "F#": ["F#", "A#", "C#"], G: ["G", "B", "D"], "G#": ["G#", "C", "D#"],
-  A: ["A", "C#", "E"], "A#": ["A#", "D", "F"], B: ["B", "D#", "F#"],
+  C: ["C4", "E4", "G4"], "C#": ["C#4", "F4", "G#4"], D: ["D4", "F#4", "A4"],
+  "D#": ["D#4", "G4", "A#4"], E: ["E4", "G#4", "B4"], F: ["F4", "A4", "C5"],
+  "F#": ["F#4", "A#4", "C#5"], G: ["G4", "B5", "D5"], "G#": ["G#4", "C5", "D#5"],
+  A: ["A4", "C#5", "E5"], "A#": ["A#4", "D5", "F5"], B: ["B4", "D#5", "F#5"],
 };
 
 interface ChordVisualizerProps {
@@ -45,7 +47,7 @@ const ChordVisualizer: React.FC<ChordVisualizerProps> = ({ selectedChord, isMute
         <div style={{ display: "flex", position: "relative", zIndex: 0 }}>
           {whiteKeys.map((key) => {
             const fullNote = key + octave;
-            const isSelected = selectedNotes.includes(key);
+            const isSelected = selectedNotes.includes(fullNote);
             return (
               <div
                 key={fullNote}
@@ -82,7 +84,7 @@ const ChordVisualizer: React.FC<ChordVisualizerProps> = ({ selectedChord, isMute
             const blackKey = whiteKey + "#";
             if (!blackKeys.includes(blackKey)) return <div key={`gap-${i}`} style={{ width: "31px" }} />;
             const fullNote = blackKey + octave;
-            const isSelected = selectedNotes.includes(blackKey);
+            const isSelected = selectedNotes.includes(fullNote);
             return (
               <div
                 key={fullNote}

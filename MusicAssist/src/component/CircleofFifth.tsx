@@ -1,3 +1,5 @@
+//Feature: Two Octave, Receive input from homepage 
+
 import React, { useState, useEffect } from "react";
 
 interface Props {
