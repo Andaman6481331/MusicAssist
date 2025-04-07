@@ -85,6 +85,11 @@ const Home: React.FC = () => {
             />
           </div>
         </div>
+        <div className="bottombg">
+          <div>
+            <PianoVisualizer/>
+          </div>
+        </div>
       </div>
     </div> //end of page-container
   );
