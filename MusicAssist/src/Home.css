@@ -1,13 +1,12 @@
-/* From Uiverse.io by catraco */ 
+/* From Uiverse.io by catraco, Codewithvinay */ 
 
 .page-container{
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    margin: 1.5rem auto;
     background: black;
-    width: 90vw;
     min-width: 1000px;
+    width: 100vw;
     height: 200vh;
     
 }
@@ -53,7 +52,7 @@
     margin: 0.5rem 1rem;
     & .topbg{
       background: linear-gradient(rgb(28, 105, 160),rgb(1, 29, 49));
-      height: 500px;
+      padding: 2rem 1rem;
       border-radius: 0.5rem 0.5rem 0 0;
     }
     & .bottombg{
@@ -63,11 +62,24 @@
     
     & h1{
         font-size: 3.5rem;
-        padding: 0.2em 0.2em 0 0.2em;
         margin: 0;
         position: absolute;
     }
 }
+
+.card1 {
+  margin: 0 auto;
+  width: 500px;
+  height: 500px;
+  border-radius: 25px;
+  /* background: linear-gradient(rgb(32, 113, 172),rgb(10, 72, 116)); */
+  background: linear-gradient(rgb(28, 105, 160),rgb(1, 29, 49));
+  box-shadow: -20px -20px 60px #083565, 20px 20px 60px #0e4d91;
+  &:hover{
+    box-shadow: -20px -20px 60px #0a3b6f, 20px 20px 60px #11539a;
+  }
+ }
+
 .diagonal-layout{
     position: relative;
     width: 100%;

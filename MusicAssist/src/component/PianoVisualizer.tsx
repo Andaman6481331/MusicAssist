@@ -4,22 +4,58 @@ import * as Tone from "tone";
 const keys = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
 
 const keyNotes: Record<string, string> = {
-  C: "C4",
-  "C#": "C#4",
-  D: "D4",
-  "D#": "D#4",
-  E: "E4",
-  F: "F4",
-  "F#": "F#4",
-  G: "G4",
-  "G#": "G#4",
-  A: "A4",
-  "A#": "A#4",
-  B: "B4",
+  C3: "C3",
+  "C#3": "C#3",
+  D3: "D3",
+  "D#3": "D#3",
+  E3: "E3",
+  F3: "F3",
+  "F#3": "F#3",
+  G3: "G3",
+  "G#3": "G#3",
+  A3: "A3",
+  "A#3": "A#3",
+  B3: "B3",
+  C4: "C4",
+  "C#4": "C#4",
+  D4: "D4",
+  "D#4": "D#4",
+  E4: "E4",
+  F4: "F4",
+  "F#4": "F#4",
+  G4: "G4",
+  "G#4": "G#4",
+  A4: "A4",
+  "A#4": "A#4",
+  B4: "B4",
+  C5: "C5",
+  "C#5": "C#5",
+  D5: "D5",
+  "D#5": "D#5",
+  E5: "E5",
+  F5: "F5",
+  "F#5": "F#5",
+  G5: "G5",
+  "G#5": "G#5",
+  A5: "A5",
+  "A#5": "A#5",
+  B5: "B5",
 };
 
 // You need to provide sample file URLs for each note
 const sampleUrls: Record<string, string> = {
+  C3: "/notesSample/C3.mp3",
+  "C#3": "/notesSample/Cs3.mp3",
+  D3: "/notesSample/D3.mp3",
+  "D#3": "/notesSample/Ds3.mp3",
+  E3: "/notesSample/E3.mp3",
+  F3: "/notesSample/F3.mp3",
+  "F#3": "/notesSample/Fs3.mp3",
+  G3: "/notesSample/G3.mp3",
+  "G#3": "/notesSample/Gs3.mp3",
+  A3: "/notesSample/A3.mp3",
+  "A#3": "/notesSample/As3.mp3",
+  B3: "/notesSample/B3.mp3",
   C4: "/notesSample/C4.mp3",
   "C#4": "/notesSample/Cs4.mp3",
   D4: "/notesSample/D4.mp3",
@@ -32,12 +68,23 @@ const sampleUrls: Record<string, string> = {
   A4: "/notesSample/A4.mp3",
   "A#4": "/notesSample/As4.mp3",
   B4: "/notesSample/B4.mp3",
+  C5: "/notesSample/C5.mp3",
+  "C#5": "/notesSample/Cs5.mp3",
+  D5: "/notesSample/D5.mp3",
+  "D#5": "/notesSample/Ds5.mp3",
+  E5: "/notesSample/E5.mp3",
+  F5: "/notesSample/F5.mp3",
+  "F#5": "/notesSample/Fs5.mp3",
+  G5: "/notesSample/G5.mp3",
+  "G#5": "/notesSample/Gs5.mp3",
+  A5: "/notesSample/A5.mp3",
+  "A#5": "/notesSample/As5.mp3",
+  B5: "/notesSample/B5.mp3",
 };
 
 const PianoVisualizer: React.FC = () => {
   const [selectedKey, setSelectedKey] = useState<string>("C");
   const [sampler, setSampler] = useState<Tone.Sampler | null>(null);
-  const [pedalPressed, setPedalPressed] = useState<boolean>(false);
 
   useEffect(() => {
     // Load the sampler and check for errors
@@ -45,12 +92,6 @@ const PianoVisualizer: React.FC = () => {
       urls: sampleUrls,
       onload: () => {console.log("Sampler loaded");},
       onerror: (error) => {console.error("Error loading sampler:", error);},
-      // envelope: {
-      //     attack: 0.1,
-      //     decay: 0.3,
-      //     sustain: 1, // Sustain will be held when pedal is pressed
-      //     release: 1,  // Release time when pedal is lifted
-      // },
     }).toDestination();
     setSampler(s); // Ensure the sampler is loaded
   }, []);
@@ -59,30 +100,26 @@ const PianoVisualizer: React.FC = () => {
     setSelectedKey(key);
     await Tone.start(); // Ensure the audio context is started before triggering sounds
     if (sampler) {
-      if (pedalPressed){
-        sampler.triggerAttack(keyNotes[key]); // Hold the note
-      }else{
         sampler.triggerAttackRelease(keyNotes[key],"1n"); // Play the note for 1s
-      }
-      
     } else {
       console.error("Sampler not loaded yet");
     }
   };
 
-  // const handlePedalPress = () => {
-  //   setPedalPressed(true);
-  // };
-  // const handlePedalRelease = () => {
-  //   setPedalPressed(false);
-  //   if (sampler) {
-  //     sampler.releaseAll();  // Release all notes when the pedal is lifted
-  //   }
-  // };
-
   //Define Visual Keys
   const whiteKeys = ["C", "D", "E", "F", "G", "A", "B"];
   const blackKeys = ["C#", "D#", "F#", "G#", "A#"];
+  const octaves = [3, 4, 5]; // You can adjust this range as needed
+
+  // Get full list of white/black keys with octave
+  const allWhiteKeys = octaves.flatMap(octave =>
+    whiteKeys.map(note => ({ note: note + octave, base: note, octave }))
+  );
+
+  const allBlackKeys = octaves.flatMap(octave =>
+    blackKeys.map(note => ({ note: note + octave, base: note, octave }))
+  );
+
   const blackKeyOffset: Record<string, number> = {
     C: 40,
     D: 80,
@@ -99,17 +136,16 @@ const PianoVisualizer: React.FC = () => {
         position: "relative",
         display: "flex",
         justifyContent: "center",
-        marginTop: "50px",
       }}
     >
       {/* White keys */}
       <div style={{ display: "flex", zIndex: 0 }}>
-        {whiteKeys.map((key) => {
-          const isSelected = key === selectedKey;
+        {allWhiteKeys.map(({note}) => {
+          const isSelected = note === selectedKey;
           return (
             <div
-              key={key}
-              onClick={() => handleKeyClick(key)}
+              key={note}
+              onClick={() => handleKeyClick(note)}
               style={{
                 width: "40px",
                 height: "150px",
@@ -127,9 +163,11 @@ const PianoVisualizer: React.FC = () => {
                   width: "100%",
                   textAlign: "center",
                   fontSize: "12px",
+                  color: "black",
+                  userSelect: "none"
                 }}
               >
-                {key}
+                {note}
               </div>
             </div>
           );
@@ -137,20 +175,23 @@ const PianoVisualizer: React.FC = () => {
       </div>
 
       {/* Black keys */}
-      <div style={{ display: "flex", zIndex: 1 }}>
-        {blackKeys.map((key) => {
-          const isSelected = key === selectedKey;
-          const offset = blackKeyOffset[key.charAt(0)] - 295;
+      <div style={{ position: "absolute", display: "flex", left: "0", top: "0", height: "90px", zIndex: 1 }}>
+        {allBlackKeys.map(({ note }) => {
+          const isSelected = note === selectedKey;
+
+          // Calculate left offset based on white keys
+          const whiteKeyIndex = allWhiteKeys.findIndex(k => k.note.startsWith(note.charAt(0)) && k.octave === parseInt(note.slice(-1)));
+          const left = whiteKeyIndex * 40 + 230;
           return (
             <div
-              key={key}
-              onClick={() => handleKeyClick(key)}
+              key={note}
+              onClick={() => handleKeyClick(note)}
               style={{
                 width: "25px",
                 height: "90px",
                 backgroundColor: isSelected ? "rgb(0, 67, 74)" : "black",
-                marginLeft: `${offset}px`,
-                zIndex: 1,
+                left: `${left}px`,
+                zIndex: 2,
                 position: "absolute",
               }}
             >
@@ -162,27 +203,15 @@ const PianoVisualizer: React.FC = () => {
                   textAlign: "center",
                   fontSize: "12px",
                   color: "white",
+                  userSelect: "none"
                 }}
               >
-                {key}
+                {note}
               </div>
             </div>
           );
         })}
       </div>
-      {/* Pedal Button */}
-      {/* <div
-        onClick={pedalPressed ? handlePedalRelease : handlePedalPress}
-        style={{
-          marginTop: "20px",
-          padding: "10px",
-          backgroundColor: pedalPressed ? "lightgreen" : "lightgray",
-          cursor: "pointer",
-          borderRadius: "5px",
-        }}
-      >
-        {pedalPressed ? "Release Pedal" : "Press Pedal"}
-      </div> */}
     </div>
   );
 };

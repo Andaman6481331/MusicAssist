@@ -36,29 +36,104 @@ const chordNotes: Record<string, string[]> = {
   B: ["B", "D#", "F#"], // B major
 };
 
+const sampleUrls: Record<string, string> = {
+  C3: "/notesSample/C3.mp3",
+  "C#3": "/notesSample/Cs3.mp3",
+  D3: "/notesSample/D3.mp3",
+  "D#3": "/notesSample/Ds3.mp3",
+  E3: "/notesSample/E3.mp3",
+  F3: "/notesSample/F3.mp3",
+  "F#3": "/notesSample/Fs3.mp3",
+  G3: "/notesSample/G3.mp3",
+  "G#3": "/notesSample/Gs3.mp3",
+  A3: "/notesSample/A3.mp3",
+  "A#3": "/notesSample/As3.mp3",
+  B3: "/notesSample/B3.mp3",
+  C4: "/notesSample/C4.mp3",
+  "C#4": "/notesSample/Cs4.mp3",
+  D4: "/notesSample/D4.mp3",
+  "D#4": "/notesSample/Ds4.mp3",
+  E4: "/notesSample/E4.mp3",
+  F4: "/notesSample/F4.mp3",
+  "F#4": "/notesSample/Fs4.mp3",
+  G4: "/notesSample/G4.mp3",
+  "G#4": "/notesSample/Gs4.mp3",
+  A4: "/notesSample/A4.mp3",
+  "A#4": "/notesSample/As4.mp3",
+  B4: "/notesSample/B4.mp3",
+  C5: "/notesSample/C5.mp3",
+  "C#5": "/notesSample/Cs5.mp3",
+  D5: "/notesSample/D5.mp3",
+  "D#5": "/notesSample/Ds5.mp3",
+  E5: "/notesSample/E5.mp3",
+  F5: "/notesSample/F5.mp3",
+  "F#5": "/notesSample/Fs5.mp3",
+  G5: "/notesSample/G5.mp3",
+  "G#5": "/notesSample/Gs5.mp3",
+  A5: "/notesSample/A5.mp3",
+  "A#5": "/notesSample/As5.mp3",
+  B5: "/notesSample/B5.mp3",
+};
+
 interface ChordVisualizerProps {
   selectedChord: string;
   isMuted?: boolean;
 }
 
 const ChordVisualizer: React.FC<ChordVisualizerProps> = ({ selectedChord, isMuted = false }) => {
+  const [sampler, setSampler] = useState<Tone.Sampler | null>(null); 
+  const selectedChordNotes = selectedChord ? chordNotes[selectedChord] : [];
+  
+  // Load the sampler and check for errors
+  useEffect(() => {
+    const s = new Tone.Sampler({
+      urls: sampleUrls,
+      onload: () => {console.log("Sampler loaded");},
+      onerror: (error) => {console.error("Error loading sampler:", error);},
+    }).toDestination();
+    setSampler(s); // Ensure the sampler is loaded
+  }, []);
+
+  //Play Single Notes
+  // useEffect(() => {
+  //   if (isMuted) return;
+  //   const playNote = async () => {
+  //     if (keyNotes[selectedChord] && sampler) {
+  //       await Tone.start(); // Ensure audio context is running
+  //       sampler.triggerAttackRelease(keyNotes[selectedChord], "1n"); // Trigger note for 1 second
+  //     }
+  //   };
+
+  //   playNote(); // Call the async function inside the useEffect
+  // }, [selectedChord, isMuted, sampler]);
+
+  //Play Multiple Notes
   useEffect(() => {
     if (isMuted) return;
-
-    if (keyNotes[selectedChord]) {
-          const synth = new Tone.Synth().toDestination();
-          synth.triggerAttackRelease(keyNotes[selectedChord], "8n");
+  
+    const playChord = async () => {
+      if (sampler && selectedChord) {
+        await Tone.start(); // Ensure audio context is started
+  
+        // Get note names for this chord (e.g., ["C", "E", "G"])
+        const notes = chordNotes[selectedChord]
+          ?.map((note) => keyNotes[note])
+          .filter(Boolean); // remove undefined just in case
+  
+        if (notes && notes.length > 0) {
+          sampler.triggerAttackRelease(notes, "1n"); // Play all notes together
         }
-  }, [selectedChord, isMuted]);
+      }
+    };
+  
+    playChord();
+  }, [selectedChord, isMuted, sampler]);
+  
+
+
   const whiteKeys = ["C", "D", "E", "F", "G", "A", "B"];
   const blackKeys = ["C#", "D#", "F#", "G#", "A#"];
 
-  // Calculating SelectedNote & Points
-  const selectedChordNotes = selectedChord ? chordNotes[selectedChord] : [];
-  const highlightedIndices = selectedChordNotes.map((note) =>
-    keys.indexOf(note)
-  );
-  
   return (
     <div style={{ display: "flex", justifyContent: "center", position: "absolute"}}>
       {/* White keys */}
@@ -85,7 +160,8 @@ const ChordVisualizer: React.FC<ChordVisualizerProps> = ({ selectedChord, isMute
                   width: "100%",
                   textAlign: "center",
                   fontSize: "12px",
-                  color: "black"
+                  color: isSelected ? "black": "white",
+                  userSelect: "none"
                 }}
               >
                 {key}
@@ -122,6 +198,8 @@ const ChordVisualizer: React.FC<ChordVisualizerProps> = ({ selectedChord, isMute
                   width: "100%",
                   textAlign: "center",
                   fontSize: "12px",
+                  userSelect: "none",
+                  color: isSelected ? "white" : "black"
                 }}
               >
                 {key}

@@ -66,23 +66,26 @@ const Home: React.FC = () => {
             />
             Mute Piano Sound
           </label>
-          <CircleOfFifths
-            selectedChord={selectedChord}
-            setSelectedChord={setSelectedChord}
-          />
-          <div style={{ display: 'flex', justifyContent: 'center' }}>
-            <ChordVisualizer 
+          <div className="card1">
+            <CircleOfFifths
               selectedChord={selectedChord}
-              isMuted={isMuted}
+              setSelectedChord={setSelectedChord}
             />
+            <div style={{ display: 'flex', justifyContent: 'center' }}>
+              <ChordVisualizer 
+                selectedChord={selectedChord}
+                isMuted={isMuted}
+              />
+            </div>
           </div>
+            
         </div>
         <div className="bottombg">
         <div style={{ display: 'flex', justifyContent: 'center' }}>
-            <Octave_ChordVisualizer 
+            {/* <Octave_ChordVisualizer 
               selectedChord={selectedChord}
               isMuted={isMuted}
-            />
+            /> */}
           </div>
         </div>
         <div className="bottombg">
