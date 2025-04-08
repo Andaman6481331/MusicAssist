@@ -6,11 +6,11 @@ const NavBar: React.FC = () => {
   return (
     <div>
       <header className="navbar">
-          <div className="left-nav">
+          <a className="left-nav" href="/">
             <h1>Harmonic</h1>
-          </div>
+          </a>
           <div className="right-nav">
-            <a className="navbtn" href="/">
+            <a className="navbtn">
               Home
             </a>
             <a className="navbtn">How It work</a>

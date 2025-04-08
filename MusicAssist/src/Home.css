@@ -10,46 +10,11 @@
     height: 200vh;
     
 }
-.sidebar{
-    position: relative;
-    width: 13%;
-    padding: 0.2rem 1rem;
-    margin: 0.5rem 1rem;
-    background: linear-gradient(
-    45deg,
-    #191866,
-    #000000
-  ); /* Gradient background */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Shadow for depth */
-  border-radius: 10px; /* Rounded corners */
-  overflow: hidden;
-    & h1{
-        text-align: center;
-        font-size: 1.5rem;
-        padding: 0;
-        margin: 0;
-    }
-}
-
-.sidebar::before {
-  content: "";
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  background-image: linear-gradient(
-      90deg,
-      rgba(255, 255, 255, 0.1) 1px,
-      transparent 1px
-    ),
-    linear-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px);
-  background-size: 20px 20px;
-  pointer-events: none; /* Allow clicking through the pattern layer */
-}
 
 .mainbar{
     position: relative;
     width: 85%;
-    margin: 0.5rem 1rem;
+    margin: 0.5rem 2rem 0.5rem 1rem;
     & .topbg{
       background: linear-gradient(rgb(28, 105, 160),rgb(1, 29, 49));
       padding: 2rem 1rem;
@@ -80,73 +45,6 @@
   }
  }
 
-.diagonal-layout{
-    position: relative;
-    width: 100%;
-    height: 100%;
-}
-.sidebtn {
-    position: absolute;
-    width: 40%;
-    height: 6vh;
-    padding: 0.1rem 0.2rem;
-    background-color: rgba(171, 171, 171, 0.13);
-    user-select: none;
-    text-align: center;
-    &:hover{
-        background-color: rgba(171, 171, 171, 0.338);
-        transition: 0.2s;
-    }
-    
-  }
 
-  .l1{
-    left: 0.5rem;
-    top: 1rem;
-  }
-  .r1{
-    right: 0.5rem;
-    top: 3rem;
-  }
-  .l2{
-    left: 0.5rem;
-    top: 5rem;
-  }
-  .r2{
-    right: 0.5rem;
-    top: 7rem;
-  }
-  .l3{
-    left: 0.5rem;
-    top: 9rem;
-  }
-  .l4{
-    left: 0.5rem;
-    top: 13rem;
-  }
-  .r3{
-    right: 0.5rem;
-    top: 15rem;
-  }
-  .l5{
-    left: 0.5rem;
-    top: 17rem;
-  }
-  .r4{
-    right: 0.5rem;
-    top: 19rem;
-  }
-  .l6{
-    left: 0.5rem;
-    top:21rem;
-  }
-  .r5{
-    right: 0.5rem;
-    top: 23rem;
-  }
-  .l7{
-    left: 0.5rem;
-    top: 25rem;
-  }
   
   

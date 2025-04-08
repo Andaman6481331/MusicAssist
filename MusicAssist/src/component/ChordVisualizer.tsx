@@ -94,28 +94,16 @@ const ChordVisualizer: React.FC<ChordVisualizerProps> = ({ selectedChord, isMute
     setSampler(s); // Ensure the sampler is loaded
   }, []);
 
-  //Play Single Notes
-  // useEffect(() => {
-  //   if (isMuted) return;
-  //   const playNote = async () => {
-  //     if (keyNotes[selectedChord] && sampler) {
-  //       await Tone.start(); // Ensure audio context is running
-  //       sampler.triggerAttackRelease(keyNotes[selectedChord], "1n"); // Trigger note for 1 second
-  //     }
-  //   };
-
-  //   playNote(); // Call the async function inside the useEffect
-  // }, [selectedChord, isMuted, sampler]);
-
   //Play Multiple Notes
   useEffect(() => {
     if (isMuted) return;
   
     const playChord = async () => {
       if (sampler && selectedChord) {
+        if (!sampler || isMuted || !selectedChord) return;
+        
         await Tone.start(); // Ensure audio context is started
   
-        // Get note names for this chord (e.g., ["C", "E", "G"])
         const notes = chordNotes[selectedChord]
           ?.map((note) => keyNotes[note])
           .filter(Boolean); // remove undefined just in case
@@ -127,7 +115,7 @@ const ChordVisualizer: React.FC<ChordVisualizerProps> = ({ selectedChord, isMute
     };
   
     playChord();
-  }, [selectedChord, isMuted, sampler]);
+  }, [selectedChord]);
   
 
 

@@ -25,10 +25,7 @@ const chordNotes: Record<string, string[]> = {
   B: ["B", "D#", "F#"], // B major
 };
 
-export default function CircleOfFifths({
-  selectedChord,
-  setSelectedChord,
-}: Props) {
+export default function CircleOfFifths({selectedChord,  setSelectedChord,}: Props) {
   const radius = 125;
   const center = radius * 1.25;
 
@@ -100,6 +97,7 @@ export default function CircleOfFifths({
                   userSelect: "none",
                   transition: "all 0.3s ease-in-out",
                 }}
+                
                 onClick={() => setSelectedChord(key)}
               >
                 {key}

@@ -136,6 +136,7 @@ const PianoVisualizer: React.FC = () => {
         position: "relative",
         display: "flex",
         justifyContent: "center",
+        cursor: "pointer"
       }}
     >
       {/* White keys */}
@@ -181,7 +182,7 @@ const PianoVisualizer: React.FC = () => {
 
           // Calculate left offset based on white keys
           const whiteKeyIndex = allWhiteKeys.findIndex(k => k.note.startsWith(note.charAt(0)) && k.octave === parseInt(note.slice(-1)));
-          const left = whiteKeyIndex * 40 + 230;
+          const left = whiteKeyIndex * 40 + 220;
           return (
             <div
               key={note}
