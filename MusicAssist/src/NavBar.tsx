@@ -10,14 +10,9 @@ const NavBar: React.FC = () => {
             <h1>Harmonic</h1>
           </a>
           <div className="right-nav">
-            <a className="navbtn">
-              Home
-            </a>
-            <a className="navbtn">How It work</a>
-            <a className="navbtn">Contact</a>
-            <a className="navbtn" href="/about">
-              About
-            </a>
+            <a className="navbtn">Song</a>
+            <a className="navbtn">Practice</a>
+            <a className="navbtn" href="/about">Chords</a>
           </div>
       </header>
       <main>
