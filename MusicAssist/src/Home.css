@@ -19,6 +19,7 @@
       background: linear-gradient(rgb(28, 105, 160),rgb(1, 29, 49));
       padding: 2rem 1rem;
       border-radius: 0.5rem 0.5rem 0 0;
+      display: flex;
     }
     & .bottombg{
       height: 300px;

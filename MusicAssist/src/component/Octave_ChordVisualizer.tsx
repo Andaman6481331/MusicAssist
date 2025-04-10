@@ -19,6 +19,8 @@ const chordNotes: Record<string, string[]> = {
   A: ["A4", "C#5", "E5"], "A#": ["A#4", "D5", "F5"], B: ["B4", "D#5", "F#5"],
 };
 
+
+
 interface ChordVisualizerProps {
   selectedChord: string;
   isMuted?: boolean;

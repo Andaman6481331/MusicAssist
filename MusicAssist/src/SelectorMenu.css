@@ -5,9 +5,10 @@
   border-radius: 0.5rem;
   width: fit-content;
   padding: 0 1rem;
+  user-select: none;
   & h3{
     margin: 0.3rem 0.5rem;
-    color: rgb(222, 237, 247);
+    color: rgb(204, 217, 226);
   }
 }
 
@@ -46,6 +47,7 @@
     position: absolute;
     appearance: none;
     cursor: pointer;
+    
   }
   
   .selector-btn {
