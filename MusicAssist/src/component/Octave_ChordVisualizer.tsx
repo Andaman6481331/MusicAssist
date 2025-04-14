@@ -91,7 +91,6 @@ const ChordVisualizer: React.FC<ChordVisualizerProps> = ({finalChord, isMuted = 
     if (c.includes("dim")) base.push(3, 6);
     if (c.includes("aug")) base.push(4, 8);
     else if (c.includes("maj")) {
-      base.push(3);
       if(c.includes("7")) base.push(10);
       else if (c.includes("9")) base.push(11, 10);
       else if (c.includes("11")) base.push(12, 11, 10);
@@ -134,8 +133,6 @@ const ChordVisualizer: React.FC<ChordVisualizerProps> = ({finalChord, isMuted = 
       }
     });
   };
-  
-  
 
   const whiteKeys = ["C", "D", "E", "F", "G", "A", "B"];
   const blackKeys = ["C#", "D#", "F#", "G#", "A#"];

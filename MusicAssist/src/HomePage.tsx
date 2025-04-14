@@ -1,9 +1,8 @@
 import React, { useState } from "react";
-import "./Home.css";
+import "./based.css";
 import CircleOfFifths from "./component/CircleofFifth";
 import PianoVisualizer from "./component/PianoVisualizer";
 import ChordVisualizer from "./component/ChordVisualizer";
-import Octave_ChordVisualizer from "./component/Octave_ChordVisualizer";
 import SideMenu from "./SideMenu";
 
 const keys = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];

@@ -24,6 +24,8 @@ const About: React.FC = () => {
     />
       <div className="mainbar">
         <div className="topbg">
+          <div style={{justifyContent: "center"}}>
+            <h1>Chord Visualizer</h1>
           <SelectorMenu
             selectedChord={selectedChord}
             selectedMM={selectedMM}
@@ -39,8 +41,8 @@ const About: React.FC = () => {
             FinalChord={finalChord}
             setFinalChord={setFinalChord}
           />
-
-          <h1>Chord: {finalChord}</h1>
+          </div>
+          
           <Octave_ChordVisualizer
             finalChord={finalChord}
             isMuted={isMuted}

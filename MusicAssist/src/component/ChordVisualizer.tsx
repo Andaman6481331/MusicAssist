@@ -1,5 +1,4 @@
 //Feature: Two Octave, Receive input from homepage, Display Easiest Chords
-
 import React, { useState, useEffect } from "react";
 import * as Tone from "tone";
 

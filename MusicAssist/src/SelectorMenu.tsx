@@ -111,6 +111,7 @@ const SelectorMenu: React.FC<SelectorMenuProps> = ({selectedChord,selectedMM, se
         </div>
       ))}
       <button className="playbtn" onClick={() => setFinalChord(FinalChord)}>Play</button>
+      {FinalChord}
     </div>
   );
 };
