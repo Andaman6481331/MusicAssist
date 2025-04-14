@@ -121,9 +121,7 @@ const ChordVisualizer: React.FC<ChordVisualizerProps> = ({finalChord, isMuted = 
     const scale = KeyOnScale[root] || [];
     const intervals = getIntervalsFromChordName(finalChord);
   
-    const selectedNotes = intervals
-      .map(i => scale[i % scale.length])
-      .filter((note, idx, arr) => note && arr.indexOf(note) === idx);
+    const selectedNotes = intervals.map(i => scale[i % scale.length]);
   
     selectedNotes.forEach(note => {
       try {

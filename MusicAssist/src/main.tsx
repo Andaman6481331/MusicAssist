@@ -5,7 +5,8 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import './index.css';
 import NavBar from './NavBar.tsx';
 import Home from './HomePage.tsx';
-import About from './ChordPage.tsx';
+import ChordPage from './ChordPage.tsx';
+import PracticePage from './PracticePage.tsx';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -15,7 +16,8 @@ createRoot(document.getElementById('root')!).render(
         <Route path="/" element={<NavBar />}>
           {/* Define individual pages */}
           <Route index element={<Home />} /> {/* Default page */}
-          <Route path="about" element={<About />} />
+          <Route path="chord" element={<ChordPage />} />
+          <Route path="practice" element={<PracticePage/>}/>
         </Route>
       </Routes>
     </BrowserRouter>

@@ -7,12 +7,12 @@ const NavBar: React.FC = () => {
     <div>
       <header className="navbar">
           <a className="left-nav" href="/">
-            <h1>Harmonic</h1>
+            <h1 className="title">Harmonic</h1>
           </a>
           <div className="right-nav">
             <a className="navbtn">Song</a>
-            <a className="navbtn">Practice</a>
-            <a className="navbtn" href="/about">Chords</a>
+            <a className="navbtn" href="/practice">Practice</a>
+            <a className="navbtn" href="/chord">Chords</a>
           </div>
       </header>
       <main>
