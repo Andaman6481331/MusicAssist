@@ -20,7 +20,7 @@ const Home: React.FC = () => {
       />
       <div className="mainbar">
         <div className="topbg">
-          <h1>Chords : {selectedChord}</h1>
+          <h1 style={{position: "absolute"}}>Chords : {selectedChord}</h1>
           <label style={{ position: 'absolute', right: '0', cursor: 'pointer' }}>
             <input
               type="checkbox"

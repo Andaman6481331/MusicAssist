@@ -7,8 +7,7 @@
     background: black;
     min-width: 1000px;
     width: 100vw;
-    height: 200vh;
-    
+    height: 200vh; 
 }
 
 .mainbar{
@@ -25,11 +24,9 @@
       height: 300px;
       background-color: rgb(1, 20, 34);
     }
-    
     & h1{
         font-size: 3.5rem;
         margin: 0;
-        position: absolute;
     }
 }
 
@@ -38,7 +35,6 @@
   width: 500px;
   height: 500px;
   border-radius: 25px;
-  /* background: linear-gradient(rgb(32, 113, 172),rgb(10, 72, 116)); */
   background: linear-gradient(rgb(28, 105, 160),rgb(1, 29, 49));
   box-shadow: -20px -20px 60px #083565, 20px 20px 60px #0e4d91;
   &:hover{
@@ -46,6 +42,15 @@
   }
  }
 
-
-  
+.playbtn{
+  background-color: #083565;
+  padding: 0.5rem;
+  font-size: 2rem;
+  border-radius: 1rem;
+  width: fit-content;
+  height: fit-content;
+  &:hover{
+    background-color: #0e437c;
+  }
+}
   

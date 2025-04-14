@@ -1,7 +1,4 @@
 import React, { useState} from "react";
-import CircleOfFifths from "./component/CircleofFifth";
-import PianoVisualizer from "./component/PianoVisualizer";
-import ChordVisualizer from "./component/ChordVisualizer";
 import Octave_ChordVisualizer from "./component/Octave_ChordVisualizer";
 import SideMenu from "./SideMenu";
 import SelectorMenu from "./SelectorMenu";
@@ -15,27 +12,9 @@ const About: React.FC = () => {
   const [selectedExt, setExt] = useState<string>("");
   const [selectedDom, setDom] = useState<string>("");
   const [spSelect, setSp] = useState<string>("");
+  const [finalChord, setFinalChord] = useState<string>("");
   
-  //Compute Actual Chord
-  const isUsingOthers = spSelect !== "";
-  const isDominant = selectedDom === "dominant";
-  const isMajorWithExtension = selectedMM === "maj" && selectedExt !== "" && spSelect === "";
-
-  const mmDisplay = isDominant
-    ? ""
-    : isMajorWithExtension
-      ? "maj"
-      : selectedMM === "maj"
-        ? ""
-        : selectedMM === "m"
-          ? "m"
-          : "";
-
-  const FinalChord = `${selectedChord}${mmDisplay
-    }${isUsingOthers ? "" : selectedExt
-    }${isUsingOthers ? "" : selectedSus
-    }${spSelect !== "" ? spSelect : ""
-    }`;
+  
 
   return (
     <div className="page-container">
@@ -45,7 +24,8 @@ const About: React.FC = () => {
     />
       <div className="mainbar">
         <div className="topbg">
-          <SelectorMenu 
+          <SelectorMenu
+            selectedChord={selectedChord}
             selectedMM={selectedMM}
             setMinorMajor={setMinorMajor}
             selectedSus={selectedSus}
@@ -56,13 +36,16 @@ const About: React.FC = () => {
             setDom={setDom}
             spSelect={spSelect}
             setSp={setSp}
+            FinalChord={finalChord}
+            setFinalChord={setFinalChord}
           />
 
-          <h1>Chord: {FinalChord}</h1>
+          <h1>Chord: {finalChord}</h1>
           <Octave_ChordVisualizer
-            selectedChord={selectedChord}
+            finalChord={finalChord}
             isMuted={isMuted}
           />
+          
         </div>
       </div>
     </div>

@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import "./SelectorMenu.css";
 
 interface SelectorMenuProps{
+  selectedChord : string;
   selectedMM : string;
   setMinorMajor : (MM: string) => void;
   selectedSus : string;
@@ -12,9 +13,11 @@ interface SelectorMenuProps{
   setDom : (Dom: string) => void;
   spSelect : string;
   setSp : (Sp: string) => void;
+  FinalChord : string;
+  setFinalChord: (chord: string) => void;
 }
 
-const SelectorMenu: React.FC<SelectorMenuProps> = ({selectedMM, setMinorMajor, selectedSus, setSus, selectedExt, setExt, selectedDom, setDom, spSelect, setSp}) => {
+const SelectorMenu: React.FC<SelectorMenuProps> = ({selectedChord,selectedMM, setMinorMajor, selectedSus, setSus, selectedExt, setExt, selectedDom, setDom, spSelect, setSp, setFinalChord}) => {
   const groups = [
     {
       name: "CORE QUALITY",
@@ -61,6 +64,27 @@ const SelectorMenu: React.FC<SelectorMenuProps> = ({selectedMM, setMinorMajor, s
     },
   ];
 
+  //Compute Actual Chord
+  const isUsingOthers = spSelect !== "";
+  const isDominant = selectedDom === "dominant";
+  const isMajorWithExtension = selectedMM === "maj" && selectedExt !== "" && spSelect === "";
+
+  const mmDisplay = isDominant
+    ? ""
+    : isMajorWithExtension
+      ? "maj"
+      : selectedMM === "maj"
+        ? ""
+        : selectedMM === "m"
+          ? "m"
+          : "";
+
+  const FinalChord = `${selectedChord}${mmDisplay
+    }${isUsingOthers ? "" : selectedExt
+    }${isUsingOthers ? "" : selectedSus
+    }${spSelect !== "" ? spSelect : ""
+    }`;
+
   const funct = [setMinorMajor, setSus, setExt, setDom, setSp];
 
   return (
@@ -86,6 +110,7 @@ const SelectorMenu: React.FC<SelectorMenuProps> = ({selectedMM, setMinorMajor, s
             </div>
         </div>
       ))}
+      <button className="playbtn" onClick={() => setFinalChord(FinalChord)}>Play</button>
     </div>
   );
 };
