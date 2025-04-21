@@ -84,19 +84,27 @@ const ChordVisualizer: React.FC<ChordVisualizerProps> = ({finalChord, isMuted = 
 
   function getIntervalsFromChordName(chord: string): number[] {
     const c = chord.toLowerCase();  // Normalize chord string
-    const base = [0, 3 , 6];        // Root always included
+    const base = [0];        // Root always included
 
-    if (c.includes("sus2")) base.push(1);
-    if (c.includes("sus4")) base.push(4);
-    if (c.includes("dim")) base.push(3, 6);
-    if (c.includes("aug")) base.push(4, 8);
-    else if (c.includes("maj")) {
+    if (c.includes("sus2")) {
+      base.push(1, 6);
+    }else if (c.includes("sus4")){
+      base.push(4, 6);
+    }else if (c.includes("dim")) {
+      base.push(2, 5);
+    }else if (c.includes("aug")) {
+      base.push(4, 7);
+    }else{
+      base.push(6);
+    }
+
+    if (c.includes("maj")) {
+      base.push(3);
       if(c.includes("7")) base.push(10);
       else if (c.includes("9")) base.push(11, 10);
       else if (c.includes("11")) base.push(12, 11, 10);
       else if (c.includes("13")) base.push(13, 12, 11, 10);
-    }
-    else if (/\bm\b/.test(c)) {
+    }else if (c.includes("m") && !c.includes("aj")) {
       base.push(2); 
       if (c.includes("7")) base.push(9);
       else if (c.includes("9")) base.push(11, 9);
@@ -104,10 +112,11 @@ const ChordVisualizer: React.FC<ChordVisualizerProps> = ({finalChord, isMuted = 
       else if (c.includes("13")) base.push(13, 12, 11, 10);
     }
     else { // handling Dominant
+      base.push(3);
       if (c.includes("7")) base.push(9);
-      if (c.includes("9")) base.push(11, 9);
-      if (c.includes("11")) base.push(12, 11, 9);
-      if (c.includes("13")) base.push(13, 12, 11, 10);
+      else if (c.includes("9")) base.push(11, 9);
+      else if (c.includes("11")) base.push(12, 11, 9);
+      else if (c.includes("13")) base.push(13, 12, 11, 10);
     }
     return Array.from(new Set(base)).sort((a, b) => a - b);
   }
