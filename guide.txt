@@ -1,0 +1,22 @@
+pip install -r requirements.txt
+
+pip install basic-pitch (Fastapi??) uvicorn
+
+pip install torch==2.1.0+cu121 --index-url https://download.pytorch.org/whl/cu121
+
+
+Python3.9.13 dir
+C:/Users/herby/PycharmProjects/PythonProject/.venv1/Scripts/python.exe
+
+
+Backend
+.\.venv\Scripts\activate
+
+uvicorn server:app --host 0.0.0.0 --port 8000
+
+Frontend
+cmd
+
+cd MusicAssist
+
+npm run dev
