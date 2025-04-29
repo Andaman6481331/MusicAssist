@@ -1,22 +1,30 @@
-pip install -r requirements.txt
+NEED Python3.9.13 !!!!!!!!!!
+(check using python --version)
 
-pip install basic-pitch (Fastapi??) uvicorn
+installation
+0) cmd
+1) get into backend folder (cd foldername)
+2) once in the backend directory, type-> .\.venv\Scripts\activate
+3) then install these command one by one
+	pip install torch==2.1.0+cu121 --index-url https://download.pytorch.org/whl/cu121
 
-pip install torch==2.1.0+cu121 --index-url https://download.pytorch.org/whl/cu121
+	pip install -r requirements.txt
+
+	pip install basic-pitch fastapi uvicorn
 
 
-Python3.9.13 dir
-C:/Users/herby/PycharmProjects/PythonProject/.venv1/Scripts/python.exe
+Run Backend
+0) cmd
+1) get into backend folder (cd foldername)
+2) once in the backend directory, type-> .\.venv\Scripts\activate
+3) uvicorn server:app --host 0.0.0.0 --port 8000
+
+Run Frontend
+0) cmd
+1) get into frontend folder (cd foldername)
+2) npm run dev
 
 
-Backend
-.\.venv\Scripts\activate
-
-uvicorn server:app --host 0.0.0.0 --port 8000
-
-Frontend
-cmd
-
-cd MusicAssist
-
-npm run dev
+other...
+<Python3.9.13 dir
+C:/Users/herby/PycharmProjects/PythonProject/.venv1/Scripts/python.exe>
