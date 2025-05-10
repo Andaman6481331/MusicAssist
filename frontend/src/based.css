@@ -62,3 +62,38 @@
   padding: 1rem;
   width: 800px;
 }
+
+.loader {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  height: 200px;
+  margin-top: 40px;
+}
+
+.bar {
+  width: 6px;
+  height: 100px;
+  margin: 0 2px;
+  background-color: rgba(255, 255, 255, 0.5);
+  border-radius: 10px;
+  animation: wave 1.5s ease-in-out infinite;
+  transform-origin: bottom;
+}
+
+@keyframes wave {
+  0%, 100% {
+    transform: scaleY(1);
+    background-color: rgba(178, 231, 254, 0.5);
+  }
+  50% {
+    transform: scaleY(1.8);
+    background-color: #a3def7;
+  }
+}
+
+.selector-input{
+  &:hover{
+    background-color: null !important;
+  }
+}

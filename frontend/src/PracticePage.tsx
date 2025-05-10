@@ -1,10 +1,14 @@
 import React, { useState } from "react";
-import "./PracticePage.css";
+import { Outlet } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import "./based.css";
-import PianoRollApp from "./component/PianoRollApp";
 
 const PracticePage: React.FC = () => {
+  const [loading, setLoading] = useState(false);
+  const [loadingPercent, setLoadingPercent] = useState(0);
+  const navigate = useNavigate();
   const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>({});
+  
 
   const groups = [
       {
@@ -45,28 +49,62 @@ const PracticePage: React.FC = () => {
   ];
 
   const sendPromptToServer = async () => {
+    setLoading(true);
     const values = Object.values(selectedOptions);
-    console.log(values); // Just to see it in console
-    
-    const textprompt = 'A solo piano performance featuring ' + values[2] + ' chords style. The chords are played in ' + values[1] + 'style providing a strong harmonic foundation. The piece is minimalistic and structured, suitable for ' + values[0] + 'scale piano accompaniment. No melody, only ' + values[2] + ' comping.';
-    console.log(textprompt);
-  
-    try {
-      const response = await fetch('http://localhost:8000/generate', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ prompt: textprompt }),
-      });
-  
-      const data = await response.json();
-      console.log('Server response:', data);
-    } catch (error) {
-      console.error('Error sending prompt:', error);
+    if (values.length < 3) {
+      alert("Please select all options before generating!");
+      setLoading(false);
+      return;
+    }
+
+    const textprompt = `A solo piano performance featuring ${values[2]} chords style. The chords are played in ${values[1]} style providing a strong harmonic foundation. The piece is minimalistic and structured, suitable for ${values[0]} scale piano accompaniment. No melody, only ${values[2]} comping.`;
+    console.log("Prompt:", textprompt);
+
+    try{
+      const response = await fetch(`http://localhost:8000/generate?prompt=${textprompt}`);
+
+      if (!response.body) throw new Error("No response body");
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder("utf-8");
+
+      let buffer = "";
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+
+        const lines = buffer.split("\n");
+        buffer = lines.pop() || ""; // Save incomplete line
+
+        for (const line of lines) {
+          console.log("Streamed line:", line);
+          if (line.includes("/")) {
+          const [currentStr, totalStr] = line.split("/");
+          const current = Number(currentStr);
+          const total = Number(totalStr);
+
+          if (!isNaN(current) && !isNaN(total) && total > 0) {
+            const percent = Math.floor((current / total) * 100);
+            setLoadingPercent(percent);
+          }else {
+            setLoadingPercent(0); // Fallback in case of error in progress
+          }
+        }
+          if (line === "done") {
+            navigate("/output");
+          }
+        }
+      }
+
+    } catch (err) {
+      console.error("Error fetching data:", err);
+      setLoadingPercent(0);
+    } finally {
+      setLoading(false);
     }
   };
-  
 
   return (
     <div className="page-container">
@@ -74,7 +112,7 @@ const PracticePage: React.FC = () => {
         {groups.map((group, groupIdx) => (
           <div key={groupIdx}>
             <h3>{group.name}</h3>
-            <div className="selector-wrapper" key={groupIdx}>
+            <div className="selector-wrapper">
               {group.options.map((option, optionIdx) => (
                 <div className="option" key={optionIdx}>
                   <input
@@ -82,6 +120,7 @@ const PracticePage: React.FC = () => {
                     name={group.name}
                     type="radio"
                     className="selector-input"
+                    checked={selectedOptions[group.name] === option.value}
                     onChange={(e) => {
                       setSelectedOptions(prev => ({
                         ...prev,
@@ -97,23 +136,27 @@ const PracticePage: React.FC = () => {
             </div>
           </div>
         ))}
-        <button onClick={sendPromptToServer}>
-          Get Selected Options
-        </button>
+
+        {loading ? 
+          (<div>
+              <progress value={isNaN(loadingPercent) ? 0 : loadingPercent} max="100" />
+              <p>{isNaN(loadingPercent) ? 0 : loadingPercent}%</p>
+              
+              <div className="loader">
+                {[...Array(60)].map((_, i) => (
+                    <span
+                    key={i}
+                    className="bar"
+                    style={{ animationDelay: `${i * 0.03}s` }}
+                    />
+                ))}
+                </div>
+            </div>) 
+          : (<button onClick={sendPromptToServer} className="playbtn">Generate</button> )
+        }
         
-        <div className="loader">
-        {[...Array(60)].map((_, i) => (
-            <span
-            key={i}
-            className="bar"
-            style={{ animationDelay: `${i * 0.03}s` }}
-            />
-        ))}
-        </div>
-        
-        <PianoRollApp/>
       </div>
-      
+        
     </div>
   );
 };

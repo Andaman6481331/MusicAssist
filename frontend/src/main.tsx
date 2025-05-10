@@ -7,6 +7,7 @@ import NavBar from './NavBar.tsx';
 import Home from './HomePage.tsx';
 import ChordPage from './ChordPage.tsx';
 import PracticePage from './PracticePage.tsx';
+import OutputPage from './OutputPage.tsx';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -18,6 +19,7 @@ createRoot(document.getElementById('root')!).render(
           <Route index element={<Home />} /> {/* Default page */}
           <Route path="chord" element={<ChordPage />} />
           <Route path="practice" element={<PracticePage/>}/>
+          <Route path="output" element={<OutputPage/>}/>
         </Route>
       </Routes>
     </BrowserRouter>

@@ -1,0 +1,13 @@
+{
+    "name": "musicassist-root",
+    "private": true,
+    "version": "1.0.0",
+    "scripts": {
+        "dev": "concurrently \"npm run dev --prefix frontend\" \"cd backend && .\\.venv\\Scripts\\python -m uvicorn server:app --host 0.0.0.0 --port 8000\"",
+        "dev-frontend": "npm run dev --prefix frontend",
+        "dev-backend": "cd backend && .\\.venv\\Scripts\\python -m uvicorn server:app --host 0.0.0.0 --port 8000"
+    },
+    "devDependencies": {
+        "concurrently": "^8.2.2"
+    }
+}
