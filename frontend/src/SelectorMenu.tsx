@@ -22,8 +22,8 @@ const SelectorMenu: React.FC<SelectorMenuProps> = ({selectedChord,selectedMM, se
     {
       name: "CORE QUALITY",
       options: [
-        { value: "m", label: "Minor" },
         { value: "maj", label: "Major" },
+        { value: "m", label: "Minor" },
       ],
     },
     {

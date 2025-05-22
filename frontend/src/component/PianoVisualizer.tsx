@@ -82,7 +82,15 @@ const sampleUrls: Record<string, string> = {
   B5: "/notesSample/B5.mp3",
 };
 
-const PianoVisualizer: React.FC = () => {
+interface PianoVisualizerProps {
+  isPlayable?: boolean;
+  scaleLength?: number;
+  startOctave?: number;
+  height?: number;  //per key
+  width?: number;
+}
+
+const PianoVisualizer: React.FC<PianoVisualizerProps> = ({isPlayable = true, scaleLength=3, startOctave=3, height=150, width=40}) => {
   const [selectedKey, setSelectedKey] = useState<string>("C");
   const [sampler, setSampler] = useState<Tone.Sampler | null>(null);
 
@@ -109,7 +117,13 @@ const PianoVisualizer: React.FC = () => {
   //Define Visual Keys
   const whiteKeys = ["C", "D", "E", "F", "G", "A", "B"];
   const blackKeys = ["C#", "D#", "F#", "G#", "A#"];
-  const octaves = [3, 4, 5]; // You can adjust this range as needed
+  // const octaves = [3, 4, 5]; // You can adjust this range as needed
+
+  const octaves = Array.from(
+      {length: scaleLength},
+      (_, i) => startOctave + i
+    );
+
 
   // Get full list of white/black keys with octave
   const allWhiteKeys = octaves.flatMap(octave =>
@@ -120,40 +134,33 @@ const PianoVisualizer: React.FC = () => {
     blackKeys.map(note => ({ note: note + octave, base: note, octave }))
   );
 
-  const blackKeyOffset: Record<string, number> = {
-    C: 40,
-    D: 80,
-    E: 120,
-    F: 160,
-    G: 200,
-    A: 240,
-    B: 280,
-  };
-
   return (
     <div
       style={{
         position: "relative",
         display: "flex",
         justifyContent: "center",
-        cursor: "pointer"
+        cursor: isPlayable ? "pointer" : "default"
       }}
     >
       {/* White keys */}
       <div style={{ display: "flex", zIndex: 0 }}>
         {allWhiteKeys.map(({note}) => {
           const isSelected = note === selectedKey;
+          const whiteKeyIndex = allWhiteKeys.findIndex(k => k.note.startsWith(note.charAt(0)) && k.octave === parseInt(note.slice(-1)));
+          const left = whiteKeyIndex * width - (width*((scaleLength*7)/2));
           return (
             <div
               key={note}
-              onClick={() => handleKeyClick(note)}
+              onClick={() => isPlayable && handleKeyClick(note)}
               style={{
-                width: "40px",
-                height: "150px",
+                width: `${width}px`,
+                height: `${height}px`,
                 backgroundColor: isSelected ? "rgb(98, 208, 220)" : "white",
                 border: "1px solid black",
+                left: `${left}px`,
                 margin: "0",
-                position: "relative",
+                position: "absolute",
                 boxSizing: "border-box",
               }}
             >
@@ -176,20 +183,21 @@ const PianoVisualizer: React.FC = () => {
       </div>
 
       {/* Black keys */}
-      <div style={{ position: "absolute", display: "flex", left: "0", top: "0", height: "90px", zIndex: 1 }}>
+      {/* <div style={{ position: "absolute", display: "flex", left: "0", top: "0", height: "90px", zIndex: 1 }}> */}
+      <div style={{display:"flex", height:"90px", zIndex: 1}}> 
         {allBlackKeys.map(({ note }) => {
           const isSelected = note === selectedKey;
 
           // Calculate left offset based on white keys
           const whiteKeyIndex = allWhiteKeys.findIndex(k => k.note.startsWith(note.charAt(0)) && k.octave === parseInt(note.slice(-1)));
-          const left = whiteKeyIndex * 40 + 220;
+          const left = (whiteKeyIndex*width) + (width*0.7) - (width*(scaleLength*7)/2); // 420 = half pianoroll size = make absolute position centered , 28 = margin btw white and black key
           return (
             <div
               key={note}
-              onClick={() => handleKeyClick(note)}
+              onClick={() => isPlayable && handleKeyClick(note)}
               style={{
-                width: "25px",
-                height: "90px",
+                width: `${width*0.625}px`,
+                height: `${height*0.6}px`,
                 backgroundColor: isSelected ? "rgb(0, 67, 74)" : "black",
                 left: `${left}px`,
                 zIndex: 2,

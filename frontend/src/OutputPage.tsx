@@ -1,10 +1,18 @@
 import "./based.css";
 import PianoRollApp from "./component/PianoRollApp";
+import PianoVisualizer from "./component/PianoVisualizer";
 
 const OutputPage: React.FC = () => {
     return(
-        <div className="page-container">
-            <PianoRollApp/>
+        <div className="output-page-container">
+            <div className="centered">
+                <PianoRollApp/>
+            </div>
+            <div className="abs-centered">
+                <div style={{ position: "relative"}}>{/*calculate from the pianovisualizer itself*/}
+                    <PianoVisualizer />
+                </div>
+            </div>
         </div>
     );
 };

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Outlet } from 'react-router-dom';
 import { useNavigate } from "react-router-dom";
 import "./based.css";
@@ -78,22 +78,19 @@ const PracticePage: React.FC = () => {
         const lines = buffer.split("\n");
         buffer = lines.pop() || ""; // Save incomplete line
 
-        for (const line of lines) {
-          console.log("Streamed line:", line);
-          if (line.includes("/")) {
-          const [currentStr, totalStr] = line.split("/");
-          const current = Number(currentStr);
-          const total = Number(totalStr);
+        for (let line of lines) {
+          const trimmed = line.trim();
 
-          if (!isNaN(current) && !isNaN(total) && total > 0) {
-            const percent = Math.floor((current / total) * 100);
-            setLoadingPercent(percent);
-          }else {
-            setLoadingPercent(0); // Fallback in case of error in progress
+          if (trimmed !== "" && !isNaN(Number(trimmed))) {
+            setLoadingPercent(Number(trimmed));
+            // console.log("Streamed line:", trimmed);
           }
-        }
-          if (line === "done") {
+
+          if (trimmed === "done") {
+            setLoadingPercent(0);
+            console.log("Generation done");
             navigate("/output");
+            break;
           }
         }
       }
@@ -136,24 +133,39 @@ const PracticePage: React.FC = () => {
             </div>
           </div>
         ))}
-
-        {loading ? 
-          (<div>
+        <div>
+            <div>
               <progress value={isNaN(loadingPercent) ? 0 : loadingPercent} max="100" />
               <p>{isNaN(loadingPercent) ? 0 : loadingPercent}%</p>
-              
-              <div className="loader">
-                {[...Array(60)].map((_, i) => (
-                    <span
-                    key={i}
-                    className="bar"
-                    style={{ animationDelay: `${i * 0.03}s` }}
-                    />
-                ))}
-                </div>
-            </div>) 
-          : (<button onClick={sendPromptToServer} className="playbtn">Generate</button> )
-        }
+            </div>
+            
+            {(loading) ?
+            <div className="spinner">
+              <div></div>   
+              <div></div>    
+              <div></div>    
+              <div></div>    
+              <div></div>    
+              <div></div>    
+              <div></div>    
+              <div></div>    
+              <div></div>    
+              <div></div>    
+            </div>
+            : <div></div>
+            }
+            
+            <div className="loader">
+              {[...Array(60)].map((_, i) => (
+                  <span
+                  key={i}
+                  className="bar"
+                  style={{ animationDelay: `${i * 0.03}s` }}
+                  />
+              ))}
+              </div>
+          </div>
+        <button onClick={sendPromptToServer} className="playbtn">Generate</button>
         
       </div>
         

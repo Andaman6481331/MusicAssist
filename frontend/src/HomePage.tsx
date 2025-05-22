@@ -14,7 +14,7 @@ const Home: React.FC = () => {
   return (
     <div className="page-container">
       <SideMenu
-        selectedChord={selectedChord}
+        selectedChord={selectedChord? selectedChord: "C"}
         setSelectedChord={setSelectedChord}
       />
       <div className="mainbar">
@@ -56,8 +56,14 @@ const Home: React.FC = () => {
           </div>
         </div>
         <div className="bottombg">
-          <div>
-            <PianoVisualizer/>
+          <div className="abs-centered">
+            <PianoVisualizer
+            isPlayable={true}
+            scaleLength={3}
+            startOctave={3}
+            width={30}
+            height={120}
+            />
           </div>
         </div>
       </div>

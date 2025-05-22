@@ -11,9 +11,9 @@ const NavBar: React.FC = () => {
             <h1 className="title">Harmonic</h1>
           </Link>
           <div className="right-nav">
-            <a className="navbtn">Song</a>
-            <Link className="navbtn" to="/practice">Practice</Link>
-            <Link className="navbtn" to="/chord">Chords</Link>
+            <Link className="title" to="/output">Song</Link>
+            <Link className="title" to="/practice">Practice</Link>
+            <Link className="title" to="/chord">Chords</Link>
           </div>
       </header>
       <main>

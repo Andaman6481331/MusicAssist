@@ -45,6 +45,7 @@ const sampleUrls: Record<string, string> = {
 const PianoRollApp: React.FC = () => {
   const [sampler, setSampler] = useState<Tone.Sampler | null>(null); 
   const [notes, setNotes] = useState<any[]>([]); // Store parsed MIDI notes
+  const [tempo, setTempo] = useState<number>(120);
 
   useEffect(() => {
     const s = new Tone.Sampler({
@@ -76,6 +77,10 @@ const PianoRollApp: React.FC = () => {
     reader.onload = (e) => {
       const midiData = e.target?.result as ArrayBuffer; // Get file data
       const midi = new Midi(midiData); // Parse MIDI
+
+      const tempoEvents = midi.header.tempos;
+      setTempo(tempoEvents.length > 0 ? tempoEvents[0].bpm : 120);
+
       const parsedNotes = midi.tracks[0].notes; // Extract notes
       setNotes(parsedNotes); // Update state with notes
       drawPianoRoll(parsedNotes); // Draw the piano roll
@@ -100,7 +105,7 @@ const PianoRollApp: React.FC = () => {
     
     Tone.Transport.stop();  // Stop previous playback
     Tone.Transport.cancel(); // Clear previous schedules
-    Tone.Transport.bpm.value = 100; // Set tempo
+    Tone.Transport.bpm.value = 80; // Set tempo
 
     notes.forEach((note) => {
       Tone.Transport.schedule((time) => {
@@ -111,20 +116,50 @@ const PianoRollApp: React.FC = () => {
     Tone.Transport.start("+0.1");
   };
 
+
+  /*
+  name	string	Note name (e.g. "C4", "D#5")
+  midi	number	MIDI note number (e.g. 60 for C4)
+  time	number	Time (in seconds or Tone.js ticks) when the note starts
+  duration	number	Duration (in seconds) of the note
+  velocity	number	Velocity (volume), between 0 and 1
+  ticks	number	Position in ticks (MIDI timing unit)
+  durationTicks	number	Duration in ticks
+  channel	number	MIDI channel (if set)
+  noteOffVelocity	number	Velocity when the note was released (optional)
+
+    note.midi = 21 to 108 = 88keys
+    note.name = C#, D, F, etc.
+  */
+  
   // Function to draw a simple piano roll
   const drawPianoRoll = (notes: any[]) => {
     const canvas = document.getElementById("pianoRoll") as HTMLCanvasElement;
     const ctx = canvas.getContext("2d");
     if (ctx) {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = "blue";
 
       notes.forEach((note) => {
-        const y = note.time * 50; // Scale time position
-        const x = (88 - note.midi) * 4; // Map MIDI pitch
+        const y = note.time * 75 + 20; // Scale time position
+        const x = (note.midi-20) * (790/88); // Map MIDI pitch
         const height = note.duration * 50;
-        const width = 4;
-        ctx.fillRect(x, y, width, height);
+
+        if (note.name.includes("#")) {
+          ctx.fillStyle = "rgba(10, 69, 103, 0.81)";
+          const width = 8;
+          ctx.fillRect(x, y, width, height);
+        } else {
+          ctx.fillStyle = "rgba(0, 162, 255, 0.81)";
+          const width = 15;
+          ctx.fillRect(x, y, width, height);
+        }
+        
+        ctx.fillStyle = "rgb(0,0,0)";
+        ctx.fillText(note.name, x-10, y);
+        const midiNumber = note.midi - 20;
+        ctx.fillText(midiNumber.toString(), x+10, y);
+        ctx.fillText(note.duration, x, y-10);
+        
       });
     }
   };
@@ -139,7 +174,7 @@ const PianoRollApp: React.FC = () => {
         onChange={handleMidiFileChange}
       />
       <button onClick={playMidi}>Play MIDI</button>
-      <canvas id="pianoRoll" width={800} height={400} style={{ border: '1px solid black', display: 'block', margin: '10px auto' }} />
+      <canvas id="pianoRoll" width={800} height={800} style={{ backgroundColor: 'rgba(16, 67, 168, 0.52)' ,border: '1px solid blue', display: 'block', margin: '10px auto' }} />
     </div>
   );
 };

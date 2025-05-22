@@ -53,6 +53,12 @@ const SideMenu: React.FC<SideMenuProps> = ({ selectedChord, setSelectedChord }) 
               {keys[11]}
             </button>
         </div>
+        <div>
+          adsfasd
+        </div>
+        <h1>
+          {selectedChord}
+        </h1>
       </div>
   )
 
