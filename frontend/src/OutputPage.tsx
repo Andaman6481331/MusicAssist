@@ -10,7 +10,13 @@ const OutputPage: React.FC = () => {
             </div>
             <div className="abs-centered">
                 <div style={{ position: "relative"}}>{/*calculate from the pianovisualizer itself*/}
-                    <PianoVisualizer />
+                    <PianoVisualizer 
+                    scaleLength={7}
+                    startOctave={1}
+                    height={100}
+                    width={25}
+                    showKeyname={false}
+                    />
                 </div>
             </div>
         </div>

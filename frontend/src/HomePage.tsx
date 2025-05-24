@@ -3,20 +3,17 @@ import "./based.css";
 import CircleOfFifths from "./component/CircleofFifth";
 import PianoVisualizer from "./component/PianoVisualizer";
 import ChordVisualizer from "./component/ChordVisualizer";
-import SideMenu from "./SideMenu";
+import { useSearchParams } from "react-router-dom";
 
-const keys = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
 
 const Home: React.FC = () => {
-  const [selectedChord, setSelectedChord] = useState<string>("");
+  // const [selectedChord, setSelectedChord] = useState<string>("");
   const [isMuted, setIsMuted] = useState<boolean>(false);
+  const [searchParams] = useSearchParams();
+  const selectedChord = searchParams.get("chord") || "C";
 
   return (
     <div className="page-container">
-      <SideMenu
-        selectedChord={selectedChord? selectedChord: "C"}
-        setSelectedChord={setSelectedChord}
-      />
       <div className="mainbar">
         <div className="topbg">
           <h1 style={{position: "absolute"}}>Chords : {selectedChord}</h1>
@@ -36,7 +33,7 @@ const Home: React.FC = () => {
           <div className="card1">
             <CircleOfFifths
               selectedChord={selectedChord}
-              setSelectedChord={setSelectedChord}
+              // setSelectedChord={setSelectedChord}
             />
             <div style={{ display: 'flex', justifyContent: 'center' }}>
               <ChordVisualizer 

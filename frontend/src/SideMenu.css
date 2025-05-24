@@ -1,10 +1,10 @@
 .sidebar{
-  position: sticky;
+  position: sticky; /*at black part*/
   top: 0;
-  width: 180px;
+  width: 200px;
   height: 90vh;
   padding: 1rem;
-  margin: 0.5rem 1rem;
+  margin: 1rem;
   background: linear-gradient(
   45deg,
   #191866,
@@ -36,11 +36,6 @@ background-size: 20px 20px;
 pointer-events: none; /* Allow clicking through the pattern layer */
 }
 
-.diagonal-layout{
-  position: relative;
-  width: 100%;
-  height: 100%;
-}
 .sidebtn {
   position: absolute;
   width: 40%;

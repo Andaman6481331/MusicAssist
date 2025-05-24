@@ -1,9 +1,12 @@
-import React from "react";
+import React, {useState} from "react";
 import { Link } from 'react-router-dom';
 import { Outlet } from "react-router-dom";
 import "./NavBar.css";
+import SideMenu from "./SideMenu";
 
 const NavBar: React.FC = () => {
+  const [selectedChord, setSelectedChord] = useState<string>("C");
+
   return (
     <div>
       <header className="navbar">
@@ -16,7 +19,11 @@ const NavBar: React.FC = () => {
             <Link className="title" to="/chord">Chords</Link>
           </div>
       </header>
-      <main>
+      <main style={{display: "flex"}}>
+          <SideMenu
+            selectedChord={selectedChord}
+            setSelectedChord={setSelectedChord}
+          />
         <Outlet />
       </main>
     </div>

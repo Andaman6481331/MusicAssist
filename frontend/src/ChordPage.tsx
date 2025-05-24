@@ -1,13 +1,14 @@
 import React, { useState} from "react";
 import Octave_ChordVisualizer from "./component/Octave_ChordVisualizer";
-import SideMenu from "./SideMenu";
 import ScaleVisualizer from "./component/ScaleVisualizer";
 import SelectorMenu from "./SelectorMenu";
+import { useSearchParams } from "react-router-dom";
 
 const About: React.FC = () => {
   const [isMuted, setIsMuted] = useState<boolean>(false);
 
-  const [selectedChord, setSelectedChord] = useState<string>("C");
+  const [searchParams] = useSearchParams();
+  const selectedChord = searchParams.get("chord") || "C";
   const [selectedMM, setMinorMajor] = useState<string>("");
   const [selectedSus, setSus] = useState<string>("");
   const [selectedExt, setExt] = useState<string>("");
@@ -17,10 +18,6 @@ const About: React.FC = () => {
 
   return (
     <div className="page-container">
-    <SideMenu
-      selectedChord={selectedChord}
-      setSelectedChord={setSelectedChord}
-    />
       <div className="mainbar">
         <div className="topbg">
           <div style={{justifyContent: "center"}}>

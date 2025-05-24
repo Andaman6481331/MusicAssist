@@ -1,86 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import * as Tone from "tone";
-
-const keys = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
-
-const keyNotes: Record<string, string> = {
-  C3: "C3",
-  "C#3": "C#3",
-  D3: "D3",
-  "D#3": "D#3",
-  E3: "E3",
-  F3: "F3",
-  "F#3": "F#3",
-  G3: "G3",
-  "G#3": "G#3",
-  A3: "A3",
-  "A#3": "A#3",
-  B3: "B3",
-  C4: "C4",
-  "C#4": "C#4",
-  D4: "D4",
-  "D#4": "D#4",
-  E4: "E4",
-  F4: "F4",
-  "F#4": "F#4",
-  G4: "G4",
-  "G#4": "G#4",
-  A4: "A4",
-  "A#4": "A#4",
-  B4: "B4",
-  C5: "C5",
-  "C#5": "C#5",
-  D5: "D5",
-  "D#5": "D#5",
-  E5: "E5",
-  F5: "F5",
-  "F#5": "F#5",
-  G5: "G5",
-  "G#5": "G#5",
-  A5: "A5",
-  "A#5": "A#5",
-  B5: "B5",
-};
-
-// You need to provide sample file URLs for each note
-const sampleUrls: Record<string, string> = {
-  C3: "/notesSample/C3.mp3",
-  "C#3": "/notesSample/Cs3.mp3",
-  D3: "/notesSample/D3.mp3",
-  "D#3": "/notesSample/Ds3.mp3",
-  E3: "/notesSample/E3.mp3",
-  F3: "/notesSample/F3.mp3",
-  "F#3": "/notesSample/Fs3.mp3",
-  G3: "/notesSample/G3.mp3",
-  "G#3": "/notesSample/Gs3.mp3",
-  A3: "/notesSample/A3.mp3",
-  "A#3": "/notesSample/As3.mp3",
-  B3: "/notesSample/B3.mp3",
-  C4: "/notesSample/C4.mp3",
-  "C#4": "/notesSample/Cs4.mp3",
-  D4: "/notesSample/D4.mp3",
-  "D#4": "/notesSample/Ds4.mp3",
-  E4: "/notesSample/E4.mp3",
-  F4: "/notesSample/F4.mp3",
-  "F#4": "/notesSample/Fs4.mp3",
-  G4: "/notesSample/G4.mp3",
-  "G#4": "/notesSample/Gs4.mp3",
-  A4: "/notesSample/A4.mp3",
-  "A#4": "/notesSample/As4.mp3",
-  B4: "/notesSample/B4.mp3",
-  C5: "/notesSample/C5.mp3",
-  "C#5": "/notesSample/Cs5.mp3",
-  D5: "/notesSample/D5.mp3",
-  "D#5": "/notesSample/Ds5.mp3",
-  E5: "/notesSample/E5.mp3",
-  F5: "/notesSample/F5.mp3",
-  "F#5": "/notesSample/Fs5.mp3",
-  G5: "/notesSample/G5.mp3",
-  "G#5": "/notesSample/Gs5.mp3",
-  A5: "/notesSample/A5.mp3",
-  "A#5": "/notesSample/As5.mp3",
-  B5: "/notesSample/B5.mp3",
-};
+import { useContext } from "react";
+import { SamplerContext } from "../AudioLoader";
 
 interface PianoVisualizerProps {
   isPlayable?: boolean;
@@ -88,27 +9,18 @@ interface PianoVisualizerProps {
   startOctave?: number;
   height?: number;  //per key
   width?: number;
+  showKeyname?: boolean;
 }
 
-const PianoVisualizer: React.FC<PianoVisualizerProps> = ({isPlayable = true, scaleLength=3, startOctave=3, height=150, width=40}) => {
+const PianoVisualizer: React.FC<PianoVisualizerProps> = ({isPlayable = true, scaleLength=3, startOctave=3, height=150, width=40, showKeyname = true}) => {
   const [selectedKey, setSelectedKey] = useState<string>("C");
-  const [sampler, setSampler] = useState<Tone.Sampler | null>(null);
-
-  useEffect(() => {
-    // Load the sampler and check for errors
-    const s = new Tone.Sampler({
-      urls: sampleUrls,
-      onload: () => {console.log("Sampler loaded");},
-      onerror: (error) => {console.error("Error loading sampler:", error);},
-    }).toDestination();
-    setSampler(s); // Ensure the sampler is loaded
-  }, []);
+  const sampler = useContext(SamplerContext);
 
   const handleKeyClick = async (key: string) => {
     setSelectedKey(key);
     await Tone.start(); // Ensure the audio context is started before triggering sounds
-    if (sampler) {
-        sampler.triggerAttackRelease(keyNotes[key],"1n"); // Play the note for 1s
+    if (sampler?.current) {
+        sampler.current.triggerAttackRelease(key, "1n");
     } else {
       console.error("Sampler not loaded yet");
     }
@@ -164,7 +76,8 @@ const PianoVisualizer: React.FC<PianoVisualizerProps> = ({isPlayable = true, sca
                 boxSizing: "border-box",
               }}
             >
-              <div
+              {showKeyname &&
+              (<div
                 style={{
                   position: "absolute",
                   bottom: "5px",
@@ -173,10 +86,9 @@ const PianoVisualizer: React.FC<PianoVisualizerProps> = ({isPlayable = true, sca
                   fontSize: "12px",
                   color: "black",
                   userSelect: "none"
-                }}
-              >
+                }}>
                 {note}
-              </div>
+              </div>)}
             </div>
           );
         })}
@@ -204,7 +116,8 @@ const PianoVisualizer: React.FC<PianoVisualizerProps> = ({isPlayable = true, sca
                 position: "absolute",
               }}
             >
-              <div
+              {showKeyname && 
+              (<div
                 style={{
                   position: "absolute",
                   bottom: "5px",
@@ -213,10 +126,9 @@ const PianoVisualizer: React.FC<PianoVisualizerProps> = ({isPlayable = true, sca
                   fontSize: "12px",
                   color: "white",
                   userSelect: "none"
-                }}
-              >
+                }}>
                 {note}
-              </div>
+              </div>)}
             </div>
           );
         })}

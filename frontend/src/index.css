@@ -9,13 +9,13 @@
   background-size: cover;
   background-repeat: no-repeat;
   background-attachment: fixed;
-  width: 1200px;
+  width: 100vw;
   background: linear-gradient(rgb(1, 64, 109),rgb(11, 103, 169));
-
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
 }
 
 html, body {
