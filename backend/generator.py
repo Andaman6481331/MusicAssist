@@ -1,3 +1,6 @@
+#activate the venv first before running
+#.venv\Scripts\activate
+
 import os
 import torchaudio
 import librosa

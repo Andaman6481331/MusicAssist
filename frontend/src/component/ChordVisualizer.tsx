@@ -51,21 +51,22 @@ const ChordVisualizer: React.FC<ChordVisualizerProps> = ({ selectedChord, isMute
   
     const playChord = async () => {
       if (sampler?.current && selectedChord) {
-        if (!sampler?.current || isMuted || !selectedChord) return;
+        if (!sampler?.current || isMuted || !selectedChord || !sampler.current.loaded) return;
         
         await Tone.start(); // Ensure audio context is started
   
         const notes = chordNotes[selectedChord]
           ?.map((note) => keyNotes[note])
           .filter(Boolean); // remove undefined just in case
-  
-        if (notes && notes.length > 0 && sampler?.current) {
-          sampler.current.triggerAttackRelease(notes, "1n"); // Play all notes together
+          if (notes && notes.length > 0) {
+            sampler.current.triggerAttackRelease(notes, "1n"); // Play all notes together
+          }
         }
+      };
+      if(sampler?.current){
+        playChord();
       }
-    };
   
-    playChord();
   }, [selectedChord]);
   
   const whiteKeys = ["C", "D", "E", "F", "G", "A", "B"];
@@ -110,7 +111,7 @@ const ChordVisualizer: React.FC<ChordVisualizerProps> = ({ selectedChord, isMute
 
       {/* Black keys */}
       <div style={{ display: "flex", zIndex: 1 }}>  
-        {blackKeys.map((key, index) => {
+        {blackKeys.map((key) => {
           const isSelected = selectedChordNotes.includes(key);
 
           // Use conditional offsets to make sure black keys align properly

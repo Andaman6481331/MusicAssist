@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { Outlet } from 'react-router-dom';
+import React, { useState } from "react";
+// import { Outlet } from 'react-router-dom';
 import { useNavigate } from "react-router-dom";
 import "./based.css";
 
@@ -89,6 +89,7 @@ const PracticePage: React.FC = () => {
           if (trimmed === "done") {
             setLoadingPercent(0);
             console.log("Generation done");
+
             navigate("/output");
             break;
           }

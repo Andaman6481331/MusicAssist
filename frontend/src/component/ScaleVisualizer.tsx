@@ -55,12 +55,21 @@ const ScaleVisualizer: React.FC = () => {
         sampler.current.triggerAttackRelease(note, "1n");
       }
       setSelectedKey(note);
-      await new Promise((resolve) => setTimeout(resolve, 500)); // wait 500ms before next note
+      await new Promise((resolve) => setTimeout(resolve, 250)); // wait 250ms before next note
     }
+    for (let i = scaleKeys.length-2; i >= 0; i--) {
+      const note = scaleKeys[i];
+      if (sampler?.current) {
+        sampler.current.triggerAttackRelease(note, "1n");
+      }
+      setSelectedKey(note);
+      await new Promise((resolve) => setTimeout(resolve, 250)); // wait 250ms before next note
+    }
+
   };
 
   return (
-    <div className="container">
+    <div className="container" style={{margin: "0 auto"}}>
       <div className="separater"> 
         {/* fix separater class plz*/}
         <h1>Scale Visualizer</h1>

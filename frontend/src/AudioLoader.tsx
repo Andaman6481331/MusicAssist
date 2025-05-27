@@ -63,45 +63,6 @@ const sampleUrls: Record<string, string> = {
   "F#7": "Fs7vH.mp3",
   "F#7vL": "Fs7vL.mp3"
 
-  // High Velocity Samples
-  // "A0": "A0vH.mp3",
-  // "B0": "B0vH.mp3",
-  // "C1": "C1vH.mp3",
-  // "D#1": "D#1vH.mp3",
-  // "F#1": "F#1vH.mp3",
-  // "A1": "A1vH.mp3",
-  // "B1": "B1vH.mp3",
-  // "C2": "C2vH.mp3",
-  // "D#2": "D#2vH.mp3",
-  // "F#2": "F#2vH.mp3",
-  // "B2": "B2vH.mp3",
-  // "C3": "C3vH.mp3",
-  // "D#3": "D#3vH.mp3",
-  // "F#3": "F#3vH.mp3",
-  // "A3": "A3vH.mp3",
-  // "B3": "B3vH.mp3",
-  // "D#4": "D#4vH.mp3",
-  // "F#4": "F#4vH.mp3",
-
-  // "A4": "A4vH.mp3",
-  // "B4": "B4vH.mp3",
-  // "C5": "C5vH.mp3",
-  // "D#5": "D#5vH.mp3",
-  // "F#5": "F#5vH.mp3",
-  // "A5": "A5vH.mp3",
-  // "B5": "B5vH.mp3",
-  // "C6": "C6vH.mp3",
-  // "D#6": "D#6vH.mp3",
-  // "F#6": "F#6vH.mp3",
-  // "A6": "A6vH.mp3",
-  // "B6": "B6vH.mp3",
-  // "C7": "C7vH.mp3",
-  // "D#7": "D#7vH.mp3",
-  // "F#7": "F#7vH.mp3",
-  // "A7": "A7vH.mp3",
-  // "B7": "B7vH.mp3",
-  // "C8": "C8vH.mp3",
-
   // C3: "/notesSample/C3.mp3",
   // "C#3": "/notesSample/Cs3.mp3",
   // D3: "/notesSample/D3.mp3",
@@ -155,6 +116,7 @@ const App = () => {
         baseUrl: "samples/",
         release: 2,
       }).toDestination();
+      s.volume.value = -12  //lower volume to reduce noise
       samplerRef.current = s
     }, []);
 

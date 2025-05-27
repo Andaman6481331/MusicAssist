@@ -108,7 +108,7 @@
 .scales-wrapper{
   display: grid;
   width: 100%;
-  padding: 1rem  0 1rem 1rem;
+  padding: 1rem;
   grid-template-columns: repeat(2, 500px); /* Two fixed-width columns */
   gap: 24px;
   justify-self: center;
@@ -116,6 +116,7 @@
   border: 1px solid black;
   overflow-x: hidden;
   overflow-y: scroll;
+  margin: 0 auto;
 }
 
 .separater{
@@ -159,8 +160,6 @@
   content: " ";
   display: block;
   background: white;
-  /* width: 5px;
-  height: 50px; */
   position: absolute;
   filter: blur(50px);
   overflow: hidden;
