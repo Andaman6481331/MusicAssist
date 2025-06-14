@@ -15,7 +15,7 @@ const PracticePage: React.FC = () => {
         name: "Difficulties",
         options: [
           { value: "simple easy", label: "Beginner" },
-          { value: "steady block", label: "Intermidiate" },
+          { value: "steady block", label: "Intermediate" },
           { value: "complex broken", label: "Advanced" },
         ],
       },
@@ -175,4 +175,3 @@ const PracticePage: React.FC = () => {
 };
 
 export default PracticePage;
-

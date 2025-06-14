@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, createContext} from "react";
 import * as Tone from "tone";
 import NavBar from "./NavBar";
-
+import { Outlet } from "react-router-dom";
 
 const sampleUrls: Record<string, string> = {
   "A0": "A0vH.mp3",
@@ -122,6 +122,8 @@ const App = () => {
       gain.gain.linearRampToValueAtTime(1, Tone.now() + 0.05); // 50ms fade-in
       s.volume.value = -12  //lower volume to reduce noise
 
+      // }).toDestination();
+      // s.volume.value = -12  //lower volume to reduce noise
       samplerRef.current = s
     }, []);
 
@@ -134,3 +136,4 @@ const App = () => {
 };
 
 export default App;
+
