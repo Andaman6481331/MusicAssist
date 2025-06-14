@@ -4,7 +4,7 @@
     display: flex;
     /* flex-direction: row; */
     justify-content: space-between;
-    background: black;
+    background: linear-gradient(rgb(78, 184, 246),rgb(82, 188, 249));
     min-width: 1000px;
     width: 100%;
     min-height: 200vh; 
@@ -93,6 +93,7 @@
   min-width: 1000px;
   width: 100vw;
   height: 200vh; 
+  overflow: hidden;
 }
 
 .abs-centered{
@@ -117,6 +118,21 @@
   overflow-x: hidden;
   overflow-y: scroll;
   margin: 0 auto;
+}
+.scales-wrapper::-webkit-scrollbar {
+  width: 15px;
+}
+.scales-wrapper::-webkit-scrollbar-track {
+  background-color: rgb(78, 184, 246);
+}
+.scales-wrapper::-webkit-scrollbar-thumb {
+  background: rgb(8, 117, 201);
+  border-radius: 5px;
+  border-color: rgb(13, 100, 176);
+}
+.scales-wrapper::-webkit-scrollbar-thumb:hover {
+  background: rgb(11, 126, 214);
+  cursor: pointer;
 }
 
 .separater{
@@ -150,8 +166,6 @@
   padding: 20px;
   color: white;
   display: flex;
-  /* justify-content: center;
-  align-items: center; */
 }
 
 .content::before {
@@ -197,6 +211,33 @@
   backdrop-filter: blur(50px);
 }
 
+.PianoRoll-Bg{
+  background: rgba(16, 67, 168, 0.52);
+  display: block;
+  margin: 0 auto;
+  border: 1px solid rgb(0, 0, 106);
+  background-image: 
+    repeating-linear-gradient(
+      to right,
+      rgba(255, 255, 255, 0.3) 0,
+      rgba(255, 255, 255, 0.3) 1px,
+      transparent 1px,
+      transparent calc((100% / 49) * 3),
+      
+      rgba(255, 255, 255, 0.3) calc((100% / 49) * 3),
+      rgba(255, 255, 255, 0.3) calc((100% / 49) * 3 + 1px),
+      transparent calc((100% / 49) * 3 + 1px),
+      transparent calc((100% / 49) * 7)
+    ),
+    repeating-linear-gradient(
+        to right,
+        transparent 0,
+        transparent calc((100% / 49) - 1px),
+        rgba(3, 127, 221, 0.1) calc((100% / 49) - 1px),
+        rgba(3, 127, 221, 0.1) calc((100% / 49))
+      );
+  background-size: '100% 100%';
+}
 @keyframes rotation_9018 {
   0% {
     transform: rotate(0deg);

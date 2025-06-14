@@ -39,43 +39,49 @@ model.set_generation_params(duration=2)
 
 def analyze_and_group_notes(file_path):
     score = converter.parse(file_path)
-    raw_notes = []
+    notes_data = []
+    startTime = 10
+    timelength = 10
+    max_time = startTime+timelength
 
-    # Step 1: Extract individual notes from all parts
+    tempo_bpm = 90  # default
+    for el in score.recurse():
+        if isinstance(el, tempo.MetronomeMark):
+            tempo_bpm = el.number
+            break
+
     for part in score.parts:
-        for element in part.flat.notes:
-            if isinstance(element, note.Note):
-                raw_notes.append({
-                    "name": element.nameWithOctave,
-                    "midi": element.pitch.midi,
-                    "time": round(float(element.offset), 2),
-                    "duration": round(float(element.quarterLength), 2),
-                    "velocity": 64  # Placeholder value
+        for el in part.recurse().notes:
+            offset_beats = float(el.getOffsetInHierarchy(score))
+            offset_seconds = offset_beats * (60 / tempo_bpm)
+
+            if offset_seconds < startTime or offset_beats > max_time:
+                continue
+
+            if isinstance(el, note.Note):
+                velocity = el.volume.velocity if el.volume.velocity is not None else 64
+                notes_data.append({
+                    "name": el.nameWithOctave,
+                    "midi": el.pitch.midi,
+                    "time": round(offset_seconds-startTime, 3),
+                    "duration": round(el.quarterLength * (60 / tempo_bpm), 3),
+                    "velocity": velocity,
+                    "root": el.name
                 })
 
-    # Step 2: Group notes by start time (within a small threshold)
-    grouped_notes = defaultdict(list)
-    time_threshold = 0.05  # Notes within 50ms are considered simultaneous
-
-    for note_obj in raw_notes:
-        inserted = False
-        for group_time in grouped_notes:
-            if abs(note_obj["time"] - group_time) <= time_threshold:
-                grouped_notes[group_time].append(note_obj)
-                inserted = True
-                break
-        if not inserted:
-            grouped_notes[note_obj["time"]].append(note_obj)
-
-    # Step 3: Optionally assign left/right hand and format output
-    result = []
-    for group_time in sorted(grouped_notes.keys()):
-        group = grouped_notes[group_time]
-        for note_obj in group:
-            note_obj["hand"] = "left" if note_obj["midi"] < 60 else "right"
-        result.extend(group)
-
-    return result
+            elif isinstance(el, chord.Chord):
+                root = el.root().nameWithOctave if el.root() else None
+                velocity = el.volume.velocity if el.volume.velocity is not None else 64
+                for pitch in el.pitches:
+                    notes_data.append({
+                        "name": pitch.nameWithOctave,
+                        "midi": pitch.midi,
+                        "time": round(offset_seconds-startTime, 3),
+                        "duration": round(el.quarterLength * (60 / tempo_bpm), 3),
+                        "velocity": velocity,
+                        "root": root
+                    })
+    return notes_data, tempo_bpm
 
 class PromptRequest(BaseModel):
     prompt: str
@@ -85,7 +91,6 @@ def generate_music(prompt: str):
     q = Queue()
     notes_result = []
     def generate_and_capture(prompt):
-
         class StreamInterceptor:
             def __init__(self, q):
                 self.q = q
@@ -163,8 +168,7 @@ def generate_music(prompt: str):
             if line is None:
                 break
             yield line
-
-        
+            
     return StreamingResponse(stream(), media_type="text/plain")
 
 @app.get("/result")
@@ -174,4 +178,4 @@ def get_latest_analysis():
             return json.load(f)
     except FileNotFoundError:
         raise HTTPException(status_code=404, detail="Analysis result not found")
-
+    

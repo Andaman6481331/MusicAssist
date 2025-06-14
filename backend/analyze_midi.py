@@ -1,69 +1,72 @@
-from music21 import converter, chord, note
-from collections import defaultdict
+import pretty_midi
+import json
+import os
 
-# def analyze_midi_file(file_path):
-#     score = converter.parse(file_path)
-#     chordified = score.chordify()
-    
-#     result = []
+def analyze_with_pretty_midi(file_path, start_sec=0, duration_sec=30):
+    midi_data = pretty_midi.PrettyMIDI(file_path)
+    all_notes = []
 
-#     for element in chordified.flat.notesAndRests:
-#         if isinstance(element, chord.Chord):
-#             for pitch in element.pitches:
-#                 result.append({
-#                     "name": pitch.nameWithOctave,
-#                     "midi": pitch.midi,
-#                     "time": round(float(element.offset),2),
-#                     "duration": round(float(pitch.quarterLength),2),
-#                     # "chord": element.fullName,
-#                     "root": element.root().name,
-#                     # "pitches": [p.midi for p in element.pitches]
-#                 })
-    
-#     return result
+    for instrument in midi_data.instruments:
+        if instrument.is_drum:
+            continue  # skip drums
 
-def analyze_and_group_notes(file_path):
-    score = converter.parse(file_path)
-    raw_notes = []
-
-    # Step 1: Extract individual notes from all parts
-    for part in score.parts:
-        for element in part.flat.notes:
-            if isinstance(element, note.Note):
-                raw_notes.append({
-                    "name": element.nameWithOctave,
-                    "midi": element.pitch.midi,
-                    "time": round(float(element.offset), 2),
-                    "duration": round(float(element.quarterLength), 2),
-                    "velocity": 64  # Placeholder value
+        for n in instrument.notes:
+            if start_sec <= n.start <= start_sec + duration_sec:
+                all_notes.append({
+                    'name': pretty_midi.note_number_to_name(n.pitch),
+                    'midi': n.pitch,
+                    'time': round(n.start, 5),  # more precision
+                    'duration': round(n.end - n.start, 5),
+                    'velocity': n.velocity/127
                 })
 
-    # Step 2: Group notes by start time (within a small threshold)
-    grouped_notes = defaultdict(list)
-    time_threshold = 0.05  # Notes within 50ms are considered simultaneous
+    deduped = []
+    seen = set()
+    epsilon = 1e-4  # 0.1 ms tolerance
 
-    for note_obj in raw_notes:
-        inserted = False
-        for group_time in grouped_notes:
-            if abs(note_obj["time"] - group_time) <= time_threshold:
-                grouped_notes[group_time].append(note_obj)
-                inserted = True
-                break
-        if not inserted:
-            grouped_notes[note_obj["time"]].append(note_obj)
+    for note in all_notes:
+        key = (note['midi'], round(note['time'] / epsilon))  # quantize time for deduplication
+        if key not in seen:
+            deduped.append(note)
+            seen.add(key)
 
-    # Step 3: Optionally assign left/right hand and format output
-    result = []
-    for group_time in sorted(grouped_notes.keys()):
-        group = grouped_notes[group_time]
-        for note_obj in group:
-            note_obj["hand"] = "left" if note_obj["midi"] < 60 else "right"
-        result.extend(group)
+    deduped.sort(key=lambda x: x['time'])
+    tempo_bpm = midi_data.get_tempo_changes()[1][0]
+    # total_time = round(max(note.end),2)
+    total_time = round(max(n['time'] + n['duration'] for n in deduped), 2)
 
-    return result
+    return deduped, tempo_bpm, total_time
 
-if __name__ == "__main__":
-    file_path = "../Collection/Test1115(1)_basic_pitch.mid"
-    # chords = analyze_midi_file(file_path)
-    chords = analyze_and_group_notes(file_path)
-    print(chords)
+# Convert all values to float-compatible
+def serialize_note(n):
+    return {
+        'name': n['name'],
+        'midi': n['midi'],
+        'time': float(n['time']),
+        'duration': float(n['duration']),
+        'velocity': n['velocity']
+    }
+
+################################################################################################
+file_path = '../Collection/river_flow_in_you.mid'
+output_dir = '../frontend/public/JsonOutputs'
+
+base_name = os.path.splitext(os.path.basename(file_path))[0]        # Get the base filename without extension
+os.makedirs(output_dir, exist_ok=True)                              # Make sure the folder exists (create if not)
+output_json_path = os.path.join(output_dir, base_name + '.json')    # Full output JSON path with same base name + .json extension
+
+notes, tempo_bpm, total_time = analyze_with_pretty_midi(file_path)
+data = {
+    'tempo_bpm': tempo_bpm,
+    'total_time': total_time,
+    'notes': [serialize_note(n) for n in notes],
+}
+print(f"Tempo: {tempo_bpm}")
+print(f"FileLength(s): {total_time}")
+print(f"Total notes found: {len(notes)}")
+
+# Write the JSON file
+with open(output_json_path, 'w') as f:
+    json.dump(data, f, indent=4)
+
+print(f"JSON saved to {output_json_path}")

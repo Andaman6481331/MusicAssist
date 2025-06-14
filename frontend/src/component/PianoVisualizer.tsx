@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import * as Tone from "tone";
 import { useContext } from "react";
 import { SamplerContext } from "../AudioLoader";
@@ -10,14 +10,21 @@ interface PianoVisualizerProps {
   height?: number;  //per key
   width?: number;
   showKeyname?: boolean;
+  externalKey?: string[];
 }
 
-const PianoVisualizer: React.FC<PianoVisualizerProps> = ({isPlayable = true, scaleLength=3, startOctave=3, height=150, width=40, showKeyname = true}) => {
-  const [selectedKey, setSelectedKey] = useState<string>("C");
+const PianoVisualizer: React.FC<PianoVisualizerProps> = ({isPlayable = true, scaleLength=3, startOctave=3, height=150, width=40, showKeyname = true, externalKey= []}) => {
+  // const [selectedKey, setSelectedKey] = useState<string>("C");
   const sampler = useContext(SamplerContext);
+  const [selectedKey, setSelectedKey] = useState<string[]>([]);
+
+  useEffect(() => {
+    setSelectedKey(externalKey);
+  }, [externalKey]);
+
 
   const handleKeyClick = async (key: string) => {
-    setSelectedKey(key);
+    setSelectedKey([key]);
     await Tone.start(); // Ensure the audio context is started before triggering sounds
     if (sampler?.current) {
         sampler.current.triggerAttackRelease(key, "1n");
@@ -58,7 +65,8 @@ const PianoVisualizer: React.FC<PianoVisualizerProps> = ({isPlayable = true, sca
       {/* White keys */}
       <div style={{ display: "flex", zIndex: 0 }}>
         {allWhiteKeys.map(({note}) => {
-          const isSelected = note === selectedKey;
+          // const isSelected = note === selectedKey;
+          const isSelected = selectedKey.includes(note);
           const whiteKeyIndex = allWhiteKeys.findIndex(k => k.note.startsWith(note.charAt(0)) && k.octave === parseInt(note.slice(-1)));
           const left = whiteKeyIndex * width - (width*((scaleLength*7)/2));
           return (
@@ -68,7 +76,7 @@ const PianoVisualizer: React.FC<PianoVisualizerProps> = ({isPlayable = true, sca
               style={{
                 width: `${width}px`,
                 height: `${height}px`,
-                backgroundColor: isSelected ? "rgb(98, 208, 220)" : "white",
+                backgroundColor: isSelected ? "rgb(32, 173, 255)" : "white",
                 border: "1px solid black",
                 left: `${left}px`,
                 margin: "0",
@@ -98,7 +106,8 @@ const PianoVisualizer: React.FC<PianoVisualizerProps> = ({isPlayable = true, sca
       {/* <div style={{ position: "absolute", display: "flex", left: "0", top: "0", height: "90px", zIndex: 1 }}> */}
       <div style={{display:"flex", height:"90px", zIndex: 1}}> 
         {allBlackKeys.map(({ note }) => {
-          const isSelected = note === selectedKey;
+          // const isSelected = note === selectedKey;
+          const isSelected = selectedKey.includes(note);
 
           // Calculate left offset based on white keys
           const whiteKeyIndex = allWhiteKeys.findIndex(k => k.note.startsWith(note.charAt(0)) && k.octave === parseInt(note.slice(-1)));
@@ -110,7 +119,7 @@ const PianoVisualizer: React.FC<PianoVisualizerProps> = ({isPlayable = true, sca
               style={{
                 width: `${width*0.625}px`,
                 height: `${height*0.6}px`,
-                backgroundColor: isSelected ? "rgb(0, 67, 74)" : "black",
+                backgroundColor: isSelected ? "rgb(8, 117, 201)" : "black",
                 left: `${left}px`,
                 zIndex: 2,
                 position: "absolute",

@@ -109,14 +109,19 @@ const App = () => {
 
   useEffect(() => {
       // Load the sampler and check for errors
+      const limiter = new Tone.Limiter(-1).toDestination();
+      const gain = new Tone.Gain(0).connect(limiter); // Gain node before limiter
       const s = new Tone.Sampler({
         urls: sampleUrls,
         onload: () => {console.log("Sampler loaded");},
         onerror: (error) => {console.error("Error loading sampler:", error);},
         baseUrl: "samples/",
         release: 2,
-      }).toDestination();
+      }).connect(gain);
+
+      gain.gain.linearRampToValueAtTime(1, Tone.now() + 0.05); // 50ms fade-in
       s.volume.value = -12  //lower volume to reduce noise
+
       samplerRef.current = s
     }, []);
 

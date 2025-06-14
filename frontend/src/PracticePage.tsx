@@ -62,12 +62,12 @@ const PracticePage: React.FC = () => {
 
     try{
       const response = await fetch(`http://localhost:8000/generate?prompt=${textprompt}`);
-
       if (!response.body) throw new Error("No response body");
 
       const reader = response.body.getReader();
       const decoder = new TextDecoder("utf-8");
 
+      //stream the loading progress
       let buffer = "";
       while (true) {
         const { value, done } = await reader.read();
