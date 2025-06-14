@@ -25,3 +25,9 @@ dist-ssr
 .venv/
 backend/.venv/
 
+# Python cache files
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyc
+backend/__pycache__/server.cpython-39.pyc
