@@ -1,5 +1,5 @@
-import React, {useState} from "react";
-import { Link } from 'react-router-dom';
+import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import { Outlet } from "react-router-dom";
 import "./NavBar.css";
 import SideMenu from "./SideMenu";
@@ -10,20 +10,31 @@ const NavBar: React.FC = () => {
   return (
     <div>
       <header className="navbar">
-          <Link className="left-nav" to="/">
-            <h1 className="title">Harmonic</h1>
+        <Link className="left-nav" to="/">
+          <h1 className="title">Harmonia</h1>
+        </Link>
+        <div className="right-nav">
+          <Link className="title" to="/output">
+            Song
           </Link>
-          <div className="right-nav">
-            <Link className="title" to="/output">Song</Link>
-            <Link className="title" to="/practice">Practice</Link>
-            <Link className="title" to="/chord">Chords</Link>
-          </div>
+          <Link className="title" to="/practice">
+            Practice
+          </Link>
+          <Link className="title" to="/chord">
+            Chords
+          </Link>
+          {/* Login button */}
+          <Link
+            to="/login"
+            className="login-button"
+            aria-label="Login to your account"
+          >
+            Login
+          </Link>
+        </div>
       </header>
-      <main style={{display: "flex"}}>
-          <SideMenu
-            selectedChord={selectedChord}
-            setSelectedChord={setSelectedChord}
-          />
+      <main style={{ display: "flex" }}>
+        <SideMenu selectedChord={selectedChord} setSelectedChord={setSelectedChord} />
         <Outlet />
       </main>
     </div>

@@ -1,312 +1,316 @@
 /* From Uiverse.io by catraco, Codewithvinay */ 
 
 .page-container{
-    display: flex;
-    /* flex-direction: row; */
-    justify-content: space-between;
-    background: black;
-    min-width: 1000px;
-    width: 100%;
-    min-height: 200vh; 
+  display: flex;
+  /* flex-direction: row; */
+  justify-content: space-between;
+  background: black;
+  min-width: 1000px;
+  width: 100%;
+  min-height: 200vh; 
 }
 
 .mainbar{
-    position: relative;
-    width: 100%;
-    margin: 0.5rem 2rem 0.5rem 1rem;
-    & .topbg{
-      background: linear-gradient(rgb(28, 105, 160),rgb(1, 29, 49));
-      padding: 1rem 1rem;
-      margin: 1rem 0;
-      border-radius: 0.5rem;
-      display: flex;
-    }
-    & .bottombg{
-      height: 300px;
-      background-color: rgb(1, 20, 34);
-    }
-    & h1{
-        font-size: 3.5rem;
-        margin: 0;
-    }
+  position: relative;
+  width: 100%;
+  margin: 0.5rem 2rem 0.5rem 1rem;
+  & .topbg{
+    background: linear-gradient(rgb(28, 105, 160),rgb(1, 29, 49));
+    padding: 1rem 1rem;
+    margin: 1rem 0;
+    border-radius: 0.5rem;
+    display: flex;
+  }
+  & .bottombg{
+    height: 300px;
+    background-color: rgb(1, 20, 34);
+  }
+  & h1{
+      font-size: 3.5rem;
+      margin: 0;
+  }
 }
 
 .centered{
-  /* justify-content: center; */
-  margin-left: auto;
+/* justify-content: center; */
+margin-left: auto;
 }
 
 .card1 {
-  margin: 0 auto;
-  width: 500px;
-  height: 500px;
-  border-radius: 25px;
-  background: linear-gradient(rgb(28, 105, 160),rgb(1, 29, 49));
-  box-shadow: -20px -20px 60px #083565, 20px 20px 60px #0e4d91;
-  &:hover{
-    box-shadow: -20px -20px 60px #0a3b6f, 20px 20px 60px #11539a;
-  }
- }
-
-.playbtn{
-  background-color: #083565;
-  padding: 0.5rem;
-  font-size: 2rem;
-  border-radius: 1rem;
-  width: fit-content;
-  height: fit-content;
-  &:hover{
-    background-color: #0e437c;
-  }
+margin: 0 auto;
+width: 500px;
+height: 500px;
+border-radius: 25px;
+background: linear-gradient(rgb(28, 105, 160),rgb(1, 29, 49));
+box-shadow: -20px -20px 60px #083565, 20px 20px 60px #0e4d91;
+&:hover{
+  box-shadow: -20px -20px 60px #0a3b6f, 20px 20px 60px #11539a;
+}
 }
 
+.playbtn {
+  background-color: #083565;
+  padding: 0.25rem 0.75rem;      /* Smaller padding */
+  font-size: 1.25rem; 
+  font-weight: bold;            /* Smaller font */
+  border-radius: 0.75rem;
+  margin-top: 2rem;              /* Pushes button lower */
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  transition: background-color 0.3s ease;
+}
+
+.playbtn:hover {
+  background-color: #0e437c;
+}
+
+
 .practice-selector{
-  margin: 1rem auto;
-  border: 4px solid #1b65b5;
-  border-radius: 1rem;
-  background-color: #1b65b550;
-  padding: 1rem;
-  width: 800px;
+margin: 1rem auto;
+border: 4px solid #1b65b5;
+border-radius: 1rem;
+background-color: #1b65b550;
+padding: 1rem;
+width: 800px;
 }
 
 .loader {
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  height: 200px;
-  margin-top: 40px;
+display: flex;
+align-items: flex-end;
+justify-content: center;
+height: 200px;
+margin-top: 40px;
 }
 
 .bar {
-  width: 6px;
-  height: 100px;
-  margin: 0 2px;
-  background-color: rgba(255, 255, 255, 0.5);
-  border-radius: 10px;
-  animation: wave 1.5s ease-in-out infinite;
-  transform-origin: bottom;
+width: 6px;
+height: 100px;
+margin: 0 2px;
+background-color: rgba(255, 255, 255, 0.5);
+border-radius: 10px;
+animation: wave 1.5s ease-in-out infinite;
+transform-origin: bottom;
 }
 
 .output-page-container{
-  background: black;
-  position: relative;
-  min-width: 1000px;
-  width: 100vw;
-  height: 200vh; 
+background: black;
+position: relative;
+min-width: 1000px;
+width: 100vw;
+height: 200vh; 
 }
 
 .abs-centered{
-  position: absolute;
-  left: 50%;
+position: absolute;
+left: 50%;
 }
 .scale-card-piano{
-  position: absolute;
-  left: 50%;
-  top: 30%;
+position: absolute;
+left: 50%;
+top: 30%;
 }
 
 .scales-wrapper{
-  display: grid;
-  width: 100%;
-  padding: 1rem  0 1rem 1rem;
-  grid-template-columns: repeat(2, 500px); /* Two fixed-width columns */
-  gap: 24px;
-  justify-self: center;
-  height: 80vh;
-  border: 1px solid black;
-  overflow-x: hidden;
-  overflow-y: scroll;
+display: grid;
+width: 100%;
+padding: 1rem;
+grid-template-columns: repeat(2, 500px); /* Two fixed-width columns */
+gap: 24px;
+justify-self: center;
+height: 80vh;
+border: 1px solid black;
+overflow-x: hidden;
+overflow-y: scroll;
+margin: 0 auto;
 }
 
 .separater{
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+width: 100%;
+display: flex;
+align-items: center;
+justify-content: space-between;
 }
 
 .scale-card {
-  width: 500px;
-  height: 200px;
-  background-color: #1d74d2b2;
-  border-radius: 20px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  overflow: hidden;
-  position: relative;
-  box-shadow: 0px 0px 3px 1px #00000088;
-  cursor: pointer;
+width: 500px;
+height: 200px;
+background-color: #1d74d2b2;
+border-radius: 20px;
+display: flex;
+justify-content: center;
+align-items: center;
+overflow: hidden;
+position: relative;
+box-shadow: 0px 0px 3px 1px #00000088;
+cursor: pointer;
 }
 
 .scale-card .content {
-  border-radius: 20px;
-  background: #1717172a;
-  /* width: 250px; */
-  width: 100%;
-  height: 100%;
-  z-index: 1;
-  padding: 20px;
-  color: white;
-  display: flex;
-  /* justify-content: center;
-  align-items: center; */
+border-radius: 20px;
+background: #1717172a;
+/* width: 250px; */
+width: 100%;
+height: 100%;
+z-index: 1;
+padding: 20px;
+color: white;
+display: flex;
+/* justify-content: center;
+align-items: center; */
 }
 
 .content::before {
-  opacity: 0;
-  transition: opacity 300ms;
-  content: " ";
-  display: block;
-  background: white;
-  /* width: 5px;
-  height: 50px; */
-  position: absolute;
-  filter: blur(50px);
-  overflow: hidden;
+opacity: 0;
+transition: opacity 300ms;
+content: " ";
+display: block;
+background: white;
+position: absolute;
+filter: blur(50px);
+overflow: hidden;
 }
 
 .scale-card:hover .content::before {
-  opacity: 1;
+opacity: 1;
 }
 
 .scale-card::before {
-  opacity: 0;
-  content: " ";
-  position: absolute;
-  display: block;
-  width: 80px;
-  height: 500px;
-  background: linear-gradient(#2576cc67, #387ef0);
-  transition: opacity 300ms;
-  animation: rotation_9018 8000ms infinite linear;
-  animation-play-state: paused;
+opacity: 0;
+content: " ";
+position: absolute;
+display: block;
+width: 80px;
+height: 500px;
+background: linear-gradient(#2576cc67, #387ef0);
+transition: opacity 300ms;
+animation: rotation_9018 8000ms infinite linear;
+animation-play-state: paused;
 }
 
 .scale-card:hover::before {
-  opacity: 1;
-  animation-play-state: running;
+opacity: 1;
+animation-play-state: running;
 }
 
 .scale-card::after {
-  position: absolute;
-  content: " ";
-  display: block;
-  width: 100%;
-  height: 200px;
-  background: #17171719;
-  backdrop-filter: blur(50px);
+position: absolute;
+content: " ";
+display: block;
+width: 100%;
+height: 200px;
+background: #17171719;
+backdrop-filter: blur(50px);
 }
 
 @keyframes rotation_9018 {
-  0% {
-    transform: rotate(0deg);
-  }
+0% {
+  transform: rotate(0deg);
+}
 
-  100% {
-    transform: rotate(360deg);
-  }
+100% {
+  transform: rotate(360deg);
+}
 }
 
 
 @keyframes wave {
-  0%, 100% {
-    transform: scaleY(1);
-    background-color: rgba(178, 231, 254, 0.5);
-  }
-  50% {
-    transform: scaleY(1.8);
-    background-color: #a3def7;
-  }
+0%, 100% {
+  transform: scaleY(1);
+  background-color: rgba(178, 231, 254, 0.5);
+}
+50% {
+  transform: scaleY(1.8);
+  background-color: #a3def7;
+}
 }
 
 progress {
   width: 100%;
-  height: 20px;
+  height: 20px; 
 }
 
 .spinner {
-  position: absolute;
-  width: 9px;
-  height: 9px;
+position: absolute;
+width: 9px;
+height: 9px;
 }
 
 .spinner div {
-  position: absolute;
-  width: 50%;
-  height: 150%;
-  background: #01073cc8;
-  transform: rotate(calc(var(--rotation) * 1deg)) translate(0, calc(var(--translation) * 1%));
-  animation: spinner-fzua35 1s calc(var(--delay) * 1s) infinite ease;
+position: absolute;
+width: 50%;
+height: 150%;
+background: #01073cc8;
+transform: rotate(calc(var(--rotation) * 1deg)) translate(0, calc(var(--translation) * 1%));
+animation: spinner-fzua35 1s calc(var(--delay) * 1s) infinite ease;
 }
 
 .spinner div:nth-child(1) {
-  --delay: 0.1;
-  --rotation: 36;
-  --translation: 150;
+--delay: 0.1;
+--rotation: 36;
+--translation: 150;
 }
 
 .spinner div:nth-child(2) {
-  --delay: 0.2;
-  --rotation: 72;
-  --translation: 150;
+--delay: 0.2;
+--rotation: 72;
+--translation: 150;
 }
 
 .spinner div:nth-child(3) {
-  --delay: 0.3;
-  --rotation: 108;
-  --translation: 150;
+--delay: 0.3;
+--rotation: 108;
+--translation: 150;
 }
 
 .spinner div:nth-child(4) {
-  --delay: 0.4;
-  --rotation: 144;
-  --translation: 150;
+--delay: 0.4;
+--rotation: 144;
+--translation: 150;
 }
 
 .spinner div:nth-child(5) {
-  --delay: 0.5;
-  --rotation: 180;
-  --translation: 150;
+--delay: 0.5;
+--rotation: 180;
+--translation: 150;
 }
 
 .spinner div:nth-child(6) {
-  --delay: 0.6;
-  --rotation: 216;
-  --translation: 150;
+--delay: 0.6;
+--rotation: 216;
+--translation: 150;
 }
 
 .spinner div:nth-child(7) {
-  --delay: 0.7;
-  --rotation: 252;
-  --translation: 150;
+--delay: 0.7;
+--rotation: 252;
+--translation: 150;
 }
 
 .spinner div:nth-child(8) {
-  --delay: 0.8;
-  --rotation: 288;
-  --translation: 150;
+--delay: 0.8;
+--rotation: 288;
+--translation: 150;
 }
 
 .spinner div:nth-child(9) {
-  --delay: 0.9;
-  --rotation: 324;
-  --translation: 150;
+--delay: 0.9;
+--rotation: 324;
+--translation: 150;
 }
 
 .spinner div:nth-child(10) {
-  --delay: 1;
-  --rotation: 360;
-  --translation: 150;
+--delay: 1;
+--rotation: 360;
+--translation: 150;
 }
 
 @keyframes spinner-fzua35 {
-  0%, 10%, 20%, 30%, 50%, 60%, 70%, 80%, 90%, 100% {
-    transform: rotate(calc(var(--rotation) * 1deg)) translate(0, calc(var(--translation) * 1%));
-  }
-
-  50% {
-    transform: rotate(calc(var(--rotation) * 1deg)) translate(0, calc(var(--translation) * 1.5%));
-  }
+0%, 10%, 20%, 30%, 50%, 60%, 70%, 80%, 90%, 100% {
+  transform: rotate(calc(var(--rotation) * 1deg)) translate(0, calc(var(--translation) * 1%));
 }
 
+50% {
+  transform: rotate(calc(var(--rotation) * 1deg)) translate(0, calc(var(--translation) * 1.5%));
+}
+}

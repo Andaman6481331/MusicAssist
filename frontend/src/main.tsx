@@ -8,6 +8,8 @@ import Home from './HomePage.tsx';
 import ChordPage from './ChordPage.tsx';
 import PracticePage from './PracticePage.tsx';
 import OutputPage from './OutputPage.tsx';
+import LoginPage from './login.tsx'; 
+import SignIn from './SignIn.tsx';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -18,6 +20,8 @@ createRoot(document.getElementById('root')!).render(
           <Route path="chord" element={<ChordPage />} />
           <Route path="practice" element={<PracticePage/>}/>
           <Route path="output" element={<OutputPage/>}/>
+          <Route path="login" element={<LoginPage />} />
+          <Route path="register" element={<SignIn />} />
         </Route>
       </Routes>
     </BrowserRouter>

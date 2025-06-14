@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { Outlet } from 'react-router-dom';
+import React, { useState } from "react";
+// import { Outlet } from 'react-router-dom';
 import { useNavigate } from "react-router-dom";
 import "./based.css";
 
@@ -15,7 +15,7 @@ const PracticePage: React.FC = () => {
         name: "Difficulties",
         options: [
           { value: "simple easy", label: "Beginner" },
-          { value: "steady block", label: "Intermidiate" },
+          { value: "steady block", label: "Intermediate" },
           { value: "complex broken", label: "Advanced" },
         ],
       },
@@ -174,4 +174,3 @@ const PracticePage: React.FC = () => {
 };
 
 export default PracticePage;
-
