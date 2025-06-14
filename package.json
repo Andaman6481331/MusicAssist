@@ -1,4 +1,5 @@
 {
+<<<<<<< Updated upstream
     "name": "musicassist-root",
     "private": true,
     "version": "1.0.0",
@@ -13,4 +14,37 @@
         "postcss": "^8.5.3",
         "tailwindcss": "^4.1.7"
     }
+=======
+  "name": "musicassist",
+  "version": "1.0.0",
+  "description": "Interactive Web Application for Musician-Assisted Chord Progression and Tension Exploration Using Music Theory",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Andaman6481331/MusicAssist.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Andaman6481331/MusicAssist/issues"
+  },
+  "homepage": "https://github.com/Andaman6481331/MusicAssist#readme",
+  "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
+    "@mui/icons-material": "^7.1.0",
+    "@mui/material": "^7.1.0",
+    "autoprefixer": "^10.4.21",
+    "postcss": "^8.5.3",
+    "react-router-dom": "^7.6.0",
+    "tailwindcss": "^4.1.7"
+  },
+  "devDependencies": {
+    "@types/react": "^19.1.5"
+  }
+>>>>>>> Stashed changes
 }
