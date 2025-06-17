@@ -14,7 +14,7 @@ const About: React.FC = () => {
   const [selectedExt, setExt] = useState<string>("");
   const [selectedDom, setDom] = useState<string>("");
   const [spSelect, setSp] = useState<string>("");
-  const [finalChord, setFinalChord] = useState<string>("");
+  const [finalChord, setFinalChord] = useState<string>("Please Select the Chord");
 
   return (
     <div className="page-container">
@@ -38,16 +38,17 @@ const About: React.FC = () => {
             setFinalChord={setFinalChord}
           />
           </div>
-          <Octave_ChordVisualizer
-            finalChord={finalChord}
-            isMuted={isMuted}
-          />
-          <h1>
-            {finalChord}
-          </h1>
-
-          
-          
+          <div className="container">
+            <a className="blueBtn">
+              {finalChord}
+            </a>
+            <Octave_ChordVisualizer
+              width={50}
+              height={200}
+              finalChord={finalChord}
+              isMuted={isMuted}
+            />
+          </div>
         </div>
         <div className="topbg">
             <ScaleVisualizer/>

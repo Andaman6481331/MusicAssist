@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, createContext} from "react";
 import * as Tone from "tone";
 import NavBar from "./NavBar";
-import { Outlet } from "react-router-dom";
+// import { Outlet } from "react-router-dom";
 
 const sampleUrls: Record<string, string> = {
   "A0": "A0vH.mp3",
@@ -62,43 +62,6 @@ const sampleUrls: Record<string, string> = {
   "F#6vL": "Fs6vL.mp3",
   "F#7": "Fs7vH.mp3",
   "F#7vL": "Fs7vL.mp3"
-
-  // C3: "/notesSample/C3.mp3",
-  // "C#3": "/notesSample/Cs3.mp3",
-  // D3: "/notesSample/D3.mp3",
-  // "D#3": "/notesSample/Ds3.mp3",
-  // E3: "/notesSample/E3.mp3",
-  // F3: "/notesSample/F3.mp3",
-  // "F#3": "/notesSample/Fs3.mp3",
-  // G3: "/notesSample/G3.mp3",
-  // "G#3": "/notesSample/Gs3.mp3",
-  // A3: "/notesSample/A3.mp3",
-  // "A#3": "/notesSample/As3.mp3",
-  // B3: "/notesSample/B3.mp3",
-  // C4: "/notesSample/C4.mp3",
-  // "C#4": "/notesSample/Cs4.mp3",
-  // D4: "/notesSample/D4.mp3",
-  // "D#4": "/notesSample/Ds4.mp3",
-  // E4: "/notesSample/E4.mp3",
-  // F4: "/notesSample/F4.mp3",
-  // "F#4": "/notesSample/Fs4.mp3",
-  // G4: "/notesSample/G4.mp3",
-  // "G#4": "/notesSample/Gs4.mp3",
-  // A4: "/notesSample/A4.mp3",
-  // "A#4": "/notesSample/As4.mp3",
-  // B4: "/notesSample/B4.mp3",
-  // C5: "/notesSample/C5.mp3",
-  // "C#5": "/notesSample/Cs5.mp3",
-  // D5: "/notesSample/D5.mp3",
-  // "D#5": "/notesSample/Ds5.mp3",
-  // E5: "/notesSample/E5.mp3",
-  // F5: "/notesSample/F5.mp3",
-  // "F#5": "/notesSample/Fs5.mp3",
-  // G5: "/notesSample/
-  // "G#5": "/notesSample/Gs5.mp3",
-  // A5: "/notesSample/A5.mp3",
-  // "A#5": "/notesSample/As5.mp3",
-  // B5: "/notesSample/B5.mp3",
 };
 
 export const SamplerContext = createContext<React.MutableRefObject<Tone.Sampler | null> | null>(null);

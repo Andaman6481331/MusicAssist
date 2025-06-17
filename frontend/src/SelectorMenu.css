@@ -13,18 +13,14 @@
 }
 
 .selector-wrapper {
-    --font-color-dark: rgb(1, 29, 49);
-    --font-color-light: rgb(76, 157, 215);
     --bg-color: rgb(28, 105, 160);
-    --main-color: #191866;
     position: relative;
     height: 2.5rem;
-    background-color: var(--bg-color);
-    border: 2px solid var(--main-color);
+    background: linear-gradient(#074689, #033e7d);
+    /* background-color: var(--bg-color); */
     border-radius: 3px;
     display: flex;
     flex-direction: row;
-    box-shadow: 1px 2px var(--main-color);
     align-items: center;
     justify-content: space-around;
     margin-bottom: 1rem;
@@ -35,9 +31,9 @@
     width: 80.5px;
     height: 28px;
     position: relative;
-    & :hover{
+    /* & :hover{
       background-color: rgba(240, 248, 255, 0.312);
-    }
+    } */
   }
   
   .selector-input {

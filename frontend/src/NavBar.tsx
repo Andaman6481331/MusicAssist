@@ -11,7 +11,7 @@ const NavBar: React.FC = () => {
     <div>
       <header className="navbar">
         <Link className="left-nav" to="/">
-          <h1 className="title">Harmonia</h1>
+          <h1 className="title">Harmonic</h1>
         </Link>
         <div className="right-nav">
           <Link className="title" to="/output">
@@ -24,10 +24,8 @@ const NavBar: React.FC = () => {
             Chords
           </Link>
           {/* Login button */}
-          <Link
-            to="/login"
-            className="login-button"
-            aria-label="Login to your account"
+          <Link className="title" to="/login"
+            // aria-label="Login to your account"
           >
             Login
           </Link>

@@ -28,11 +28,13 @@ const KeyOnScale: Record<string, string[]> = {
 //1 3 5 7b  7       =+9 = +9
 
 interface ChordVisualizerProps {
+  width: number;
+  height: number;
   finalChord: string;
   isMuted?: boolean;
 }
 
-const ChordVisualizer: React.FC<ChordVisualizerProps> = ({finalChord, isMuted = false }) => {
+const ChordVisualizer: React.FC<ChordVisualizerProps> = ({width = 40, height = 150, finalChord, isMuted = false }) => {
   const sampler = useContext(SamplerContext);
 
 
@@ -121,12 +123,13 @@ const ChordVisualizer: React.FC<ChordVisualizerProps> = ({finalChord, isMuted = 
               <div
                 key={fullNote}
                 style={{
-                  width: "40px",
-                  height: "150px",
-                  backgroundColor: isSelected ? "rgb(98, 208, 220)" : "white",
+                  width: `${width}px`,
+                  height: `${height}px`,
+                  backgroundColor: isSelected ? "rgb(32, 173, 255)" : "white",
                   border: "1px solid black",
                   position: "relative",
                   boxSizing: "border-box",
+                  borderRadius: (fullNote==="C4")? "10px 0 0 10px": (fullNote==="B5")? "0 10px 10px 0": "0"
                 }}
               >
                 <div
@@ -147,23 +150,23 @@ const ChordVisualizer: React.FC<ChordVisualizerProps> = ({finalChord, isMuted = 
         </div>
 
         {/* Black Keys */}
-        <div style={{ display: "flex", position: "absolute", top: 0, left: 11, zIndex: 1 }}>
+        <div style={{ display: "flex", position: "absolute", top: 0, left: `${width/2}px`, zIndex: 1 }}>
           {whiteKeys.map((whiteKey, i) => {
-            const nextWhite = whiteKeys[i + 1];
             const blackKey = whiteKey + "#";
-            if (!blackKeys.includes(blackKey)) return <div key={`gap-${i}`} style={{ width: "31px" }} />;
+            if (!blackKeys.includes(blackKey)) return <div key={`gap-${i}`} style={{ width: `${width}px` }} />;
             const fullNote = blackKey + octave;
             const isSelected = selectedNotes.includes(fullNote);
             return (
               <div
                 key={fullNote}
                 style={{
-                  width: "25px",
-                  height: "90px",
-                  backgroundColor: isSelected ? "rgb(1, 57, 121)" : "black",
-                  marginLeft: "10px",
-                  marginRight: "10px",
+                  width: `${width*0.75}px`,
+                  height: `${height*0.6}px`,
+                  backgroundColor: isSelected ? "rgb(32, 173, 255)" : "rgb(7, 5, 106)",
+                  marginLeft: `${width/8}px`,
+                  marginRight: `${width/8}px`,
                   position: "relative",
+                  borderRadius: "0 0 5px 5px"
                 }}
               >
                 <div
@@ -187,28 +190,15 @@ const ChordVisualizer: React.FC<ChordVisualizerProps> = ({finalChord, isMuted = 
   };
 
   return (
-    <div style={{ display: "flex", justifyContent: "center", alignItems: "flex-start", marginTop: "80px" }}>
-      {renderOctave(4)}
-      {renderOctave(5)}
-      
-      <div style={{ textAlign: "center" }}>
-  <button
-    onClick={playChord}
-    style={{
-      marginBottom: "20px",
-      padding: "10px 20px",
-      fontSize: "16px",
-      backgroundColor: "#62d0dc",
-      border: "none",
-      borderRadius: "8px",
-      cursor: "pointer",
-    }}
-  >
-    Play Chord
-  </button>
-</div>
-
+    <div>
+      <div style={{ display:"flex",textAlign: "center" , justifyContent: "flex-end"}}>
+        <button onClick={playChord} className="playbtn">Play Chord</button>
+      </div>
+      <div style={{display: "flex"}}>
+        {renderOctave(4)}{renderOctave(5)}
+      </div>
     </div>
+    
   );
 };
 

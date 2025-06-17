@@ -19,7 +19,7 @@ interface Note {
   root?: string;
 }
 interface PianoRollAppProps {
-  onNotePlayed?: (noteNames: string[]) => void;
+  onNotePlayed?: (notes: { name: string; duration: number }[]) => void;
 }
 
 const PianoRollApp: React.FC<PianoRollAppProps> = ({onNotePlayed}) => {
@@ -30,6 +30,8 @@ const PianoRollApp: React.FC<PianoRollAppProps> = ({onNotePlayed}) => {
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const scrollRef = useRef<SVGGElement>(null);
   const [currentNote, setCurrentNote] = useState<string | null>(null);
+  const animationRef = useRef<number | null>(null);
+
 
 
   const svgWidth = 1225;
@@ -99,8 +101,8 @@ const PianoRollApp: React.FC<PianoRollAppProps> = ({onNotePlayed}) => {
       if (scrollRef.current) {
         scrollRef.current.setAttribute('transform', `translate(0, ${offset})`);
       }
-      const notesThisFrame: string[] = [];
 
+      const notesThisFrame: { name: string; duration: number }[] = [];
       notes.forEach((note, i) => {
         if (played.has(i)) return;
 
@@ -120,14 +122,11 @@ const PianoRollApp: React.FC<PianoRollAppProps> = ({onNotePlayed}) => {
         // Trigger when note's **bottom** touches bottom of screen
         if (Math.abs(visualYBottom - svgHeight) <= threshold) {
           played.add(i);
-          notesThisFrame.push(note.name);
+           notesThisFrame.push({ name: note.name, duration: note.duration });
         }
       });
-      if (notesThisFrame.length > 0) {
-        handleKeyClick(notesThisFrame);
-        if (onNotePlayed) {
-          onNotePlayed(notesThisFrame);
-        }
+      if (notesThisFrame.length > 0 && onNotePlayed) {
+        onNotePlayed(notesThisFrame); //pass the play note to pianovisulizer
       }
 
       if (offset <= maxOffset) {
@@ -138,7 +137,67 @@ const PianoRollApp: React.FC<PianoRollAppProps> = ({onNotePlayed}) => {
     };
   requestAnimationFrame(animate);
 };
+  const pausedTimeRef = useRef(0); // Save animation elapsed when paused
+  const togglePlayback = async () => {
+    if (!sampler || notes.length === 0) return;
 
+    if (!isPlaying) {
+      await Tone.start();
+      Tone.Transport.start("+0.1", pausedTimeRef.current / 1000);
+      const svg = scrollRef.current;
+      if (!svg) return;
+
+      const startTime = performance.now() - pausedTimeRef.current;
+      const played = new Set<number>();
+
+      const animate = (now: number) => {
+        const elapsed = (now - startTime) / 1000;
+        pausedTimeRef.current = now - startTime;
+
+        const offset = elapsed * pixelsPerSecond;
+
+        if (scrollRef.current) {
+          scrollRef.current.setAttribute("transform", `translate(0, ${offset})`);
+        }
+
+        const notesThisFrame: { name: string; duration: number }[] = [];
+        notes.forEach((note, i) => {
+          if (played.has(i)) return;
+
+          const y = (note.time / totalTime) * total_svg_height;
+          const height = note.duration * pixelsPerSecond;
+          const visualYBottom = y + offset;
+
+          const threshold = 2;
+          if (Math.abs(visualYBottom - svgHeight) <= threshold) {
+            played.add(i);
+            notesThisFrame.push({ name: note.name, duration: note.duration });
+          }
+        });
+
+        if (notesThisFrame.length > 0 && onNotePlayed) {
+          onNotePlayed(notesThisFrame);
+        }
+
+        if (offset <= total_svg_height * 2) {
+          animationRef.current = requestAnimationFrame(animate);
+        } else {
+          setIsPlaying(false);
+          pausedTimeRef.current = 0;
+        }
+      };
+      animationRef.current = requestAnimationFrame(animate);
+      setIsPlaying(true);
+    } else {
+      // Pause
+      setIsPlaying(false);
+      Tone.Transport.pause();
+      if (animationRef.current !== null) {
+        cancelAnimationFrame(animationRef.current);
+        animationRef.current = null;
+      }
+    }
+  };
 
   const handleMidiFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -180,7 +239,8 @@ const PianoRollApp: React.FC<PianoRollAppProps> = ({onNotePlayed}) => {
     <div style={{ textAlign: 'center' }}>
       <h1>Piano Roll Playback</h1>
       <input type="file" accept=".mid" onChange={handleMidiFileChange} />
-      <button onClick={playMidi} style={{ marginBottom: '10px' }}>Play Midi</button>
+      <button onClick={togglePlayback} className='playbtn' style={{ marginBottom: '10px' }}>{isPlaying ? 'Pause' : 'Play'}</button>
+      <button onClick={playMidi} className='playbtn' style={{ marginBottom: '10px' }}>Play</button>
       <div className="PianoRoll-Bg" style={{ width: svgWidth, height: svgHeight, overflow: 'hidden', border: '2px solid black' }}>
         <svg width={svgWidth} height={svgHeight} xmlns="http://www.w3.org/2000/svg">
           <g ref={scrollRef} transform={`translate(0, -${svgHeight})`}>

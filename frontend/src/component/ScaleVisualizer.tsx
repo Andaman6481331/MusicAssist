@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, {useState } from "react";
 import * as Tone from "tone";
 import ScalePiano from "./ScalePiano";
 import { useContext } from "react";

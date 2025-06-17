@@ -78,7 +78,6 @@ const ScalePiano: React.FC<PianoVisualizerProps> = ({scaleLength=3, height=150, 
 
           const whiteKeyIndex = allWhiteKeys.findIndex(k => k.note === note);
 
-        //   const whiteKeyIndex = allWhiteKeys.findIndex(k => k.note.startsWith(note.charAt(0)) && k.octave === parseInt(note.slice(-1)));
           const left = whiteKeyIndex * width - (width*((scaleLength*7)/2));
           return (
             <div
