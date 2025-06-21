@@ -3,7 +3,7 @@ const keys = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
 
 interface Props {
   selectedChord: string | null;
-  // setSelectedChord: (chord: string) => void;
+  setSelectedChord: (chord: string) => void;
 }
 
 // Define chord structures (basic major chords for this example)
@@ -22,7 +22,7 @@ const chordNotes: Record<string, string[]> = {
   B: ["B", "D#", "F#"], // B major
 };
 
-export default function CircleOfFifths({selectedChord}: Props) {
+export default function CircleOfFifths({selectedChord, setSelectedChord}: Props) {
   const radius = 125;
   const center = radius * 1.25;
 
@@ -95,7 +95,7 @@ export default function CircleOfFifths({selectedChord}: Props) {
                   transition: "all 0.3s ease-in-out",
                 }}
                 
-                // onClick={() => setSelectedChord(key)}
+                onClick={() => setSelectedChord(key)}
               >
                 {key}
               </text>

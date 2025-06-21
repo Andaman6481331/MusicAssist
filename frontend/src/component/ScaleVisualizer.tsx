@@ -69,7 +69,7 @@ const ScaleVisualizer: React.FC = () => {
   };
 
   return (
-    <div className="container" style={{margin: "0 auto"}}>
+    <div style={{width: "100%"}}>
       <div className="separater"> 
         {/* fix separater class plz*/}
         <h1>Scale Visualizer</h1>

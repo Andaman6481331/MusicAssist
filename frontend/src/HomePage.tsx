@@ -15,8 +15,8 @@ const Home: React.FC = () => {
   return (
     <div className="page-container">
       <div className="mainbar">
-        <div className="topbg">
-          <h1 style={{position: "absolute"}}>Chords : {selectedChord}</h1>
+        {/* <div className="card-container" style={{flexDirection:"column"}}>
+          <h1 style={{marginRight: "auto"}}>Chords : {selectedChord}</h1>
           <label style={{ position: 'absolute', right: '0', cursor: 'pointer' }}>
             <input
               type="checkbox"
@@ -43,7 +43,7 @@ const Home: React.FC = () => {
             </div>
           </div>
             
-        </div>
+        </div> */}
         <div className="bottombg">
         <div style={{ display: 'flex', justifyContent: 'center' }}>
             {/* <Octave_ChordVisualizer 

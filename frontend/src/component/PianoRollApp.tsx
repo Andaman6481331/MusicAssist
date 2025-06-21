@@ -21,6 +21,10 @@ interface Note {
 interface PianoRollAppProps {
   onNotePlayed?: (notes: { name: string; duration: number }[]) => void;
 }
+interface ActiveNote {
+  key: string;
+  endTime: number;
+}
 
 const PianoRollApp: React.FC<PianoRollAppProps> = ({onNotePlayed}) => {
   const sampler = useContext(SamplerContext);
@@ -29,10 +33,13 @@ const PianoRollApp: React.FC<PianoRollAppProps> = ({onNotePlayed}) => {
   const [totalTime, setTotalTime] = useState<number>(8);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const scrollRef = useRef<SVGGElement>(null);
-  const [currentNote, setCurrentNote] = useState<string | null>(null);
+  // const [currentNote, setCurrentNote] = useState<string | null>(null);
   const animationRef = useRef<number | null>(null);
-
-
+  // const [selectedKey, setSelectedKey] = useState<string[]>([]);
+  // const [activeNotes, setActiveNotes] = useState<ActiveNote[]>([]);
+  const playedKeysRef = useRef<Set<string>>(new Set());
+  const [, forceUpdate] = useState(0); // dummy state to trigger re-render
+  const triggerUpdate = () => forceUpdate(prev => (prev + 1) % 10000);
 
   const svgWidth = 1225;
   const svgHeight = 600;
@@ -60,11 +67,13 @@ const PianoRollApp: React.FC<PianoRollAppProps> = ({onNotePlayed}) => {
   //     .then((data: Note[]) => setNotes(data))
   //     .catch(error => console.error('Error loading notes:', error));
   // }, []);
-  const pixelsPerSecond = svgHeight / 5; // five sec to play the whole Y screen
+  const pixelsPerBeat = svgHeight / 8; // adjust how much 1 beat moves visually
+  const pixelsPerSecond = (tempo / 60) * pixelsPerBeat;
 
   useEffect(() => {
     // fetch('/JsonOutputs/Test1147(1)_basic_pitch.json')
-    fetch('/JsonOutputs/river_flow_in_you.json')
+    // fetch('/JsonOutputs/river_flow_in_you.json')
+    fetch('/JsonOutputs/thisGame.json')
       .then(response => response.json())
       .then(data => {
         if (data.notes && Array.isArray(data.notes)) {
@@ -77,6 +86,31 @@ const PianoRollApp: React.FC<PianoRollAppProps> = ({onNotePlayed}) => {
       })
       .catch(error => console.error('Error loading JSON:', error));
   }, []);
+
+  // useEffect(() => {
+  //   if (externalKey && externalKey.length > 0) {
+  //     const now = Tone.now();
+  //     const newNotes: ActiveNote[] = externalKey.map(({ key, duration }) => ({
+  //       key,
+  //       endTime: now + duration,
+  //     }));
+  
+  //     setActiveNotes(prev =>
+  //       [...prev, ...newNotes].filter(n => n.endTime > now)
+  //     );
+  
+  //     const play = async () => {
+  //       await Tone.start();
+  //       if (sampler?.current) {
+  //         externalKey.forEach(({ key }) => {
+  //           sampler.current!.triggerAttackRelease(key, "1n");
+  //         });
+  //       }
+  //     };
+  
+  //     play();
+  //   }
+  // }, [externalKey]);
 
   const playMidi = async () => {
     if (notes.length === 0 || !sampler) return;
@@ -91,44 +125,53 @@ const PianoRollApp: React.FC<PianoRollAppProps> = ({onNotePlayed}) => {
     const played = new Set<number>();
     const visualOffsetStart = -svgHeight / 5; // Start slightly above screen
     const maxOffset = total_svg_height*2;
-
+            
+    
     const animate = (now: number) => {
       const elapsed = (now - startTime) / 1000; // seconds since play started
       // Compute how far we've scrolled downward
       const offset = visualOffsetStart + elapsed * pixelsPerSecond;
-
-      // Scroll downward (no double negative)
+      
+      // Scroll downward
       if (scrollRef.current) {
         scrollRef.current.setAttribute('transform', `translate(0, ${offset})`);
       }
-
-      const notesThisFrame: { name: string; duration: number }[] = [];
+      
+      const keysToAdd: string[] = [];
+      const threshold = 2; // Pixel precision
       notes.forEach((note, i) => {
         if (played.has(i)) return;
-
-        const noteBase = note.name.slice(0, -1);
-        const octave = parseInt(note.name.slice(-1));
-        const baseX = keyPositionMap[noteBase] || 0;
-        const x = baseX + (octave - 1) * whiteKeyWidth * 7;
-
+        // const noteBase = note.name.slice(0, -1);
+        // const octave = parseInt(note.name.slice(-1));
+        // const baseX = keyPositionMap[noteBase] || 0;
         const y = svgHeight - (note.time / totalTime) * total_svg_height;
-        const height = note.duration * pixelsPerSecond;
-        const yAdjusted = y - height; // top of note
-        const visualYTop = yAdjusted + offset;
         const visualYBottom = y + offset;
-
-        const threshold = 2; // Pixel precision
-
+        
         // Trigger when note's **bottom** touches bottom of screen
-        if (Math.abs(visualYBottom - svgHeight) <= threshold) {
+
+        if (!played.has(i) && Math.abs(visualYBottom - svgHeight) <= threshold) {
           played.add(i);
-           notesThisFrame.push({ name: note.name, duration: note.duration });
+
+          const normalized = Tone.Frequency(note.midi, "midi").toNote();
+          keysToAdd.push(normalized);
+          // playedKeysRef.current.add(normalized);
+          // forceUpdate(prev => prev + 1);
+          triggerUpdate();
+          if (sampler?.current) {
+            sampler.current.triggerAttackRelease(normalized, note.duration);
+          }
+          setTimeout(() => {
+            playedKeysRef.current.delete(normalized);
+            // forceUpdate(prev => prev + 1);
+            triggerUpdate();
+          }, note.duration * 1000);
         }
       });
-      if (notesThisFrame.length > 0 && onNotePlayed) {
-        onNotePlayed(notesThisFrame); //pass the play note to pianovisulizer
+      if (keysToAdd.length > 0) {
+        keysToAdd.forEach(k => playedKeysRef.current.add(k));
+        // forceUpdate(v => v + 1);
+        triggerUpdate();
       }
-
       if (offset <= maxOffset) {
         requestAnimationFrame(animate);
       } else {
@@ -138,6 +181,7 @@ const PianoRollApp: React.FC<PianoRollAppProps> = ({onNotePlayed}) => {
   requestAnimationFrame(animate);
 };
   const pausedTimeRef = useRef(0); // Save animation elapsed when paused
+  const playedRef = useRef<Set<number>>(new Set());
   const togglePlayback = async () => {
     if (!sampler || notes.length === 0) return;
 
@@ -148,7 +192,6 @@ const PianoRollApp: React.FC<PianoRollAppProps> = ({onNotePlayed}) => {
       if (!svg) return;
 
       const startTime = performance.now() - pausedTimeRef.current;
-      const played = new Set<number>();
 
       const animate = (now: number) => {
         const elapsed = (now - startTime) / 1000;
@@ -162,7 +205,7 @@ const PianoRollApp: React.FC<PianoRollAppProps> = ({onNotePlayed}) => {
 
         const notesThisFrame: { name: string; duration: number }[] = [];
         notes.forEach((note, i) => {
-          if (played.has(i)) return;
+          if (playedRef.current.has(i)) return;
 
           const y = (note.time / totalTime) * total_svg_height;
           const height = note.duration * pixelsPerSecond;
@@ -170,7 +213,7 @@ const PianoRollApp: React.FC<PianoRollAppProps> = ({onNotePlayed}) => {
 
           const threshold = 2;
           if (Math.abs(visualYBottom - svgHeight) <= threshold) {
-            played.add(i);
+            playedRef.current.add(i);
             notesThisFrame.push({ name: note.name, duration: note.duration });
           }
         });
@@ -235,8 +278,23 @@ const PianoRollApp: React.FC<PianoRollAppProps> = ({onNotePlayed}) => {
   };
 
   const total_svg_height = totalTime * pixelsPerSecond;
+
+   const octaves = Array.from(
+      {length: 7},
+      (_, i) => 1 + i
+    );
+  const whiteKeys = ["C", "D", "E", "F", "G", "A", "B"];
+  const blackKeys = ["C#", "D#", "F#", "G#", "A#"];
+  const allWhiteKeys = octaves.flatMap(octave =>
+    whiteKeys.map(note => ({ note: note + octave, base: note, octave }))
+  );
+  const allBlackKeys = octaves.flatMap(octave =>
+    blackKeys.map(note => ({ note: note + octave, base: note, octave }))
+  );
+
+
   return (
-    <div style={{ textAlign: 'center' }}>
+    <div style={{ textAlign: 'center', maxHeight:`${svgHeight}` }}>
       <h1>Piano Roll Playback</h1>
       <input type="file" accept=".mid" onChange={handleMidiFileChange} />
       <button onClick={togglePlayback} className='playbtn' style={{ marginBottom: '10px' }}>{isPlaying ? 'Pause' : 'Play'}</button>
@@ -266,7 +324,8 @@ const PianoRollApp: React.FC<PianoRollAppProps> = ({onNotePlayed}) => {
                     stroke="#222"
                     strokeWidth={1}
                     cursor="pointer"
-                    onClick={() => note.name && handleKeyClick([note.name])}
+                    // onClick={() => note.name && handleKeyClick([note.name])}
+                    onClick={() => index && handleKeyClick([note.name])}
                   />
                   <text
                     x={x + whiteKeyWidth / 2}
@@ -284,6 +343,85 @@ const PianoRollApp: React.FC<PianoRollAppProps> = ({onNotePlayed}) => {
             })}
           </g>
         </svg>
+      </div>
+      {/* drawingpiano at bottom */}
+      <div className="abs-centered">
+        <div style={{ position: "relative"}}>
+          <div style={{ display: "flex", zIndex: 0 }}>
+              {allWhiteKeys.map(({note}) => {
+                const width = 25;
+                const height = 100;
+                const isSelected = playedKeysRef.current.has(note);
+                const whiteKeyIndex = allWhiteKeys.findIndex(k => k.note.startsWith(note.charAt(0)) && k.octave === parseInt(note.slice(-1)));
+                const left = whiteKeyIndex * width - (width*((7*7)/2));
+                return (
+                  <div
+                    key={note}
+                    style={{
+                      width: `${width}px`,
+                      height: `${height}px`,
+                      backgroundColor: isSelected ? "rgb(32, 173, 255)" : "white",
+                      border: "1px solid black",
+                      left: `${left}px`,
+                      margin: "0",
+                      position: "absolute",
+                      boxSizing: "border-box",
+                    }}
+                  >
+                    {(<div
+                      style={{
+                        position: "absolute",
+                        bottom: "5px",
+                        width: "100%",
+                        textAlign: "center",
+                        fontSize: "12px",
+                        color: "black",
+                        userSelect: "none"
+                      }}>
+                      {note}
+                    </div>)}
+                  </div>
+                );
+              })}
+            </div>
+      
+            {/* Black keys */}
+            <div style={{display:"flex", height:"90px", zIndex: 1}}> 
+              {allBlackKeys.map(({ note }) => {
+                const width = 25;
+                const height = 100;
+                const isSelected = playedKeysRef.current.has(note);
+                const whiteKeyIndex = allWhiteKeys.findIndex(k => k.note.startsWith(note.charAt(0)) && k.octave === parseInt(note.slice(-1)));
+                const left = (whiteKeyIndex*width) + (width*0.7) - (width*(7*7)/2); // 420 = half pianoroll size = make absolute position centered , 28 = margin btw white and black key
+                return (
+                  <div
+                    key={note}
+                    style={{
+                      width: `${width*0.625}px`,
+                      height: `${height*0.6}px`,
+                      backgroundColor: isSelected ? "rgb(8, 117, 201)" : "black",
+                      left: `${left}px`,
+                      zIndex: 2,
+                      position: "absolute",
+                    }}
+                  >
+                    {(<div
+                      style={{
+                        position: "absolute",
+                        bottom: "5px",
+                        width: "100%",
+                        textAlign: "center",
+                        fontSize: "12px",
+                        color: "white",
+                        userSelect: "none"
+                      }}>
+                      {note}
+                    </div>)}
+                  </div>
+                );
+              })}
+            </div>
+        </div>
       </div>
     </div>
   );

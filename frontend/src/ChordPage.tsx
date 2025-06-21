@@ -1,4 +1,6 @@
 import React, { useState} from "react";
+import CircleOfFifths from "./component/CircleofFifth";
+import ChordVisualizer from "./component/ChordVisualizer";
 import Octave_ChordVisualizer from "./component/Octave_ChordVisualizer";
 import ScaleVisualizer from "./component/ScaleVisualizer";
 import SelectorMenu from "./SelectorMenu";
@@ -8,7 +10,8 @@ const About: React.FC = () => {
   const [isMuted, setIsMuted] = useState<boolean>(false);
 
   const [searchParams] = useSearchParams();
-  const selectedChord = searchParams.get("chord") || "C";
+  const [selectedChord, setSelectedChord] = useState<string>("");
+  // const selectedChord = searchParams.get("chord") || "";
   const [selectedMM, setMinorMajor] = useState<string>("");
   const [selectedSus, setSus] = useState<string>("");
   const [selectedExt, setExt] = useState<string>("");
@@ -19,24 +22,39 @@ const About: React.FC = () => {
   return (
     <div className="page-container">
       <div className="mainbar">
-        <div className="topbg">
-          <div style={{justifyContent: "center"}}>
+        <div className="card-container" style={{flexDirection:"column"}}>
+          <h1 style={{marginRight: "auto"}}>Chords : {selectedChord}</h1>
+          <div className="card1">
+            <CircleOfFifths
+                selectedChord={selectedChord}
+                setSelectedChord={setSelectedChord}
+              />
+            <div style={{ display: 'flex', justifyContent: 'center' }}>
+              <ChordVisualizer 
+                selectedChord={selectedChord}
+                isMuted={isMuted}
+              />
+            </div>
+          </div>
+        </div>
+        <div className="card-container">
+          <div className="container">
             <h1>Chord Visualizer</h1>
-          <SelectorMenu
-            selectedChord={selectedChord}
-            selectedMM={selectedMM? selectedMM : "maj"}
-            setMinorMajor={setMinorMajor}
-            selectedSus={selectedSus}
-            setSus={setSus}
-            selectedExt={selectedExt}
-            setExt={setExt}
-            selectedDom={selectedDom}
-            setDom={setDom}
-            spSelect={spSelect}
-            setSp={setSp}
-            FinalChord={finalChord}
-            setFinalChord={setFinalChord}
-          />
+            <SelectorMenu
+              selectedChord={selectedChord}
+              selectedMM={selectedMM? selectedMM : "maj"}
+              setMinorMajor={setMinorMajor}
+              selectedSus={selectedSus}
+              setSus={setSus}
+              selectedExt={selectedExt}
+              setExt={setExt}
+              selectedDom={selectedDom}
+              setDom={setDom}
+              spSelect={spSelect}
+              setSp={setSp}
+              FinalChord={finalChord}
+              setFinalChord={setFinalChord}
+            />
           </div>
           <div className="container">
             <a className="blueBtn">
@@ -50,7 +68,7 @@ const About: React.FC = () => {
             />
           </div>
         </div>
-        <div className="topbg">
+        <div className="card-container">
             <ScaleVisualizer/>
         </div>
       </div>

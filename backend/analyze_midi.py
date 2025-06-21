@@ -48,7 +48,8 @@ def serialize_note(n):
     }
 
 ################################################################################################
-file_path = '../Collection/river_flow_in_you.mid'
+# file_path = '../Collection/river_flow_in_you.mid'
+file_path = '../Collection/thisGame.mid'
 output_dir = '../frontend/public/JsonOutputs'
 
 base_name = os.path.splitext(os.path.basename(file_path))[0]        # Get the base filename without extension

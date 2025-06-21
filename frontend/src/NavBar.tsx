@@ -5,7 +5,7 @@ import "./NavBar.css";
 import SideMenu from "./SideMenu";
 
 const NavBar: React.FC = () => {
-  const [selectedChord, setSelectedChord] = useState<string>("C");
+  // const [selectedChord, setSelectedChord] = useState<string>("C");
 
   return (
     <div>
@@ -32,7 +32,7 @@ const NavBar: React.FC = () => {
         </div>
       </header>
       <main style={{ display: "flex" }}>
-        <SideMenu selectedChord={selectedChord} setSelectedChord={setSelectedChord} />
+        {/* <SideMenu selectedChord={selectedChord} setSelectedChord={setSelectedChord} /> */}
         <Outlet />
       </main>
     </div>

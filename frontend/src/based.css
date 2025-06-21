@@ -18,8 +18,11 @@
     /* background: linear-gradient(rgb(28, 105, 160),rgb(1, 29, 49)); */
     background: linear-gradient(#18509D,#174F9A);
     padding: 1rem 1rem;
-    margin: 1rem 0;
+    margin: 1rem auto;
     border-radius: 0.5rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     display: flex;
   }
   & .bottombg{
@@ -31,9 +34,27 @@
       margin: 0;
   }
 }
+.output-page-container{
+  background: black;
+  position: relative;
+  min-width: 1000px;
+  width: 100vw;
+  height: 200vh; 
+}
+.card-container{
+  background: linear-gradient(#18509D,#174F9A);
+  padding: 1rem 10rem;
+  margin: 1rem 3rem;
+  border-radius: 3rem;
+  display: flex;
+  justify-content: space-between;
+}
+.container{
+  display: flex;
+  flex-direction: column;
+}
 
 .centered{
-/* justify-content: center; */
 margin-left: auto;
 }
 
@@ -70,13 +91,7 @@ box-shadow: -20px -20px 60px #083565, 20px 20px 60px #0e4d91;
 .playbtn:hover {
   background-color: #2c8bf2;
 }
-.container{
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto;
-}
+
 
 .practice-selector{
 margin: 1rem auto;
@@ -103,14 +118,6 @@ background-color: rgba(255, 255, 255, 0.5);
 border-radius: 10px;
 animation: wave 1.5s ease-in-out infinite;
 transform-origin: bottom;
-}
-
-.output-page-container{
-background: black;
-position: relative;
-min-width: 1000px;
-width: 100vw;
-height: 200vh; 
 }
 
 .abs-centered{
