@@ -70,15 +70,32 @@ box-shadow: -20px -20px 60px #083565, 20px 20px 60px #0e4d91;
 }
 }
 
+.hero-title {
+  font-size: clamp(2.5rem, 5vw, 4rem);
+  text-transform: uppercase;
+  font-weight: 900;
+  margin-bottom: 1rem;
+  line-height: 1.2;
+}
+
+.hero-subtitle {
+  font-size: 1.1rem;
+  font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+  line-height: 1.6;
+  max-width: 700px;
+  margin: 0 auto 2rem;
+  color: rgba(235, 235, 235, 0.884);
+}
+
 .playbtn {
-  background-color: #117beb;
+  background-color: #1da1f2;
   padding: 0.25rem 0.75rem;      /* Smaller padding */
+  margin: 0.5rem;
   font-size: 1.25rem; 
   font-weight: bold;            /* Smaller font */
   border-radius: 0.75rem;
   display: block;
   transition: background-color 0.3s ease;
-  margin: 0.5rem;
 }
 .blueBtn{
   background: linear-gradient(#074689, #033e7d);
@@ -372,4 +389,51 @@ animation: spinner-fzua35 1s calc(var(--delay) * 1s) infinite ease;
 50% {
   transform: rotate(calc(var(--rotation) * 1deg)) translate(0, calc(var(--translation) * 1.5%));
 }
+}
+
+/* From Uiverse.io by Zain-Muhammad */ 
+.package-container {
+  display: flex;
+  flex-direction: column;
+  font-family: "Poppins", sans-serif;
+  --primary-color: #1da1f2;
+  --secondary-color: #1da1f2;
+  --tab-text-color: #ffffff;
+}
+.package-heading {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--tab-text-color);
+}
+.package-tab-wrapper {
+  display: flex;
+  align-items: center;
+  column-gap: 10px;
+  border-radius: 8px;
+  /* border: 1px solid var(--primary-color); */
+  padding: 8px;
+}
+.package-tab-wrapper .input {
+  display: none;
+}
+.package-tab {
+  flex-grow: 1;
+  text-align: center;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 12px;
+  background: var(--tab-text-color);
+  /* color: var(--secondary-color); */
+  color: black;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.5s ease-in-out;
+}
+.package-tab:active {
+  transform: scale(0.9);
+}
+.input:checked + label.package-tab {
+  background: var(--primary-color);
+  color: var(--tab-text-color);
+  /* box-shadow: 0px 0px 10px 0px var(--primary-color); */
 }

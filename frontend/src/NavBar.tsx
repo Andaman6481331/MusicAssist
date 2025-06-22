@@ -10,7 +10,7 @@ const NavBar: React.FC = () => {
   return (
     <div>
       <header className="navbar">
-        <Link className="left-nav" to="/">
+        <Link to="/" style={{outline:"0"}}>
           <h1 className="title">Harmonic</h1>
         </Link>
         <div className="right-nav">
@@ -18,7 +18,7 @@ const NavBar: React.FC = () => {
             Song
           </Link>
           <Link className="title" to="/practice">
-            Practice
+            Generate
           </Link>
           <Link className="title" to="/chord">
             Chords

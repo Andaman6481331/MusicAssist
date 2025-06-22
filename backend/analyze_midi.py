@@ -1,8 +1,17 @@
 import pretty_midi
 import json
 import os
+import mido
 
-def analyze_with_pretty_midi(file_path, start_sec=0, duration_sec=30):
+def extract_tempo_via_mido(path):
+    mid = mido.MidiFile(path)
+    for track in mid.tracks:
+        for msg in track:
+            if msg.type == 'set_tempo':
+                return mido.tempo2bpm(msg.tempo)
+    return 120.0
+
+def analyze_with_pretty_midi(file_path, start_sec=0, duration_sec=120):
     midi_data = pretty_midi.PrettyMIDI(file_path)
     all_notes = []
 
@@ -17,7 +26,7 @@ def analyze_with_pretty_midi(file_path, start_sec=0, duration_sec=30):
                     'midi': n.pitch,
                     'time': round(n.start, 5),  # more precision
                     'duration': round(n.end - n.start, 5),
-                    'velocity': n.velocity/127
+                    'velocity': (n.velocity / 127)
                 })
 
     deduped = []
@@ -31,8 +40,16 @@ def analyze_with_pretty_midi(file_path, start_sec=0, duration_sec=30):
             seen.add(key)
 
     deduped.sort(key=lambda x: x['time'])
-    tempo_bpm = midi_data.get_tempo_changes()[1][0]
+    tempo_bpm = round(extract_tempo_via_mido(file_path),2)
     # total_time = round(max(note.end),2)
+
+    # mid = mido.MidiFile(file_path)
+    # for msg in mid.tracks[0]:
+    #     if msg.type == 'set_tempo':
+    #         tempo_bpm = mido.tempo2bpm(msg.tempo)
+    #     else:
+    #         tempo_bpm = 120.0
+
     total_time = round(max(n['time'] + n['duration'] for n in deduped), 2)
 
     return deduped, tempo_bpm, total_time
@@ -49,7 +66,9 @@ def serialize_note(n):
 
 ################################################################################################
 # file_path = '../Collection/river_flow_in_you.mid'
-file_path = '../Collection/thisGame.mid'
+# file_path = '../Collection/thisGame.mid'
+# file_path = '../Collection/Perfect.mid'
+file_path = '../Collection/sparkle.mid'
 output_dir = '../frontend/public/JsonOutputs'
 
 base_name = os.path.splitext(os.path.basename(file_path))[0]        # Get the base filename without extension
@@ -57,6 +76,7 @@ os.makedirs(output_dir, exist_ok=True)                              # Make sure 
 output_json_path = os.path.join(output_dir, base_name + '.json')    # Full output JSON path with same base name + .json extension
 
 notes, tempo_bpm, total_time = analyze_with_pretty_midi(file_path)
+
 data = {
     'tempo_bpm': tempo_bpm,
     'total_time': total_time,

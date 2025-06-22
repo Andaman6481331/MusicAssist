@@ -20,13 +20,13 @@ interface Note {
 }
 interface PianoRollAppProps {
   onNotePlayed?: (notes: { name: string; duration: number }[]) => void;
-}
-interface ActiveNote {
-  key: string;
-  endTime: number;
+  width?: number;
+  height?: number;
+  showNote?: boolean;
+  fileName?: String;
 }
 
-const PianoRollApp: React.FC<PianoRollAppProps> = ({onNotePlayed}) => {
+const PianoRollApp: React.FC<PianoRollAppProps> = ({onNotePlayed, width=25, height=100, showNote=true, fileName="river_flow_in_you"}) => {
   const sampler = useContext(SamplerContext);
   const [notes, setNotes] = useState<Note[]>([]);
   const [tempo, setTempo] = useState<number>(120);
@@ -40,9 +40,14 @@ const PianoRollApp: React.FC<PianoRollAppProps> = ({onNotePlayed}) => {
   const playedKeysRef = useRef<Set<string>>(new Set());
   const [, forceUpdate] = useState(0); // dummy state to trigger re-render
   const triggerUpdate = () => forceUpdate(prev => (prev + 1) % 10000);
+  const [pausedTime, setPausedTime] = useState<number>(0);
+  const startTimeRef = useRef<number | null>(null);
 
-  const svgWidth = 1225;
-  const svgHeight = 600;
+
+  const svgWidth = 49*width;
+  const svgHeight = 6*height;
+  // const svgWidth = 1225;
+  // const svgHeight = 600;
 
   const totalWhiteKeys = 49;
   const whiteKeyWidth = svgWidth / totalWhiteKeys;
@@ -67,26 +72,35 @@ const PianoRollApp: React.FC<PianoRollAppProps> = ({onNotePlayed}) => {
   //     .then((data: Note[]) => setNotes(data))
   //     .catch(error => console.error('Error loading notes:', error));
   // }, []);
-  const pixelsPerBeat = svgHeight / 8; // adjust how much 1 beat moves visually
-  const pixelsPerSecond = (tempo / 60) * pixelsPerBeat;
+
+  
 
   useEffect(() => {
-    // fetch('/JsonOutputs/Test1147(1)_basic_pitch.json')
-    // fetch('/JsonOutputs/river_flow_in_you.json')
-    fetch('/JsonOutputs/thisGame.json')
-      .then(response => response.json())
+    fetch(`/JsonOutputs/${fileName}.json`)
+      .then(response => {
+        console.log("Fetching JSON:", `/JsonOutputs/${fileName}.json`);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        return response.json();
+      })
       .then(data => {
         if (data.notes && Array.isArray(data.notes)) {
-          setNotes(data.notes);
+          const tempoFactor = 120 / data.tempo_bpm;  // 120 is your "reference" tempo
+          const scaledNotes = data.notes.map((n: Note) => ({
+            ...n,
+            time: n.time * tempoFactor,
+            duration: n.duration * tempoFactor
+          }));
+          setNotes(scaledNotes);
           setTempo(data.tempo_bpm);
-          setTotalTime(data.total_time);
+          setTotalTime(data.total_time * tempoFactor);
         } else {
           console.error('Invalid JSON format:', data);
         }
       })
       .catch(error => console.error('Error loading JSON:', error));
-  }, []);
-
+  }, [fileName]);
+  const pixelsPerBeat = svgHeight / 8; // adjust how much 1 beat moves visually
+  const pixelsPerSecond = (tempo / 60) * pixelsPerBeat;
   // useEffect(() => {
   //   if (externalKey && externalKey.length > 0) {
   //     const now = Tone.now();
@@ -121,17 +135,17 @@ const PianoRollApp: React.FC<PianoRollAppProps> = ({onNotePlayed}) => {
     const svg = scrollRef.current;
     if (!svg) return;
 
-    const startTime = performance.now();
     const played = new Set<number>();
     const visualOffsetStart = -svgHeight / 5; // Start slightly above screen
     const maxOffset = total_svg_height*2;
+    startTimeRef.current = performance.now() - pausedTime;
             
     
     const animate = (now: number) => {
-      const elapsed = (now - startTime) / 1000; // seconds since play started
-      // Compute how far we've scrolled downward
+      if (!startTimeRef.current) return;
+      const elapsed = (now - startTimeRef.current) / 1000;
       const offset = visualOffsetStart + elapsed * pixelsPerSecond;
-      
+      setPausedTime(now - startTimeRef.current);
       // Scroll downward
       if (scrollRef.current) {
         scrollRef.current.setAttribute('transform', `translate(0, ${offset})`);
@@ -146,101 +160,45 @@ const PianoRollApp: React.FC<PianoRollAppProps> = ({onNotePlayed}) => {
         // const baseX = keyPositionMap[noteBase] || 0;
         const y = svgHeight - (note.time / totalTime) * total_svg_height;
         const visualYBottom = y + offset;
-        
         // Trigger when note's **bottom** touches bottom of screen
-
         if (!played.has(i) && Math.abs(visualYBottom - svgHeight) <= threshold) {
           played.add(i);
 
           const normalized = Tone.Frequency(note.midi, "midi").toNote();
           keysToAdd.push(normalized);
-          // playedKeysRef.current.add(normalized);
-          // forceUpdate(prev => prev + 1);
           triggerUpdate();
           if (sampler?.current) {
-            sampler.current.triggerAttackRelease(normalized, note.duration);
+            sampler.current.triggerAttackRelease(normalized, note.duration, undefined, note.velocity);
           }
           setTimeout(() => {
             playedKeysRef.current.delete(normalized);
-            // forceUpdate(prev => prev + 1);
             triggerUpdate();
           }, note.duration * 1000);
         }
       });
       if (keysToAdd.length > 0) {
         keysToAdd.forEach(k => playedKeysRef.current.add(k));
-        // forceUpdate(v => v + 1);
         triggerUpdate();
       }
-      if (offset <= maxOffset) {
-        requestAnimationFrame(animate);
+      // if (offset <= maxOffset) {
+      if (elapsed < totalTime) {
+        // requestAnimationFrame(animate);
+        animationRef.current = requestAnimationFrame(animate);
       } else {
         setIsPlaying(false);
+        setPausedTime(0);
       }
     };
-  requestAnimationFrame(animate);
+    animationRef.current = requestAnimationFrame(animate);
+  // requestAnimationFrame(animate);
 };
-  const pausedTimeRef = useRef(0); // Save animation elapsed when paused
-  const playedRef = useRef<Set<number>>(new Set());
-  const togglePlayback = async () => {
-    if (!sampler || notes.length === 0) return;
-
-    if (!isPlaying) {
-      await Tone.start();
-      Tone.Transport.start("+0.1", pausedTimeRef.current / 1000);
-      const svg = scrollRef.current;
-      if (!svg) return;
-
-      const startTime = performance.now() - pausedTimeRef.current;
-
-      const animate = (now: number) => {
-        const elapsed = (now - startTime) / 1000;
-        pausedTimeRef.current = now - startTime;
-
-        const offset = elapsed * pixelsPerSecond;
-
-        if (scrollRef.current) {
-          scrollRef.current.setAttribute("transform", `translate(0, ${offset})`);
-        }
-
-        const notesThisFrame: { name: string; duration: number }[] = [];
-        notes.forEach((note, i) => {
-          if (playedRef.current.has(i)) return;
-
-          const y = (note.time / totalTime) * total_svg_height;
-          const height = note.duration * pixelsPerSecond;
-          const visualYBottom = y + offset;
-
-          const threshold = 2;
-          if (Math.abs(visualYBottom - svgHeight) <= threshold) {
-            playedRef.current.add(i);
-            notesThisFrame.push({ name: note.name, duration: note.duration });
-          }
-        });
-
-        if (notesThisFrame.length > 0 && onNotePlayed) {
-          onNotePlayed(notesThisFrame);
-        }
-
-        if (offset <= total_svg_height * 2) {
-          animationRef.current = requestAnimationFrame(animate);
-        } else {
-          setIsPlaying(false);
-          pausedTimeRef.current = 0;
-        }
-      };
-      animationRef.current = requestAnimationFrame(animate);
-      setIsPlaying(true);
-    } else {
-      // Pause
-      setIsPlaying(false);
-      Tone.Transport.pause();
-      if (animationRef.current !== null) {
-        cancelAnimationFrame(animationRef.current);
-        animationRef.current = null;
-      }
-    }
-  };
+const pausePlayback = () => {
+  setIsPlaying(false);
+  if (animationRef.current !== null) {
+    cancelAnimationFrame(animationRef.current);
+    animationRef.current = null;
+  }
+};
 
   const handleMidiFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -295,10 +253,9 @@ const PianoRollApp: React.FC<PianoRollAppProps> = ({onNotePlayed}) => {
 
   return (
     <div style={{ textAlign: 'center', maxHeight:`${svgHeight}` }}>
-      <h1>Piano Roll Playback</h1>
-      <input type="file" accept=".mid" onChange={handleMidiFileChange} />
-      <button onClick={togglePlayback} className='playbtn' style={{ marginBottom: '10px' }}>{isPlaying ? 'Pause' : 'Play'}</button>
-      <button onClick={playMidi} className='playbtn' style={{ marginBottom: '10px' }}>Play</button>
+      {/* <h1>Piano Roll Playback</h1>
+      <input type="file" accept=".mid" onChange={handleMidiFileChange} /> */}
+      {/* <button onClick={playMidi} className='playbtn' style={{ marginBottom: '10px' }}>Play</button> */}
       <div className="PianoRoll-Bg" style={{ width: svgWidth, height: svgHeight, overflow: 'hidden', border: '2px solid black' }}>
         <svg width={svgWidth} height={svgHeight} xmlns="http://www.w3.org/2000/svg">
           <g ref={scrollRef} transform={`translate(0, -${svgHeight})`}>
@@ -327,7 +284,7 @@ const PianoRollApp: React.FC<PianoRollAppProps> = ({onNotePlayed}) => {
                     // onClick={() => note.name && handleKeyClick([note.name])}
                     onClick={() => index && handleKeyClick([note.name])}
                   />
-                  <text
+                  {(showNote && <text
                     x={x + whiteKeyWidth / 2}
                     y={yAdjusted + height / 2}
                     fill="white"
@@ -337,7 +294,7 @@ const PianoRollApp: React.FC<PianoRollAppProps> = ({onNotePlayed}) => {
                     pointerEvents="none"
                   >
                     {note.name}
-                  </text>
+                  </text>)}
                 </g>
               );
             })}
@@ -345,12 +302,12 @@ const PianoRollApp: React.FC<PianoRollAppProps> = ({onNotePlayed}) => {
         </svg>
       </div>
       {/* drawingpiano at bottom */}
-      <div className="abs-centered">
+      <div style={{marginLeft:`${(svgWidth/2)+2}px`}}>
         <div style={{ position: "relative"}}>
           <div style={{ display: "flex", zIndex: 0 }}>
               {allWhiteKeys.map(({note}) => {
-                const width = 25;
-                const height = 100;
+                // const width = 25;
+                // const height = 100;
                 const isSelected = playedKeysRef.current.has(note);
                 const whiteKeyIndex = allWhiteKeys.findIndex(k => k.note.startsWith(note.charAt(0)) && k.octave === parseInt(note.slice(-1)));
                 const left = whiteKeyIndex * width - (width*((7*7)/2));
@@ -368,7 +325,7 @@ const PianoRollApp: React.FC<PianoRollAppProps> = ({onNotePlayed}) => {
                       boxSizing: "border-box",
                     }}
                   >
-                    {(<div
+                    {(showNote && <div
                       style={{
                         position: "absolute",
                         bottom: "5px",
@@ -384,12 +341,11 @@ const PianoRollApp: React.FC<PianoRollAppProps> = ({onNotePlayed}) => {
                 );
               })}
             </div>
-      
             {/* Black keys */}
-            <div style={{display:"flex", height:"90px", zIndex: 1}}> 
+            <div style={{display:"flex", height:`${height}px`,zIndex: 1}}> 
               {allBlackKeys.map(({ note }) => {
-                const width = 25;
-                const height = 100;
+                // const width = 25;
+                // const height = 100;
                 const isSelected = playedKeysRef.current.has(note);
                 const whiteKeyIndex = allWhiteKeys.findIndex(k => k.note.startsWith(note.charAt(0)) && k.octave === parseInt(note.slice(-1)));
                 const left = (whiteKeyIndex*width) + (width*0.7) - (width*(7*7)/2); // 420 = half pianoroll size = make absolute position centered , 28 = margin btw white and black key
@@ -405,7 +361,7 @@ const PianoRollApp: React.FC<PianoRollAppProps> = ({onNotePlayed}) => {
                       position: "absolute",
                     }}
                   >
-                    {(<div
+                    {(showNote && <div
                       style={{
                         position: "absolute",
                         bottom: "5px",
@@ -423,6 +379,13 @@ const PianoRollApp: React.FC<PianoRollAppProps> = ({onNotePlayed}) => {
             </div>
         </div>
       </div>
+      <button 
+        onClick={() => {isPlaying ? pausePlayback() : playMidi();}} 
+        className='playbtn'
+        style={{ margin: '0.5rem 0', width:"100%"}}
+      >
+        {isPlaying ? 'Pause' : 'Play'}
+      </button>
     </div>
   );
 };
