@@ -3,11 +3,16 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./based.css";
 
+const usedFilenames = ['my_song', 'test123']; // Fake existing list
+
 const PracticePage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [loadingPercent, setLoadingPercent] = useState(0);
   const navigate = useNavigate();
   const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>({});
+  const [showPopup, setShowPopup] = useState(false);
+  const [filename, setFilename] = useState('');
+  const [error, setError] = useState('');
   
 
   const groups = [
@@ -46,28 +51,57 @@ const PracticePage: React.FC = () => {
           { value: "B", label: "B" },
         ],
       },
+      {
+        name: "Duration(s)",
+        options: [
+          { value: "5", label: "5" },
+          { value: "10", label: "10" },
+          { value: "20", label: "20" },
+        ],
+      },
   ];
 
-  const sendPromptToServer = async () => {
-    setLoading(true);
+  const handleFinalGenerate = async () => {
+    if (!filename.trim()) {
+      setError("Please enter a filename.");
+      return;
+    }
+
+    // Replace this with your actual backend check
+    try {
+      const res = await fetch(`http://localhost:8000/check-filename?name=${filename}`);
+      const data = await res.json();
+      if (data.exists) {
+        setError("Filename already exists!");
+        return;
+      }
+    } catch (err) {
+      console.error("Error checking filename:", err);
+      setError("Error checking filename.");
+      return;
+    }
+
+    // Validate selected options
     const values = Object.values(selectedOptions);
     if (values.length < 3) {
       alert("Please select all options before generating!");
-      setLoading(false);
       return;
     }
+
+    setError('');
+    setShowPopup(false);
+    setLoading(true);
 
     const textprompt = `A solo piano performance featuring ${values[2]} chords style. The chords are played in ${values[1]} style providing a strong harmonic foundation. The piece is minimalistic and structured, suitable for ${values[0]} scale piano accompaniment. No melody, only ${values[2]} comping.`;
     console.log("Prompt:", textprompt);
 
-    try{
-      const response = await fetch(`http://localhost:8000/generate?prompt=${textprompt}`);
+    try {
+      const response = await fetch(`http://localhost:8000/generate?prompt=${textprompt}&filename=${filename}`);
       if (!response.body) throw new Error("No response body");
 
       const reader = response.body.getReader();
       const decoder = new TextDecoder("utf-8");
 
-      //stream the loading progress
       let buffer = "";
       while (true) {
         const { value, done } = await reader.read();
@@ -76,28 +110,25 @@ const PracticePage: React.FC = () => {
         buffer += decoder.decode(value, { stream: true });
 
         const lines = buffer.split("\n");
-        buffer = lines.pop() || ""; // Save incomplete line
+        buffer = lines.pop() || "";
 
         for (let line of lines) {
           const trimmed = line.trim();
 
           if (trimmed !== "" && !isNaN(Number(trimmed))) {
             setLoadingPercent(Number(trimmed));
-            // console.log("Streamed line:", trimmed);
           }
 
           if (trimmed === "done") {
             setLoadingPercent(0);
             console.log("Generation done");
-
-            navigate("/output");
-            break;
+            navigate(`/output/${filename}`);
+            return;
           }
         }
       }
-
     } catch (err) {
-      console.error("Error fetching data:", err);
+      console.error("Error generating:", err);
       setLoadingPercent(0);
     } finally {
       setLoading(false);
@@ -109,15 +140,14 @@ const PracticePage: React.FC = () => {
       <div className="practice-selector">
         {groups.map((group, groupIdx) => (
           <div key={groupIdx}>
-            <h3>{group.name}</h3>
-            <div className="selector-wrapper">
+            <h2 style={{margin:"0.5rem 0"}}>{group.name}</h2>
+            <div className="radio-inputs">
               {group.options.map((option, optionIdx) => (
-                <div className="option" key={optionIdx}>
+                <label className="radio" key={optionIdx}>
                   <input
                     value={option.value}
                     name={group.name}
                     type="radio"
-                    className="selector-input"
                     checked={selectedOptions[group.name] === option.value}
                     onChange={(e) => {
                       setSelectedOptions(prev => ({
@@ -126,15 +156,13 @@ const PracticePage: React.FC = () => {
                       }));
                     }}
                   />
-                  <div className="selector-btn">
-                    <span className="span">{option.label}</span>
-                  </div>
-                </div>
+                  <span className="name">{option.label}</span>
+                </label>
               ))}
             </div>
           </div>
         ))}
-        <div>
+        {/* <div>
             <div>
               <progress value={isNaN(loadingPercent) ? 0 : loadingPercent} max="100" />
               <p>{isNaN(loadingPercent) ? 0 : loadingPercent}%</p>
@@ -165,8 +193,36 @@ const PracticePage: React.FC = () => {
                   />
               ))}
               </div>
+          </div> */}
+          <hr style={{height:"4px", margin:"2rem 0 1rem", backgroundColor:"#1b65b5", border:"none"}}/>
+        {/* <button onClick={sendPromptToServer} className="playbtn" style={{width:"100%", margin:"0"}}>Generate</button> */}
+        <button onClick={() => setShowPopup(true)} className="playbtn" style={{width:"100%", margin:"0"}}>Generate</button>
+        {showPopup && (
+        <div className="popup-overlay">
+          <div className="popup-box">
+            <h1 style={{color:"#1967d2"}}>Enter Filename</h1>
+            <input
+              type="text"
+              value={filename}
+              onChange={(e) => setFilename(e.target.value)}
+              placeholder="e.g., my_song"
+            />
+            {error && <p className="error">{error}</p>}
+            <div className="popup-buttons">
+              <button onClick={handleFinalGenerate}>Generate</button>
+              <button onClick={() => setShowPopup(false)}>Cancel</button>
+            </div>
           </div>
-        <button onClick={sendPromptToServer} className="playbtn">Generate</button>
+        </div>
+      )}
+
+      {loading && (
+        <div className="loading-screen">
+          <div className="spinner"></div>
+          <p>Generating your file...</p>
+          <p>{isNaN(loadingPercent) ? 0 : loadingPercent}%</p>
+        </div>
+      )}
         
       </div>
         

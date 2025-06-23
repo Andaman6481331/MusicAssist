@@ -26,7 +26,7 @@ interface PianoRollAppProps {
   fileName?: String;
 }
 
-const PianoRollApp: React.FC<PianoRollAppProps> = ({onNotePlayed, width=25, height=100, showNote=true, fileName="river_flow_in_you"}) => {
+const PianoRollApp: React.FC<PianoRollAppProps> = ({onNotePlayed, width=25, height=100, showNote=true, fileName="unrival"}) => {
   const sampler = useContext(SamplerContext);
   const [notes, setNotes] = useState<Note[]>([]);
   const [tempo, setTempo] = useState<number>(120);

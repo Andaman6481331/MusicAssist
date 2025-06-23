@@ -1,0 +1,174 @@
+{
+    "tempo_bpm": 120.0,
+    "total_time": 1.99,
+    "notes": [
+        {
+            "name": "D4",
+            "midi": 62,
+            "time": 0.02273,
+            "duration": 0.59318,
+            "velocity": 0.4094488188976378
+        },
+        {
+            "name": "A#3",
+            "midi": 58,
+            "time": 0.02273,
+            "duration": 0.65,
+            "velocity": 0.4566929133858268
+        },
+        {
+            "name": "A#2",
+            "midi": 46,
+            "time": 0.02273,
+            "duration": 1.20682,
+            "velocity": 0.5511811023622047
+        },
+        {
+            "name": "F4",
+            "midi": 65,
+            "time": 0.02273,
+            "duration": 1.325,
+            "velocity": 0.5039370078740157
+        },
+        {
+            "name": "G#3",
+            "midi": 56,
+            "time": 0.03409,
+            "duration": 0.22045,
+            "velocity": 0.31496062992125984
+        },
+        {
+            "name": "D#2",
+            "midi": 39,
+            "time": 0.04545,
+            "duration": 0.26818,
+            "velocity": 0.3543307086614173
+        },
+        {
+            "name": "F3",
+            "midi": 53,
+            "time": 0.09318,
+            "duration": 1.27727,
+            "velocity": 0.4330708661417323
+        },
+        {
+            "name": "G#4",
+            "midi": 68,
+            "time": 0.22045,
+            "duration": 0.23182,
+            "velocity": 0.33858267716535434
+        },
+        {
+            "name": "G#3",
+            "midi": 56,
+            "time": 0.25455,
+            "duration": 0.19773,
+            "velocity": 0.4251968503937008
+        },
+        {
+            "name": "D#3",
+            "midi": 51,
+            "time": 0.68409,
+            "duration": 0.36136,
+            "velocity": 0.33858267716535434
+        },
+        {
+            "name": "G#3",
+            "midi": 56,
+            "time": 0.69773,
+            "duration": 0.22045,
+            "velocity": 0.4409448818897638
+        },
+        {
+            "name": "A#3",
+            "midi": 58,
+            "time": 0.92955,
+            "duration": 0.28864,
+            "velocity": 0.3700787401574803
+        },
+        {
+            "name": "A#3",
+            "midi": 58,
+            "time": 1.22955,
+            "duration": 0.14091,
+            "velocity": 0.3464566929133858
+        },
+        {
+            "name": "A#2",
+            "midi": 46,
+            "time": 1.22955,
+            "duration": 0.15227,
+            "velocity": 0.5354330708661418
+        },
+        {
+            "name": "G#3",
+            "midi": 56,
+            "time": 1.32273,
+            "duration": 0.18636,
+            "velocity": 0.5669291338582677
+        },
+        {
+            "name": "G#4",
+            "midi": 68,
+            "time": 1.33409,
+            "duration": 0.65227,
+            "velocity": 0.5669291338582677
+        },
+        {
+            "name": "A#3",
+            "midi": 58,
+            "time": 1.37045,
+            "duration": 0.23182,
+            "velocity": 0.4645669291338583
+        },
+        {
+            "name": "A#2",
+            "midi": 46,
+            "time": 1.38182,
+            "duration": 0.30227,
+            "velocity": 0.47244094488188976
+        },
+        {
+            "name": "G#3",
+            "midi": 56,
+            "time": 1.50909,
+            "duration": 0.42955,
+            "velocity": 0.5039370078740157
+        },
+        {
+            "name": "C6",
+            "midi": 84,
+            "time": 1.57955,
+            "duration": 0.27727,
+            "velocity": 0.30708661417322836
+        },
+        {
+            "name": "D#6",
+            "midi": 87,
+            "time": 1.57955,
+            "duration": 0.28864,
+            "velocity": 0.3858267716535433
+        },
+        {
+            "name": "D#4",
+            "midi": 63,
+            "time": 1.57955,
+            "duration": 0.38182,
+            "velocity": 0.3543307086614173
+        },
+        {
+            "name": "C5",
+            "midi": 72,
+            "time": 1.57955,
+            "duration": 0.40682,
+            "velocity": 0.49606299212598426
+        },
+        {
+            "name": "D#5",
+            "midi": 75,
+            "time": 1.57955,
+            "duration": 0.40682,
+            "velocity": 0.5590551181102362
+        }
+    ]
+}

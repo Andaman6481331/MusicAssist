@@ -14,7 +14,7 @@ const NavBar: React.FC = () => {
           <h1 className="title">Harmonic</h1>
         </Link>
         <div className="right-nav">
-          <Link className="title" to="/output">
+          <Link className="title" to="/data">
             Song
           </Link>
           <Link className="title" to="/practice">
