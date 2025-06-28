@@ -40,7 +40,7 @@ output_dir = '../frontend/public/JsonOutputs'
 os.makedirs(save_dir, exist_ok=True)
 
 model = musicgen.MusicGen.get_pretrained('medium', device='cuda')
-model.set_generation_params(duration=2)
+# model.set_generation_params(duration=2)
 
 def extract_tempo_via_mido(path):
     mid = mido.MidiFile(path)
@@ -99,9 +99,10 @@ class PromptRequest(BaseModel):
     prompt: str
 
 @app.get("/generate")
-def generate_music(prompt: str, filename: str):
+def generate_music(prompt: str, filename: str, mididuration: int):
+    model.set_generation_params(duration=mididuration)
     q = Queue()
-    notes_result = []
+    # notes_result = []
     def generate_and_capture(prompt):
         class StreamInterceptor:
             def __init__(self, q):
@@ -143,7 +144,13 @@ def generate_music(prompt: str, filename: str):
                 q.put(f"Audio saved: {wav_filename}\n")
 
             predict_and_save(wav_files, save_dir, True, False, False, False, ICASSP_2022_MODEL_PATH)
-            midi_filename = wav_filename.replace(".wav","_basic_pitch.mid") #locate the midi file name
+            # midi_filename = wav_filename.replace(".wav","_basic_pitch.mid") #locate the midi file name
+            original_midi = wav_filename.replace(".wav", "_basic_pitch.mid")
+            renamed_midi = wav_filename.replace(".wav", ".mid")
+            if os.path.exists(original_midi):
+                os.rename(original_midi, renamed_midi)
+            midi_filename = renamed_midi
+
             print("Looking for MIDI file:", midi_filename)
             print("File exists?", os.path.exists(midi_filename))
             print(f"saves {midi_filename} success")

@@ -192,7 +192,7 @@ const ChordVisualizer: React.FC<ChordVisualizerProps> = ({width = 40, height = 1
   return (
     <div>
       <div style={{ display:"flex",textAlign: "center" , justifyContent: "flex-end"}}>
-        <button onClick={playChord} className="playbtn">Play Chord</button>
+        <button onClick={playChord} className="playbtn" style={{width:"100%"}}>Play Chord</button>
       </div>
       <div style={{display: "flex"}}>
         {renderOctave(4)}{renderOctave(5)}

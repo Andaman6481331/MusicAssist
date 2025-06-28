@@ -10,6 +10,7 @@ import OutputPage from './OutputPage.tsx';
 import LoginPage from './login.tsx'; 
 import SignIn from './SignIn.tsx';
 import Storage from './Storage.tsx';
+import TestPage from './TestPage.tsx';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -23,6 +24,7 @@ createRoot(document.getElementById('root')!).render(
           <Route path="login" element={<LoginPage />} />
           <Route path="register" element={<SignIn />} />
           <Route path="data" element={<Storage/>}/>
+          <Route path="test" element={<TestPage/>}/>
         </Route>
       </Routes>
     </BrowserRouter>

@@ -93,10 +93,11 @@ const PracticePage: React.FC = () => {
     setLoading(true);
 
     const textprompt = `A solo piano performance featuring ${values[2]} chords style. The chords are played in ${values[1]} style providing a strong harmonic foundation. The piece is minimalistic and structured, suitable for ${values[0]} scale piano accompaniment. No melody, only ${values[2]} comping.`;
+    const mididuration = values[3];
     console.log("Prompt:", textprompt);
 
     try {
-      const response = await fetch(`http://localhost:8000/generate?prompt=${textprompt}&filename=${filename}`);
+      const response = await fetch(`http://localhost:8000/generate?prompt=${textprompt}&filename=${filename}&mididuration=${mididuration}`);
       if (!response.body) throw new Error("No response body");
 
       const reader = response.body.getReader();
@@ -198,33 +199,31 @@ const PracticePage: React.FC = () => {
         {/* <button onClick={sendPromptToServer} className="playbtn" style={{width:"100%", margin:"0"}}>Generate</button> */}
         <button onClick={() => setShowPopup(true)} className="playbtn" style={{width:"100%", margin:"0"}}>Generate</button>
         {showPopup && (
-        <div className="popup-overlay">
-          <div className="popup-box">
-            <h1 style={{color:"#1967d2"}}>Enter Filename</h1>
-            <input
-              type="text"
-              value={filename}
-              onChange={(e) => setFilename(e.target.value)}
-              placeholder="e.g., my_song"
-            />
-            {error && <p className="error">{error}</p>}
-            <div className="popup-buttons">
-              <button onClick={handleFinalGenerate}>Generate</button>
-              <button onClick={() => setShowPopup(false)}>Cancel</button>
+          <div className="popup-overlay">
+            <div className="popup-box">
+              <h1 style={{color:"#1967d2"}}>Enter Filename</h1>
+              <input
+                type="text"
+                value={filename}
+                onChange={(e) => setFilename(e.target.value)}
+                placeholder="e.g., my_song"
+              />
+              {error && <p className="error">{error}</p>}
+              <div className="popup-buttons">
+                <button onClick={handleFinalGenerate}>Generate</button>
+                <button onClick={() => setShowPopup(false)}>Cancel</button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
-
-      {loading && (
-        <div className="loading-screen">
-          <div className="spinner"></div>
-          <p>Generating your file...</p>
-          <p>{isNaN(loadingPercent) ? 0 : loadingPercent}%</p>
-        </div>
-      )}
-        
+        )}
       </div>
+      {loading && (
+            <div className="loading-screen">
+              <div className="spinner"></div>
+              <p>Generating your file...</p>
+              <p>{isNaN(loadingPercent) ? 0 : loadingPercent}%</p>
+            </div>
+          )}
         
     </div>
   );

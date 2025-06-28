@@ -15,18 +15,19 @@ const NavBar: React.FC = () => {
         </Link>
         <div className="right-nav">
           <Link className="title" to="/data">
-            Song
+            My List
+          </Link>
+          <Link className="title" to="/test">
+            Tools
           </Link>
           <Link className="title" to="/practice">
             Generate
           </Link>
           <Link className="title" to="/chord">
-            Chords
+            Theory
           </Link>
           {/* Login button */}
-          <Link className="title" to="/login"
-            // aria-label="Login to your account"
-          >
+          <Link className="title" to="/login">
             Login
           </Link>
         </div>

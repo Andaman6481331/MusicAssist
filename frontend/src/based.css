@@ -49,6 +49,12 @@
   border-radius: 3rem;
   display: flex;
   justify-content: space-between;
+  transition: background 0.4s ease, transform 0.3s ease;
+  &:hover {
+  background: linear-gradient(#1b56a9,#1a55a2);
+  transform: scale(1.01);
+}
+
 }
 .container{
   display: flex;

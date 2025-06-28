@@ -19,6 +19,11 @@ const About: React.FC = () => {
   const [spSelect, setSp] = useState<string>("");
   const [finalChord, setFinalChord] = useState<string>("Please Select the Chord");
 
+  const showChordVisualizerInfo = (e: React.MouseEvent) => {
+    e.preventDefault(); // Prevents the anchor from jumping to top
+    alert("This section helps you build and visualize chords with custom extensions, sus, and voicings.");
+  };
+
   return (
     <div className="page-container">
       <div className="mainbar">
@@ -38,8 +43,14 @@ const About: React.FC = () => {
           </div>
         </div>
         <div className="card-container">
-          <div className="container">
-            <h1>Chord Visualizer</h1>
+          <div>
+            <div style={{display:"flex", alignItems:"center"}}>
+              <h1>Chord Visualizer</h1>
+              <a href="#" onClick={showChordVisualizerInfo}>
+                <img src="/icon/info.svg" alt="Info" style={{ width: '2rem', height: '2rem', cursor: 'pointer', margin: '0.8rem 0 0 1rem'}} />
+              </a>
+            </div>
+           
             <SelectorMenu
               selectedChord={selectedChord}
               selectedMM={selectedMM? selectedMM : "maj"}
@@ -56,13 +67,13 @@ const About: React.FC = () => {
               setFinalChord={setFinalChord}
             />
           </div>
-          <div className="container">
+          <div style={{display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center"}}>
             <a className="blueBtn">
               {finalChord}
             </a>
             <Octave_ChordVisualizer
-              width={50}
-              height={200}
+              width={40}
+              height={160}
               finalChord={finalChord}
               isMuted={isMuted}
             />

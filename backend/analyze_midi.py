@@ -2,6 +2,60 @@ import pretty_midi
 import json
 import os
 import mido
+from collections import defaultdict
+
+def group_simultaneous_notes(notes, epsilon=0.02):
+    groups = defaultdict(list)
+    for note in notes:
+        key = round(note['time'] / epsilon)
+        groups[key].append(note)
+    return list(groups.values())
+
+def is_hand_playable(notes):
+    if len(notes) == 0:
+        return False
+    if len(notes) > 5:
+        return False
+    pitches = sorted(n['midi'] for n in notes)
+    return (pitches[-1] - pitches[0]) <= 15  # max stretch ~15 semitones
+
+
+def split_hands_if_playable(group):
+    if len(group) > 10 or len(group) < 2:
+        return None, None
+
+    group_sorted = sorted(group, key=lambda n: n['midi'])
+    mid = len(group_sorted) // 2
+
+    left_hand = group_sorted[:mid]
+    right_hand = group_sorted[mid:]
+
+    if is_hand_playable(left_hand) and is_hand_playable(right_hand):
+        return left_hand, right_hand
+    return None, None
+
+
+
+def is_group_playable(group):
+    if len(group) > 10:
+        return False  # too many notes
+    # Try naive split: left = lower 5, right = upper 5
+    group_sorted = sorted(group, key=lambda n: n['midi'])
+    left_hand = group_sorted[:min(5, len(group)//2)]
+    right_hand = group_sorted[-min(5, len(group)//2):]
+    return is_hand_playable(left_hand) and is_hand_playable(right_hand)
+
+
+def is_playable(note):
+    # Define filtering conditions
+    if note['duration'] < 0.05:  # Too short
+        return False
+    if note['velocity'] < 0.2:   # Too quiet
+        return False
+    if note['midi'] < 21 or note['midi'] > 108:  # Outside piano range
+        return False
+    return True
+
 
 def extract_tempo_via_mido(path):
     mid = mido.MidiFile(path)
@@ -40,15 +94,24 @@ def analyze_with_pretty_midi(file_path, start_sec=0, duration_sec=120):
             seen.add(key)
 
     deduped.sort(key=lambda x: x['time'])
-    tempo_bpm = round(extract_tempo_via_mido(file_path),2)
-    # total_time = round(max(note.end),2)
+    grouped = group_simultaneous_notes(deduped)
+    # playable_notes = []
 
-    # mid = mido.MidiFile(file_path)
-    # for msg in mid.tracks[0]:
-    #     if msg.type == 'set_tempo':
-    #         tempo_bpm = mido.tempo2bpm(msg.tempo)
-    #     else:
-    #         tempo_bpm = 120.0
+    # for group in grouped:
+    #     left, right = split_hands_if_playable(group)
+    #     if left is not None:
+    #         for n in left:
+    #             if is_playable(n):
+    #                 n['hand'] = 'left'
+    #                 playable_notes.append(n)
+    #         for n in right:
+    #             if is_playable(n):
+    #                 n['hand'] = 'right'
+    #                 playable_notes.append(n)
+
+
+    
+    tempo_bpm = round(extract_tempo_via_mido(file_path),2)
 
     total_time = round(max(n['time'] + n['duration'] for n in deduped), 2)
 
@@ -61,14 +124,12 @@ def serialize_note(n):
         'midi': n['midi'],
         'time': float(n['time']),
         'duration': float(n['duration']),
-        'velocity': n['velocity']
+        'velocity': n['velocity'],
+        'hand': n.get('hand')
     }
 
 ################################################################################################
-# file_path = '../Collection/river_flow_in_you.mid'
-# file_path = '../Collection/thisGame.mid'
-# file_path = '../Collection/Perfect.mid'
-file_path = '../Collection/unrival.mid'
+file_path = '../Collection/ggg_basic_pitch.mid'
 output_dir = '../frontend/public/JsonOutputs'
 
 base_name = os.path.splitext(os.path.basename(file_path))[0]        # Get the base filename without extension
