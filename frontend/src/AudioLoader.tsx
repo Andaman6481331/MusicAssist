@@ -1,7 +1,9 @@
 import React, { useEffect, useRef, createContext} from "react";
 import * as Tone from "tone";
 import NavBar from "./NavBar";
-// import { Outlet } from "react-router-dom";
+import { Outlet } from "react-router-dom";
+import { LoadingProvider } from "./LoadingContext";
+import LoadingBar from "./LoadingBar";
 
 const sampleUrls: Record<string, string> = {
   "A0": "A0vH.mp3",
@@ -92,9 +94,13 @@ const App = () => {
 
 
   return (
-    <SamplerContext.Provider value={samplerRef}>
-      <NavBar />
-    </SamplerContext.Provider>
+    <LoadingProvider>
+      <SamplerContext.Provider value={samplerRef}>
+        <NavBar />
+        <LoadingBar />
+        {/* <Outlet /> */}
+      </SamplerContext.Provider>
+    </LoadingProvider>
   );
 };
 

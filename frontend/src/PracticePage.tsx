@@ -4,16 +4,19 @@ import { useNavigate } from "react-router-dom";
 import "./based.css";
 
 const usedFilenames = ['my_song', 'test123']; // Fake existing list
+import { useLoading } from "./LoadingContext";
+
 
 const PracticePage: React.FC = () => {
-  const [loading, setLoading] = useState(false);
-  const [loadingPercent, setLoadingPercent] = useState(0);
+  // const [loading, setLoading] = useState(false);
+  // const [loadingPercent, setLoadingPercent] = useState(0);
   const navigate = useNavigate();
   const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>({});
   const [showPopup, setShowPopup] = useState(false);
   const [filename, setFilename] = useState('');
   const [error, setError] = useState('');
   
+  const { setLoading, setPercent, setMessage } = useLoading();
 
   const groups = [
       {
@@ -92,8 +95,8 @@ const PracticePage: React.FC = () => {
     setShowPopup(false);
     setLoading(true);
 
-    // const textprompt = `A solo piano performance featuring ${values[2]} chords style. The chords are played in ${values[1]} style providing a strong harmonic foundation. The piece is minimalistic and structured, suitable for ${values[0]} scale piano accompaniment. No melody, only ${values[2]} comping.`;
-    const textprompt = "A solo piano piece in the chord progression of C major, E major, F major, and G major, in the style of pop music, simple and beginner-friendly, slow tempo, clear melody and chords only, no accompaniment or vocals."
+    const textprompt = `A solo piano performance featuring ${values[2]} chords style. The chords are played in ${values[1]} style providing a strong harmonic foundation. The piece is minimalistic and structured, suitable for ${values[0]} scale piano accompaniment. No melody, only ${values[2]} comping.`;
+    // const textprompt = "A solo piano piece in the chord progression of C major, E major, F major, and G major, in the style of pop music, simple and beginner-friendly, slow tempo, clear melody and chords only, no accompaniment or vocals."
     const mididuration = values[3];
     console.log("Prompt:", textprompt);
 
@@ -118,11 +121,13 @@ const PracticePage: React.FC = () => {
           const trimmed = line.trim();
 
           if (trimmed !== "" && !isNaN(Number(trimmed))) {
-            setLoadingPercent(Number(trimmed));
+            // setLoadingPercent(Number(trimmed));
+            setPercent(Number(trimmed));
           }
 
           if (trimmed === "done") {
-            setLoadingPercent(0);
+            // setLoadingPercent(0);
+            setPercent(0)
             console.log("Generation done");
             navigate(`/output/${filename}`);
             return;
@@ -131,7 +136,8 @@ const PracticePage: React.FC = () => {
       }
     } catch (err) {
       console.error("Error generating:", err);
-      setLoadingPercent(0);
+      // setLoadingPercent(0);
+      setPercent(0)
     } finally {
       setLoading(false);
     }
@@ -203,8 +209,7 @@ const PracticePage: React.FC = () => {
               </div>
           </div> */}
           <hr style={{height:"4px", margin:"2rem 0 1rem", backgroundColor:"#1b65b5", border:"none"}}/>
-        {/* <button onClick={sendPromptToServer} className="playbtn" style={{width:"100%", margin:"0"}}>Generate</button> */}
-        <button onClick={() => setShowPopup(true)} className="playbtn" style={{width:"100%", margin:"0"}}>Generate</button>
+        <button onClick={() =>setShowPopup(true)} className="playbtn" style={{width:"100%", margin:"0"}}>Generate</button>
         {showPopup && (
           <div className="popup-overlay">
             <div className="popup-box">
@@ -224,13 +229,13 @@ const PracticePage: React.FC = () => {
           </div>
         )}
       </div>
-      {loading && (
+      {/* {showPopup && (
             <div className="loading-screen">
               <div className="spinner"></div>
               <p>Generating your file...</p>
               <p>{isNaN(loadingPercent) ? 0 : loadingPercent}%</p>
             </div>
-          )}
+          )} */}
         <div className="page-container2">
           piano sheet here
         </div>
