@@ -129,7 +129,7 @@ def serialize_note(n):
     }
 
 ################################################################################################
-file_path = '../Collection/ggg_basic_pitch.mid'
+file_path = '../Collection/Test1151(1)_basic_pitch.mid'
 output_dir = '../frontend/public/JsonOutputs'
 
 base_name = os.path.splitext(os.path.basename(file_path))[0]        # Get the base filename without extension

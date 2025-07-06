@@ -180,9 +180,8 @@ const PianoRollApp: React.FC<PianoRollAppProps> = ({onNotePlayed, width=25, heig
         keysToAdd.forEach(k => playedKeysRef.current.add(k));
         triggerUpdate();
       }
-      // if (offset <= maxOffset) {
-      if (elapsed < totalTime) {
-        // requestAnimationFrame(animate);
+      if (offset <= maxOffset) {
+      // if (elapsed < totalTime) {
         animationRef.current = requestAnimationFrame(animate);
       } else {
         setIsPlaying(false);

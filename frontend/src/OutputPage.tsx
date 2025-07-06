@@ -1,20 +1,25 @@
-import {useState} from "react";
+import {useState, useContext, useEffect,useRef} from "react";
 import { useParams } from "react-router-dom";
 import "./based.css";
 import PianoRollApp from "./component/PianoRollApp";
+import { SamplerContext } from "./AudioLoader";
+import * as Tone from "tone";
 
 const OutputPage: React.FC = () => {
     const {filename} = useParams();
-
     const [currentNotes, setCurrentNotes] = useState<{ name: string; duration: number }[]>([]);
+
+    const samplerContext = useContext(SamplerContext);
 
     return(
         <div className="page-container">
-            <div className="card-container" style={{position:"absolute", paddingBottom:"150px"}}>
+            <div className="card-container" style={{display:"flex", position:"absolute", left:"5vw"}}>
                 <div className="centered">
-                    <h1 style={{height:"2rem"}}>{filename}</h1>
+                    <div style={{width:"100%", textAlign:"center"}}>
+                        <h1 className="card-title">{filename}</h1>
+                    </div>
                     <PianoRollApp
-                    onNotePlayed={setCurrentNotes} 
+                    // onNotePlayed={setCurrentNotes} 
                     fileName={filename}
                     width={20}
                     height={80}

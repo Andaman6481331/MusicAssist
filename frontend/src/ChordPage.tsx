@@ -25,10 +25,10 @@ const About: React.FC = () => {
   };
 
   return (
-    <div className="page-container">
+    <div className="page-container2">
       <div className="mainbar">
         <div className="card-container" style={{flexDirection:"column"}}>
-          <h1 style={{marginRight: "auto"}}>Chords : {selectedChord}</h1>
+          <h1 className="card-title" style={{marginRight: "auto"}}>Chords : {selectedChord}</h1>
           <div className="card1">
             <CircleOfFifths
                 selectedChord={selectedChord}
@@ -43,40 +43,41 @@ const About: React.FC = () => {
           </div>
         </div>
         <div className="card-container">
-          <div>
-            <div style={{display:"flex", alignItems:"center"}}>
-              <h1>Chord Visualizer</h1>
-              <a href="#" onClick={showChordVisualizerInfo}>
-                <img src="/icon/info.svg" alt="Info" style={{ width: '2rem', height: '2rem', cursor: 'pointer', margin: '0.8rem 0 0 1rem'}} />
-              </a>
-            </div>
-           
-            <SelectorMenu
-              selectedChord={selectedChord}
-              selectedMM={selectedMM? selectedMM : "maj"}
-              setMinorMajor={setMinorMajor}
-              selectedSus={selectedSus}
-              setSus={setSus}
-              selectedExt={selectedExt}
-              setExt={setExt}
-              selectedDom={selectedDom}
-              setDom={setDom}
-              spSelect={spSelect}
-              setSp={setSp}
-              FinalChord={finalChord}
-              setFinalChord={setFinalChord}
-            />
-          </div>
-          <div style={{display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center"}}>
-            <a className="blueBtn">
-              {finalChord}
+          <div style={{display:"flex", alignItems:"center", justifyContent:"center"}}>
+            <h1 className="card-title" >Chord Visualizer</h1>
+            <a href="#" onClick={showChordVisualizerInfo}>
+              <img src="/icon/info.svg" alt="Info" style={{ width: '2rem', height: '2rem', cursor: 'pointer'}} />
             </a>
-            <Octave_ChordVisualizer
-              width={40}
-              height={160}
-              finalChord={finalChord}
-              isMuted={isMuted}
-            />
+          </div>
+          <div style={{display:"flex",flexDirection:"row"}}>
+            <div>           
+              <SelectorMenu
+                selectedChord={selectedChord}
+                selectedMM={selectedMM? selectedMM : "maj"}
+                setMinorMajor={setMinorMajor}
+                selectedSus={selectedSus}
+                setSus={setSus}
+                selectedExt={selectedExt}
+                setExt={setExt}
+                selectedDom={selectedDom}
+                setDom={setDom}
+                spSelect={spSelect}
+                setSp={setSp}
+                FinalChord={finalChord}
+                setFinalChord={setFinalChord}
+              />
+            </div>
+            <div style={{display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center"}}>
+              <a className="blueBtn">
+                {finalChord}
+              </a>
+              <Octave_ChordVisualizer
+                width={40}
+                height={160}
+                finalChord={finalChord}
+                isMuted={isMuted}
+              />
+            </div>
           </div>
         </div>
         <div className="card-container">

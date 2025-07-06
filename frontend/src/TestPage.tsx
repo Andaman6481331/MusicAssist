@@ -1,5 +1,5 @@
 import {useState} from "react";
-import { useParams } from "react-router-dom";
+// import { useParams } from "react-router-dom";
 import "./based.css";
 import PianoRollApp from "./component/PianoRollApp";
 
@@ -21,10 +21,9 @@ const TestPage: React.FC = () =>{
         }
     };
 
-
   return(
-    <div className="page-container" style={{flexDirection:"column"}}>
-            <div className="card-container">
+    <div className="page-container2" style={{flexDirection:"column"}}>
+            <div className="card-container" style={{display:"flex",minWidth:"900px", justifyContent:"center"}}>
                 <div style={{margin:"0 auto"}}>
                     <h1 style={{height:"2rem"}}>{selectedSong}</h1>
                     <div>
@@ -37,13 +36,13 @@ const TestPage: React.FC = () =>{
                     />
                 </div>
             </div>
-            <div className="card-container">
+            <div className="card-container" style={{minWidth:"900px"}}>
                 <h1>Wav to Json</h1>
             </div>
-            <div className="card-container">
+            <div className="card-container" style={{minWidth:"900px"}}>
                 <h1>Wav to Midi</h1>
             </div>
-            <div className="card-container">
+            <div className="card-container" style={{minWidth:"900px"}}>
                 <h1>Midi to Json</h1>
             </div>
         </div>

@@ -14,18 +14,13 @@ os.makedirs(save_dir, exist_ok=True)
 
 # Load pre-trained MusicGen model
 model = musicgen.MusicGen.get_pretrained('medium', device='cuda')
-model.set_generation_params(duration=8)
+model.set_generation_params(duration=20)
 
 # Generate audio
 prompts = [
-    # 'A simple solo piano performance featuring soft chord comping. The chords are played in a smooth, rhythmic pattern, suitable for jazz or pop ballads. The piece is slow and relaxed, with gentle harmonic movement.',
-    # 'A solo piano piece playing rich block chords with a warm, emotional tone. The chords are played on every beat, creating a steady harmonic foundation, similar to classic jazz and pop accompaniment styles.',
-    # 'A solo piano composition with expressive broken chords and arpeggios. The left hand plays flowing arpeggios while the right hand plays simple melodic figures. The music is emotional, with a gentle, cinematic feel.',
-    # 'A solo piano ballad featuring open chord voicings and a slow, emotional progression. The chords are played softly, with occasional arpeggios and gentle melodic movements.'
-    # 'Played in key C, no drums, no bass, only piano accompaniment, A solo piano piece featuring gentle broken chords in the left hand and a simple right-hand melody. The performance is soft, emotional, and flowing, similar to classical and cinematic piano music. No drums, no bass, only piano accompaniment',
-    'A solo piano performance featuring steady block chords. The chords are played with a warm, rhythmic feel, providing a strong harmonic foundation. The piece is minimalistic and structured, suitable for pop or gospel piano accompaniment. No melody, only block chord comping.',
-    # 'A solo jazz piano piece featuring broken chords played in a relaxed swing feel. The left hand plays soft, syncopated broken chords while the right hand plays sparse, tasteful embellishments. Smooth and lounge-like, reminiscent of Bill Evans or Oscar Peterson. No melody, just chord accompaniment.',
-    # 'A solo piano performance with delicate broken chords, played in an elegant and expressive manner. The arpeggios are fluid and dynamic, creating a rich harmonic movement. Inspired by romantic classical piano pieces like Chopin’s nocturnes. No melody, just harmonic arpeggios.'
+    # "A solo piano piece in the key of C major, in the style of jazz, simple and slow, beginner-friendly, no accompaniment, no vocals, clear melody and chords only."
+    # "A solo piano piece in the key of C major, in the style of classic, 8 bars long, simple and beginner-friendly, slow tempo, loopable, clear melody and chords only, no accompaniment or vocals."
+    "A solo piano piece in the chord progression of C major, E major, F major, and G major, in the style of pop music, simple and beginner-friendly, slow tempo, clear melody and chords only, no accompaniment or vocals."
 ]
 res = model.generate(prompts, progress=True)
 print(res.shape)  # This will show the shape, e.g., [1, channels, samples]

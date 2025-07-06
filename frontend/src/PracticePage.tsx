@@ -92,7 +92,8 @@ const PracticePage: React.FC = () => {
     setShowPopup(false);
     setLoading(true);
 
-    const textprompt = `A solo piano performance featuring ${values[2]} chords style. The chords are played in ${values[1]} style providing a strong harmonic foundation. The piece is minimalistic and structured, suitable for ${values[0]} scale piano accompaniment. No melody, only ${values[2]} comping.`;
+    // const textprompt = `A solo piano performance featuring ${values[2]} chords style. The chords are played in ${values[1]} style providing a strong harmonic foundation. The piece is minimalistic and structured, suitable for ${values[0]} scale piano accompaniment. No melody, only ${values[2]} comping.`;
+    const textprompt = "A solo piano piece in the chord progression of C major, E major, F major, and G major, in the style of pop music, simple and beginner-friendly, slow tempo, clear melody and chords only, no accompaniment or vocals."
     const mididuration = values[3];
     console.log("Prompt:", textprompt);
 
@@ -137,8 +138,14 @@ const PracticePage: React.FC = () => {
   };
 
   return (
-    <div className="page-container">
+    <div className="page-container2" style={{flexDirection:"column"}}>
       <div className="practice-selector">
+        <div style={{display:"flex", alignItems:"center", justifyContent:"center"}}>
+          <h1 className="card-title" style={{margin:"0"}}>Generate Prompt</h1>
+          <a>
+            <img src="/icon/info.svg" alt="Info" style={{ width: '1.5rem', height: '1.5rem', cursor: 'pointer', margin: '0.5rem 0 0 0.5rem'}} />
+          </a>
+        </div>
         {groups.map((group, groupIdx) => (
           <div key={groupIdx}>
             <h2 style={{margin:"0.5rem 0"}}>{group.name}</h2>
@@ -224,7 +231,9 @@ const PracticePage: React.FC = () => {
               <p>{isNaN(loadingPercent) ? 0 : loadingPercent}%</p>
             </div>
           )}
-        
+        <div className="page-container2">
+          piano sheet here
+        </div>
     </div>
   );
 };
