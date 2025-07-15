@@ -2,7 +2,7 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import './index.css';
-import App from './AudioLoader.tsx';
+import App from './App.tsx';
 import Home from './HomePage.tsx';
 import ChordPage from './ChordPage.tsx';
 import PracticePage from './PracticePage.tsx';

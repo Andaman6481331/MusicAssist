@@ -2,16 +2,16 @@ import {useState} from "react";
 // import { useParams } from "react-router-dom";
 import "./based.css";
 import PianoRollApp from "./component/PianoRollApp";
+import WavToJson from "./component/WavToJson";
 
-const formatFileName = (title: string | undefined): string => {
-  if (!title || !title.includes(" - ")) return "";
-  const [, song] = title.split(" - ");
-  return song.trim().toLowerCase().replace(/[^a-z0-9 ]/g, "").replace(/\s+/g, "_");
-};
-
+// const formatFileName = (title: string | undefined): string => {
+//   if (!title || !title.includes(" - ")) return "";
+//   const [, song] = title.split(" - ");
+//   return song.trim().toLowerCase().replace(/[^a-z0-9 ]/g, "").replace(/\s+/g, "_");
+// };
 
 const TestPage: React.FC = () =>{
-    const [selectedSong, setSelectedSong] = useState<string>("unrival");
+    const [selectedSong, setSelectedSong] = useState<string>("test");
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
@@ -38,9 +38,7 @@ const TestPage: React.FC = () =>{
             </div>
             <div className="card-container" style={{minWidth:"900px"}}>
                 <h1>Wav to Json</h1>
-            </div>
-            <div className="card-container" style={{minWidth:"900px"}}>
-                <h1>Wav to Midi</h1>
+                <WavToJson/>
             </div>
             <div className="card-container" style={{minWidth:"900px"}}>
                 <h1>Midi to Json</h1>

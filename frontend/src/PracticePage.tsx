@@ -13,8 +13,10 @@ const PracticePage: React.FC = () => {
   const navigate = useNavigate();
   const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>({});
   const [showPopup, setShowPopup] = useState(false);
-  const [filename, setFilename] = useState('');
+  const [errorPopup, setErrorPopup] = useState(false);
+  const [filename, setFilename] = useState('Untitle');
   const [error, setError] = useState('');
+  const [inputMiss, setInputMiss] = useState("");
   
   const { setLoading, setPercent, setMessage } = useLoading();
 
@@ -136,7 +138,6 @@ const PracticePage: React.FC = () => {
       }
     } catch (err) {
       console.error("Error generating:", err);
-      // setLoadingPercent(0);
       setPercent(0)
     } finally {
       setLoading(false);
@@ -209,7 +210,30 @@ const PracticePage: React.FC = () => {
               </div>
           </div> */}
           <hr style={{height:"4px", margin:"2rem 0 1rem", backgroundColor:"#1b65b5", border:"none"}}/>
-        <button onClick={() =>setShowPopup(true)} className="playbtn" style={{width:"100%", margin:"0"}}>Generate</button>
+        <button onClick={() => {
+            //check the missed input value
+            const missing = groups
+              .filter(group => !selectedOptions[group.name])
+              .map(group => group.name);
+
+            if (missing.length > 0) {
+              setInputMiss(missing.join(", ")); //store missed
+              setErrorPopup(true);
+              return;
+            }
+            setShowPopup(true);
+          }} className="playbtn" style={{width:"100%", margin:"0"}}>Generate</button>
+      </div>
+      {/* {showPopup && (
+            <div className="loading-screen">
+              <div className="spinner"></div>
+              <p>Generating your file...</p>
+              <p>{isNaN(loadingPercent) ? 0 : loadingPercent}%</p>
+            </div>
+          )} */}
+        {/* <div className="page-container2">
+          piano sheet here
+        </div> */}
         {showPopup && (
           <div className="popup-overlay">
             <div className="popup-box">
@@ -228,17 +252,17 @@ const PracticePage: React.FC = () => {
             </div>
           </div>
         )}
-      </div>
-      {/* {showPopup && (
-            <div className="loading-screen">
-              <div className="spinner"></div>
-              <p>Generating your file...</p>
-              <p>{isNaN(loadingPercent) ? 0 : loadingPercent}%</p>
+        {errorPopup &&(
+          <div className="popup-overlay">
+            <div className="popup-box">
+              <h1 style={{color:"red"}}>Please select all options!</h1>
+              <p style={{color:"black"}}>missing {inputMiss}</p>
+              <div className="popup-buttons">
+                <button onClick={() => setErrorPopup(false)}>Cancel</button>
+              </div>
             </div>
-          )} */}
-        <div className="page-container2">
-          piano sheet here
-        </div>
+          </div>
+        )}
     </div>
   );
 };

@@ -95,6 +95,33 @@ def serialize_note(n):
         'velocity': n['velocity']
     }
 
+def convertWavToMidi(wav_files):
+    try:
+        predict_and_save([wav_files], save_dir, True, False, False, False, ICASSP_2022_MODEL_PATH)
+        print(f"Conversion successful: {wav_files}")
+    except Exception as e:\
+            print(f"Error: {str(e)}\n")
+        
+@app.get("/wavtojson")
+def wav_to_json(filename:str):
+    midiFile = convertWavToMidi(filename)
+    notes, tempo_bpm, total_time = analyze_with_pretty_midi(midiFile)
+
+    data = {
+        'tempo_bpm': tempo_bpm,
+        'total_time': total_time,
+        'notes': [serialize_note(n) for n in notes],
+    }
+    print(f"Tempo: {tempo_bpm}")
+    print(f"FileLength(s): {total_time}")
+    print(f"Total notes found: {len(notes)}")
+
+    # Write the JSON file
+    with open(output_dir, 'w') as f:
+        json.dump(data, f, indent=4)
+
+    print(f"JSON saved to {output_dir}")
+
 class PromptRequest(BaseModel):
     prompt: str
 

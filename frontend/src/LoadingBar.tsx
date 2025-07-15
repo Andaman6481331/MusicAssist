@@ -1,6 +1,6 @@
 import React from "react";
 import { useLoading } from "./LoadingContext";
-import "./LoadingBar.css"; // Create this
+import "./LoadingBar.css";
 
 const LoadingBar = () => {
   const { loading, percent, message } = useLoading();

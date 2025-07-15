@@ -2,7 +2,7 @@ import {useState, useContext, useEffect,useRef} from "react";
 import { useParams } from "react-router-dom";
 import "./based.css";
 import PianoRollApp from "./component/PianoRollApp";
-import { SamplerContext } from "./AudioLoader";
+import { SamplerContext } from "./App";
 import * as Tone from "tone";
 
 const OutputPage: React.FC = () => {

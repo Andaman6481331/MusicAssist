@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useContext } from 'react';
 import * as Tone from 'tone';
 import { Midi } from '@tonejs/midi';
-import { SamplerContext } from "../AudioLoader";
+import { SamplerContext } from "../App";
 
 interface Note {
   name: string;
@@ -33,21 +33,15 @@ const PianoRollApp: React.FC<PianoRollAppProps> = ({onNotePlayed, width=25, heig
   const [totalTime, setTotalTime] = useState<number>(8);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const scrollRef = useRef<SVGGElement>(null);
-  // const [currentNote, setCurrentNote] = useState<string | null>(null);
   const animationRef = useRef<number | null>(null);
-  // const [selectedKey, setSelectedKey] = useState<string[]>([]);
-  // const [activeNotes, setActiveNotes] = useState<ActiveNote[]>([]);
   const playedKeysRef = useRef<Set<string>>(new Set());
   const [, forceUpdate] = useState(0); // dummy state to trigger re-render
   const triggerUpdate = () => forceUpdate(prev => (prev + 1) % 10000);
   const [pausedTime, setPausedTime] = useState<number>(0);
   const startTimeRef = useRef<number | null>(null);
 
-
   const svgWidth = 49*width;
   const svgHeight = 6*height;
-  // const svgWidth = 1225;
-  // const svgHeight = 600;
 
   const totalWhiteKeys = 49;
   const whiteKeyWidth = svgWidth / totalWhiteKeys;
@@ -66,15 +60,7 @@ const PianoRollApp: React.FC<PianoRollAppProps> = ({onNotePlayed, width=25, heig
     "B": whiteKeyWidth * 6,
   };
 
-  // useEffect(() => {
-  //   fetch('/JsonOutputs/river_flow_in_you.json')
-  //     .then(response => response.json())
-  //     .then((data: Note[]) => setNotes(data))
-  //     .catch(error => console.error('Error loading notes:', error));
-  // }, []);
-
-  
-
+// Load Json file
   useEffect(() => {
     fetch(`/JsonOutputs/${fileName}.json`)
       .then(response => {
@@ -101,31 +87,8 @@ const PianoRollApp: React.FC<PianoRollAppProps> = ({onNotePlayed, width=25, heig
   }, [fileName]);
   const pixelsPerBeat = svgHeight / 8; // adjust how much 1 beat moves visually
   const pixelsPerSecond = (tempo / 60) * pixelsPerBeat;
-  // useEffect(() => {
-  //   if (externalKey && externalKey.length > 0) {
-  //     const now = Tone.now();
-  //     const newNotes: ActiveNote[] = externalKey.map(({ key, duration }) => ({
-  //       key,
-  //       endTime: now + duration,
-  //     }));
-  
-  //     setActiveNotes(prev =>
-  //       [...prev, ...newNotes].filter(n => n.endTime > now)
-  //     );
-  
-  //     const play = async () => {
-  //       await Tone.start();
-  //       if (sampler?.current) {
-  //         externalKey.forEach(({ key }) => {
-  //           sampler.current!.triggerAttackRelease(key, "1n");
-  //         });
-  //       }
-  //     };
-  
-  //     play();
-  //   }
-  // }, [externalKey]);
 
+// Play & Pause Function
   const playMidi = async () => {
     if (notes.length === 0 || !sampler) return;
 
@@ -167,8 +130,8 @@ const PianoRollApp: React.FC<PianoRollAppProps> = ({onNotePlayed, width=25, heig
           const normalized = Tone.Frequency(note.midi, "midi").toNote();
           keysToAdd.push(normalized);
           triggerUpdate();
-          if (sampler?.current) {
-            sampler.current.triggerAttackRelease(normalized, note.duration, undefined, note.velocity);
+          if (sampler?.samplerRef.current) {
+            sampler.samplerRef.current.triggerAttackRelease(normalized, note.duration, undefined, note.velocity);
           }
           setTimeout(() => {
             playedKeysRef.current.delete(normalized);
@@ -190,14 +153,14 @@ const PianoRollApp: React.FC<PianoRollAppProps> = ({onNotePlayed, width=25, heig
     };
     animationRef.current = requestAnimationFrame(animate);
   // requestAnimationFrame(animate);
-};
-const pausePlayback = () => {
-  setIsPlaying(false);
-  if (animationRef.current !== null) {
-    cancelAnimationFrame(animationRef.current);
-    animationRef.current = null;
-  }
-};
+  };
+  const pausePlayback = () => {
+    setIsPlaying(false);
+    if (animationRef.current !== null) {
+      cancelAnimationFrame(animationRef.current);
+      animationRef.current = null;
+    }
+  };
 
   const handleMidiFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -229,14 +192,14 @@ const pausePlayback = () => {
 
   const handleKeyClick = async (key: string[]) => {
     await Tone.start();
-    if (sampler?.current) {
-      sampler.current.triggerAttackRelease(key, "1n");
+    if (sampler?.samplerRef.current) {
+      sampler.samplerRef.current.triggerAttackRelease(key, "1n");
     }
   };
 
   const total_svg_height = totalTime * pixelsPerSecond;
 
-   const octaves = Array.from(
+  const octaves = Array.from(
       {length: 7},
       (_, i) => 1 + i
     );
@@ -248,7 +211,6 @@ const pausePlayback = () => {
   const allBlackKeys = octaves.flatMap(octave =>
     blackKeys.map(note => ({ note: note + octave, base: note, octave }))
   );
-
 
   return (
     <div style={{ textAlign: 'center', maxHeight:`${svgHeight}` }}>
@@ -276,7 +238,14 @@ const pausePlayback = () => {
                     height={height}
                     rx={4}
                     ry={4}
-                    fill={note.name.includes("#") ? "rgba(8, 117, 201, 0.72)" : "rgba(32, 173, 255, 0.72)"}
+                    fill={note.hand?.includes("LH")
+                      ? note.name.includes("#")
+                        ? "rgba(131, 18, 207, 0.75)"   // LH sharp
+                        : "rgba(186, 94, 247, 0.75)"   // LH natural
+                      : note.name.includes("#")
+                        ? "rgba(8, 117, 201, 0.72)"    // RH sharp
+                        : "rgba(32, 173, 255, 0.72)"  // RH natural
+                    }
                     stroke="#222"
                     strokeWidth={1}
                     cursor="pointer"

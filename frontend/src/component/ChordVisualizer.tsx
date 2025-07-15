@@ -2,7 +2,7 @@
 import React, { useEffect } from "react";
 import * as Tone from "tone";
 import { useContext } from "react";
-import { SamplerContext } from "../AudioLoader";
+import { SamplerContext } from "../App";
 
 const keyNotes: Record<string, string> = {
   C: "C4",
@@ -50,8 +50,8 @@ const ChordVisualizer: React.FC<ChordVisualizerProps> = ({ selectedChord, isMute
     if (isMuted) return;
   
     const playChord = async () => {
-      if (sampler?.current && selectedChord) {
-        if (!sampler?.current || isMuted || !selectedChord || !sampler.current.loaded) return;
+      if (sampler?.samplerRef.current && selectedChord) {
+        if (!sampler?.samplerRef.current || isMuted || !selectedChord || !sampler.samplerRef.current.loaded) return;
         
         await Tone.start(); // Ensure audio context is started
   
@@ -59,11 +59,11 @@ const ChordVisualizer: React.FC<ChordVisualizerProps> = ({ selectedChord, isMute
           ?.map((note) => keyNotes[note])
           .filter(Boolean); // remove undefined just in case
           if (notes && notes.length > 0) {
-            sampler.current.triggerAttackRelease(notes, "1n"); // Play all notes together
+            sampler.samplerRef.current.triggerAttackRelease(notes, "1n"); // Play all notes together
           }
         }
       };
-      if(sampler?.current){
+      if(sampler?.samplerRef.current){
         playChord();
       }
   

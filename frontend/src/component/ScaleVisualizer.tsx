@@ -2,7 +2,7 @@ import React, {useState } from "react";
 import * as Tone from "tone";
 import ScalePiano from "./ScalePiano";
 import { useContext } from "react";
-import { SamplerContext } from "../AudioLoader";
+import { SamplerContext } from "../App";
 
 const keys = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
 const minorKeys = ["Cm", "C#m", "Dm", "D#m", "Em", "Fm", "F#m", "Gm", "G#m", "Am", "A#m", "Bm"];
@@ -51,16 +51,16 @@ const ScaleVisualizer: React.FC = () => {
     
     for (let i = 0; i < scaleKeys.length; i++) {
       const note = scaleKeys[i];
-      if (sampler?.current) {
-        sampler.current.triggerAttackRelease(note, "1n");
+      if (sampler?.samplerRef.current) {
+        sampler.samplerRef.current.triggerAttackRelease(note, "1n");
       }
       setSelectedKey(note);
       await new Promise((resolve) => setTimeout(resolve, 250)); // wait 250ms before next note
     }
     for (let i = scaleKeys.length-2; i >= 0; i--) {
       const note = scaleKeys[i];
-      if (sampler?.current) {
-        sampler.current.triggerAttackRelease(note, "1n");
+      if (sampler?.samplerRef.current) {
+        sampler.samplerRef.current.triggerAttackRelease(note, "1n");
       }
       setSelectedKey(note);
       await new Promise((resolve) => setTimeout(resolve, 250)); // wait 250ms before next note

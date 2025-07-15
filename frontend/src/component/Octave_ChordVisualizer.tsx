@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import * as Tone from "tone";
 import { useContext } from "react";
-import { SamplerContext } from "../AudioLoader";
+import { SamplerContext } from "../App";
 
 const KeyOnScale: Record<string, string[]> = {
   C:   ["C4", "D4", "D#4", "E4", "F4", "F#4", "G4", "G#4", "A4", "A#4", "B4", "D5", "F5", "A5"],
@@ -90,8 +90,8 @@ const ChordVisualizer: React.FC<ChordVisualizerProps> = ({width = 40, height = 1
   
     selectedNotes.forEach(note => {
       try {
-        if (sampler?.current) {
-          sampler.current.triggerAttackRelease(note, "1n");
+        if (sampler?.samplerRef.current) {
+          sampler.samplerRef.current.triggerAttackRelease(note, "1n");
         }
       } catch (error) {
         console.warn(`Sampler can't play note ${note}`, error);

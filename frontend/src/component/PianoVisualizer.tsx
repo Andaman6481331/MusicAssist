@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import * as Tone from "tone";
 import { useContext } from "react";
-import { SamplerContext } from "../AudioLoader";
+import { SamplerContext } from "../App";
 
 interface PianoVisualizerProps {
   isPlayable?: boolean;
@@ -37,9 +37,9 @@ const PianoVisualizer: React.FC<PianoVisualizerProps> = ({isPlayable = true, sca
 
     const play = async () => {
       await Tone.start();
-      if (sampler?.current) {
+      if (sampler?.samplerRef.current) {
         externalKey.forEach(({ key }) => {
-          sampler.current!.triggerAttackRelease(key, "1n");
+          sampler.samplerRef.current!.triggerAttackRelease(key, "1n");
         });
       }
     };
@@ -51,10 +51,11 @@ const PianoVisualizer: React.FC<PianoVisualizerProps> = ({isPlayable = true, sca
 
 
   const handleKeyClick = async (key: string) => {
-    setSelectedKey([key]);
+    // setSelectedKey([key]);samplerRef.
+    setSelectedKey([key]);sampler?.samplerRef
     await Tone.start(); // Ensure the audio context is started before triggering sounds
-    if (sampler?.current) {
-        sampler.current.triggerAttackRelease(key, "1n");
+    if (sampler?.samplerRef.current) {
+        sampler.samplerRef.current.triggerAttackRelease(key, "1n");
     } else {
       console.error("Sampler not loaded yet");
     }

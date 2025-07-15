@@ -128,15 +128,24 @@ def serialize_note(n):
         'hand': n.get('hand')
     }
 
+def convertWavToMidi(wav_files):
+    try:
+        predict_and_save([wav_files], save_dir, True, False, False, False, ICASSP_2022_MODEL_PATH)
+        print(f"Conversion successful: {wav_files} → MIDI saved in {save_dir}")
+    except Exception as e:\
+            print(f"Error: {str(e)}\n")
+
 ################################################################################################
-file_path = '../Collection/Test1151(1)_basic_pitch.mid'
+save_dir = "../Collection"
+file_path = '../Collection/Before Spring Ends_basic_pitch.wav'
 output_dir = '../frontend/public/JsonOutputs'
 
 base_name = os.path.splitext(os.path.basename(file_path))[0]        # Get the base filename without extension
 os.makedirs(output_dir, exist_ok=True)                              # Make sure the folder exists (create if not)
 output_json_path = os.path.join(output_dir, base_name + '.json')    # Full output JSON path with same base name + .json extension
 
-notes, tempo_bpm, total_time = analyze_with_pretty_midi(file_path)
+midiFile = convertWavToMidi(file_path)
+notes, tempo_bpm, total_time = analyze_with_pretty_midi(midiFile)
 
 data = {
     'tempo_bpm': tempo_bpm,

@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, createContext} from "react";
 import * as Tone from "tone";
-import NavBar from "./NavBar";
-import { Outlet } from "react-router-dom";
+import "./App.css";
+import { Outlet, useLocation, Link } from "react-router-dom";
 import { LoadingProvider } from "./LoadingContext";
 import LoadingBar from "./LoadingBar";
 
@@ -66,16 +66,38 @@ const sampleUrls: Record<string, string> = {
   "F#7vL": "Fs7vL.mp3"
 };
 
-export const SamplerContext = createContext<React.MutableRefObject<Tone.Sampler | null> | null>(null);
+// export const SamplerContext = createContext<React.MutableRefObject<Tone.Sampler | null> | null>(null);
+
+export const SamplerContext = createContext<{
+  samplerRef: React.MutableRefObject<Tone.Sampler | null>,
+  gainRef: React.MutableRefObject<Tone.Gain | null>
+} | null>(null);
+
+export const PlaybackControlContext = createContext<{
+  stopPlayback: () => void;
+  resetRoll: () => void;
+} | null>(null);
 
 const App = () => {
-//   const [sampler, setSampler] = useState<Tone.Sampler | null>(null);
   const samplerRef = useRef<Tone.Sampler | null>(null);
+  const location = useLocation();
+  const gainRef = useRef<Tone.Gain | null>(null);
+
+  // useEffect(() => {
+  //   const path = location.pathname;
+  //   const shouldEnableSampler = path === "/" || path === "/test" || path === "/output" || path === "/chord"; // any page that uses sampler
+
+  //   if (gainRef.current) {
+  //     gainRef.current.gain.setValueAtTime(shouldEnableSampler ? 1 : 0, Tone.now());
+  //   }
+  // }, [location]);
 
   useEffect(() => {
       // Load the sampler and check for errors
       const limiter = new Tone.Limiter(-1).toDestination();
       const gain = new Tone.Gain(0).connect(limiter); // Gain node before limiter
+      // gainRef.current = gain;
+
       const s = new Tone.Sampler({
         urls: sampleUrls,
         onload: () => {console.log("Sampler loaded");},
@@ -87,18 +109,41 @@ const App = () => {
       gain.gain.linearRampToValueAtTime(1, Tone.now() + 0.05); // 50ms fade-in
       s.volume.value = -12  //lower volume to reduce noise
 
-      // }).toDestination();
-      // s.volume.value = -12  //lower volume to reduce noise
       samplerRef.current = s
     }, []);
 
-
   return (
     <LoadingProvider>
-      <SamplerContext.Provider value={samplerRef}>
-        <NavBar />
+      <SamplerContext.Provider value={{samplerRef,gainRef}}>
+         <div>
+          <header className="navbar">
+            <Link to="/" style={{outline:"0"}}>
+              <h1 className="title">Harmonic</h1>
+            </Link>
+            <div className="right-nav">
+              <Link className="title" to="/data">
+                My List
+              </Link>
+              <Link className="title" to="/test">
+                Tools
+              </Link>
+              <Link className="title" to="/practice">
+                Generate
+              </Link>
+              <Link className="title" to="/chord">
+                Theory
+              </Link>
+              {/* Login button */}
+              <Link className="title" to="/login">
+                Login
+              </Link>
+            </div>
+          </header>
+          <main style={{ display: "flex" }}>
+          </main>
+        </div>
         <LoadingBar />
-        {/* <Outlet /> */}
+        <Outlet key={location.pathname}/>
       </SamplerContext.Provider>
     </LoadingProvider>
   );

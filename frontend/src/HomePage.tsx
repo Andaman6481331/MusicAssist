@@ -13,6 +13,12 @@ const formatFileName = (title: string | undefined): string => {
     .replace(/\s+/g, "_");
 };
 
+const profiles = [
+  { img: "./img/herbPic.jpg", name: "Andaman", role: "UI / UX Designer" },
+  { img: "./img/nazPic.jpg", name: "Nazneen", role: "Full Stack Developer" },
+  { img: "./img/gracePic.jpg", name: "Thitirat", role: "Music AI Engineer" },
+];
+
 const Home: React.FC = () => {
   // const [selectedChord, setSelectedChord] = useState<string>("");
   const [searchParams] = useSearchParams();
@@ -161,8 +167,23 @@ const Home: React.FC = () => {
         </div>
       </div>
       <div className="page-container3">
-        <div>
-          <img src="" alt="" />
+        <h1 className="hero-title2">members</h1>
+        <div className="image-wrapper">{/* <!-- From Uiverse.io by MikeAndrewDesigner -->  */}
+          {profiles.map((profile, index) => (
+            <div className="e-card3 playing3" key={index}>
+              <div className="wave"></div>
+              <div className="wave"></div>
+              <div className="wave"></div>
+
+              <div className="infotop">
+                <img className="dev-image" src={profile.img} alt={profile.name} />
+                <br />
+                {profile.role}
+                <br />
+                <p className="name3">{profile.name}</p>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </div>

@@ -11,4 +11,4 @@ def convertWavToMidi(wav_files):
     except Exception as e:\
             print(f"Error: {str(e)}\n")
         
-convertWavToMidi("../Collection/The Toy.wav")
+convertWavToMidi("../Collection/Before Spring Ends.wav")
