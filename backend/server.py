@@ -17,9 +17,12 @@ import pretty_midi
 import json
 import os
 import mido
-# import librosa
-# import io
-# import contextlib
+import librosa
+import io
+import contextlib
+import torch
+from fastapi.responses import PlainTextResponse
+import asyncio
 
 app = FastAPI()
 
@@ -126,22 +129,25 @@ class PromptRequest(BaseModel):
     prompt: str
 
 @app.get("/generate")
-def generate_music(prompt: str, filename: str, mididuration: int):
+async def generate_music(prompt: str, filename: str, mididuration: int):
+    print("generate_music called with:", prompt, filename, mididuration, flush=True)
     model.set_generation_params(duration=mididuration)
     q = Queue()
-    # notes_result = []
-    def generate_and_capture(prompt):
+
+    def generate_and_capture():
+        print("Starting generation with prompt:", prompt, flush=True)
+
         class StreamInterceptor:
             def __init__(self, q):
                 self.q = q
                 self._stdout = sys.stdout
 
             def write(self, message):
-                self._stdout.write(message)  # Also show in real console
+                self._stdout.write(message)
                 msg = message.strip()
                 if "/" in message:
                     try:
-                        num, total = map(int, message.strip().split("/"))
+                        num, total = map(int, msg.split("/"))
                         percent = int((num / total) * 100)
                         self.q.put(f"{percent}\n")
                     except:
@@ -151,27 +157,28 @@ def generate_music(prompt: str, filename: str, mididuration: int):
 
             def flush(self):
                 self._stdout.flush()
-    
+
         sys.stdout = StreamInterceptor(q)
-
         q.put(f"Received prompt: {prompt}\n")
-        inputPrompts = [prompt]
-        print(f"Received prompt: {inputPrompts}")
 
-        try:    
-            res = model.generate(inputPrompts, progress=True)
-            wav_files = []
+        try:
+            inputPrompts = [prompt]
+            q.put("[MSG] Starting model.generate...\n")
+            print("Calling model.generate() now...", flush=True)
 
-            for i, (audio_data, prompt) in enumerate(zip(res, inputPrompts)):
-                audio_data = audio_data.cpu()
-                safe_filename = filename.replace(" ", "_").replace("/", "_").replace("\\", "_")
-                wav_filename = os.path.join(save_dir, f"{safe_filename}.wav")   
-                torchaudio.save(wav_filename, audio_data, 32000)
-                wav_files.append(wav_filename)
-                q.put(f"Audio saved: {wav_filename}\n")
+            res = model.generate(inputPrompts)  # <-- might be where it dies
 
-            predict_and_save(wav_files, save_dir, True, False, False, False, ICASSP_2022_MODEL_PATH)
-            # midi_filename = wav_filename.replace(".wav","_basic_pitch.mid") #locate the midi file name
+            print("model.generate() completed", flush=True)
+            q.put("[MSG] Done generating audio\n")
+
+            audio_data = res[0].cpu()
+            safe_filename = filename.replace(" ", "_").replace("/", "_").replace("\\", "_")
+            wav_filename = os.path.join(save_dir, f"{safe_filename}.wav")
+            torchaudio.save(wav_filename, audio_data, 32000)
+            q.put(f"[MSG] Audio saved: {wav_filename}\n")
+
+            predict_and_save([wav_filename], save_dir, True, False, False, False, ICASSP_2022_MODEL_PATH)
+
             original_midi = wav_filename.replace(".wav", "_basic_pitch.mid")
             renamed_midi = wav_filename.replace(".wav", ".mid")
             if os.path.exists(original_midi):
@@ -182,6 +189,7 @@ def generate_music(prompt: str, filename: str, mididuration: int):
             print("File exists?", os.path.exists(midi_filename))
             print(f"saves {midi_filename} success")
 
+            from server import analyze_with_pretty_midi, serialize_note  # or define them here
             json_notes, json_tempo_bpm, json_total_time = analyze_with_pretty_midi(midi_filename)
             base_name = os.path.splitext(os.path.basename(midi_filename))[0]
             data = {
@@ -189,25 +197,26 @@ def generate_music(prompt: str, filename: str, mididuration: int):
                 'total_time': json_total_time,
                 'notes': [serialize_note(n) for n in json_notes],
             }
-            print(f"Tempo: {json_tempo_bpm}")
-            print(f"FileLength(s): {json_total_time}")
-            print(f"Total notes found: {len(json_notes)}")
+
             output_json_path = os.path.join(output_dir, base_name + '.json')
-            # Write the JSON file
             with open(output_json_path, 'w') as f:
                 json.dump(data, f, indent=4)
+            q.put(f"[MSG] JSON saved to {output_json_path}\n")
 
-            print(f"JSON saved to {output_json_path}")
-
-            sys.stdout.flush()
-        except Exception as e:\
+        except Exception as e:
+            import traceback
+            err_msg = traceback.format_exc()
+            print("Error occurred:\n", err_msg)
             q.put(f"Error: {str(e)}\n")
+            q.put(f"[MSG] {err_msg}\n")
 
         finally:
+            sys.stdout.flush()
             q.put("done\n")
             q.put(None)
-    
-    threading.Thread(target=generate_and_capture, args=(prompt,)).start()
+
+    # Run in separate thread context
+    await asyncio.to_thread(generate_and_capture)
 
     def stream():
         while True:
@@ -215,7 +224,7 @@ def generate_music(prompt: str, filename: str, mididuration: int):
             if line is None:
                 break
             yield line
-            
+
     return StreamingResponse(stream(), media_type="text/plain")
 
 @app.get("/result")

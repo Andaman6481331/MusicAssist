@@ -14,7 +14,7 @@ os.makedirs(save_dir, exist_ok=True)
 
 # Load pre-trained MusicGen model
 model = musicgen.MusicGen.get_pretrained('medium', device='cuda')
-model.set_generation_params(duration=20)
+model.set_generation_params(duration=2)
 
 # Generate audio
 prompts = [
