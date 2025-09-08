@@ -79,6 +79,19 @@ const PianoRollApp: React.FC<PianoRollAppProps> = ({onNotePlayed, width=25, heig
           setNotes(scaledNotes);
           setTempo(data.tempo_bpm);
           setTotalTime(data.total_time * tempoFactor);
+
+           // Reset playback state here
+          if (animationRef.current) {
+            cancelAnimationFrame(animationRef.current);
+            animationRef.current = null;
+          }
+          setIsPlaying(false);
+          setPausedTime(0);
+          startTimeRef.current = null;
+          // Reset scroll position to top
+          if (scrollRef.current) {
+            scrollRef.current.setAttribute("transform", `translate(0, -${svgHeight})`);
+          }
         } else {
           console.error('Invalid JSON format:', data);
         }

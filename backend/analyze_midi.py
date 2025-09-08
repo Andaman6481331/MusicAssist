@@ -95,21 +95,6 @@ def analyze_with_pretty_midi(file_path, start_sec=0, duration_sec=120):
 
     deduped.sort(key=lambda x: x['time'])
     grouped = group_simultaneous_notes(deduped)
-    # playable_notes = []
-
-    # for group in grouped:
-    #     left, right = split_hands_if_playable(group)
-    #     if left is not None:
-    #         for n in left:
-    #             if is_playable(n):
-    #                 n['hand'] = 'left'
-    #                 playable_notes.append(n)
-    #         for n in right:
-    #             if is_playable(n):
-    #                 n['hand'] = 'right'
-    #                 playable_notes.append(n)
-
-
     
     tempo_bpm = round(extract_tempo_via_mido(file_path),2)
 
@@ -137,15 +122,16 @@ def convertWavToMidi(wav_files):
 
 ################################################################################################
 save_dir = "../Collection"
-file_path = '../Collection/Before Spring Ends_basic_pitch.wav'
+file_path = '../Collection/Before Spring Ends_basic_pitch.midi'
 output_dir = '../frontend/public/JsonOutputs'
 
 base_name = os.path.splitext(os.path.basename(file_path))[0]        # Get the base filename without extension
 os.makedirs(output_dir, exist_ok=True)                              # Make sure the folder exists (create if not)
 output_json_path = os.path.join(output_dir, base_name + '.json')    # Full output JSON path with same base name + .json extension
 
-midiFile = convertWavToMidi(file_path)
-notes, tempo_bpm, total_time = analyze_with_pretty_midi(midiFile)
+# midiFile = convertWavToMidi(file_path)
+# notes, tempo_bpm, total_time = analyze_with_pretty_midi(midiFile)
+notes, tempo_bpm, total_time = analyze_with_pretty_midi(file_path)
 
 data = {
     'tempo_bpm': tempo_bpm,

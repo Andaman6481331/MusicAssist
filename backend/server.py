@@ -1,8 +1,8 @@
-# server.py
+
 # from fastapi import Request, Query
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import StreamingResponse
+from fastapi.responses import StreamingResponse, JSONResponse, PlainTextResponse
 from pydantic import BaseModel
 import os, threading, torchaudio
 from audiocraft.models import musicgen
@@ -14,15 +14,13 @@ import json
 from music21 import converter, chord, note
 from collections import defaultdict
 import pretty_midi
-import json
-import os
-import mido
 import librosa
-import io
+import shutil
 import contextlib
 import torch
-from fastapi.responses import PlainTextResponse
 import asyncio
+
+from utils.music_utils import analyze_with_pretty_midi, serialize_note, convertWavToMidi
 
 app = FastAPI()
 
@@ -38,92 +36,110 @@ app.add_middleware(
 # Load model once at startup
 os.environ["TRITON_IGNORE"] = "1"
 os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
-save_dir = "../Collection"
-output_dir = '../frontend/public/JsonOutputs'
-os.makedirs(save_dir, exist_ok=True)
-
 model = musicgen.MusicGen.get_pretrained('medium', device='cuda')
 # model.set_generation_params(duration=2)
 
-def extract_tempo_via_mido(path):
-    mid = mido.MidiFile(path)
-    for track in mid.tracks:
-        for msg in track:
-            if msg.type == 'set_tempo':
-                return mido.tempo2bpm(msg.tempo)
-    return 120.0
+save_dir = "../Collection"  # .Wav & .MIDI from generator
+os.makedirs(save_dir, exist_ok=True)
 
-def analyze_with_pretty_midi(file_path, start_sec=0, duration_sec=120):
-    midi_data = pretty_midi.PrettyMIDI(file_path)
-    all_notes = []
+# UPLOAD_DIR = "uploads"  # Any selection of the WavToJson or MidiToJson
+# os.makedirs(UPLOAD_DIR, exist_ok=True)
 
-    for instrument in midi_data.instruments:
-        if instrument.is_drum:
-            continue  # skip drums
+output_dir = '../frontend/public/JsonOutputs'   # JsonOutput folder
 
-        for n in instrument.notes:
-            if start_sec <= n.start <= start_sec + duration_sec:
-                all_notes.append({
-                    'name': pretty_midi.note_number_to_name(n.pitch),
-                    'midi': n.pitch,
-                    'time': round(n.start, 5),  # more precision
-                    'duration': round(n.end - n.start, 5),
-                    'velocity': (n.velocity / 127)
-                })
+@app.get("/check-filename")
+async def check_filename(name: str):
+    import os
+    os.makedirs(save_dir, exist_ok=True)
 
-    deduped = []
-    seen = set()
-    epsilon = 1e-4  # 0.1 ms tolerance
+    exists = os.path.exists(os.path.join(save_dir, name))
+    return {"exists": exists}
 
-    for note in all_notes:
-        key = (note['midi'], round(note['time'] / epsilon))  # quantize time for deduplication
-        if key not in seen:
-            deduped.append(note)
-            seen.add(key)
-
-    deduped.sort(key=lambda x: x['time'])
-    tempo_bpm = round(extract_tempo_via_mido(file_path),2)
-    
-    total_time = round(max(n['time'] + n['duration'] for n in deduped), 2)
-
-    return deduped, tempo_bpm, total_time
-
-# Convert all values to float-compatible
-def serialize_note(n):
-    return {
-        'name': n['name'],
-        'midi': n['midi'],
-        'time': float(n['time']),
-        'duration': float(n['duration']),
-        'velocity': n['velocity']
-    }
-
-def convertWavToMidi(wav_files):
+@app.post("/wavtojson")
+async def wav_to_json(
+    file: UploadFile = File(...),
+    action: str = Form("add_anyway")   # default action
+):
     try:
-        predict_and_save([wav_files], save_dir, True, False, False, False, ICASSP_2022_MODEL_PATH)
-        print(f"Conversion successful: {wav_files}")
-    except Exception as e:\
-            print(f"Error: {str(e)}\n")
-        
-@app.get("/wavtojson")
-def wav_to_json(filename:str):
-    midiFile = convertWavToMidi(filename)
-    notes, tempo_bpm, total_time = analyze_with_pretty_midi(midiFile)
+        # --- Step 1. Decide where to save input file ---
+        name, ext = os.path.splitext(file.filename)
+        input_path = os.path.join(save_dir, file.filename)
 
-    data = {
-        'tempo_bpm': tempo_bpm,
-        'total_time': total_time,
-        'notes': [serialize_note(n) for n in notes],
-    }
-    print(f"Tempo: {tempo_bpm}")
-    print(f"FileLength(s): {total_time}")
-    print(f"Total notes found: {len(notes)}")
+        if os.path.exists(input_path):
+            if action == "cancel":
+                return JSONResponse(content={
+                    "status": "cancelled",
+                    "message": "User cancelled conversion"
+                })
+            elif action == "add_anyway":
+                counter = 1
+                while os.path.exists(input_path):
+                    new_filename = f"{name}({counter}){ext}"
+                    input_path = os.path.join(save_dir, new_filename)
+                    counter += 1
 
-    # Write the JSON file
-    with open(output_dir, 'w') as f:
-        json.dump(data, f, indent=4)
+        # --- Step 2. Save uploaded file ---
+        with open(input_path, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
 
-    print(f"JSON saved to {output_dir}")
+        # --- Step 3. Run conversion (your existing pipeline) ---
+        midiFile = convertWavToMidi(input_path)
+        notes, tempo_bpm, total_time = analyze_with_pretty_midi(midiFile)
+
+        # JSON output should match input filename base
+        base_name = os.path.splitext(os.path.basename(input_path))[0]
+        output_json_path = os.path.join(output_dir, base_name + ".json")
+
+        data = {
+            "tempo_bpm": tempo_bpm,
+            "total_time": total_time,
+            "notes": [serialize_note(n) for n in notes],
+        }
+
+        with open(output_json_path, "w") as f:
+            json.dump(data, f, indent=4)
+
+        print(f"[MSG] JSON saved to {output_json_path}\n")
+
+        return JSONResponse(content={
+            "status": "ok",
+            "message": f"JSON saved to {output_json_path}",
+            "filename": os.path.basename(input_path),
+            "data": data
+        })
+
+    except Exception as e:
+        return JSONResponse(content={"error": str(e)}, status_code=500)
+
+
+@app.get("/miditojson")
+async def midi_to_json(file: UploadFile = File(...)):
+    os.makedirs(UPLOAD_DIR, exist_ok=True)
+    # Save uploaded file
+    midiFile = os.path.join(UPLOAD_DIR, file.filename)
+    with open(midiFile, "wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+
+    try:
+        notes, tempo_bpm, total_time = analyze_with_pretty_midi(midiFile)
+        base_name = os.path.splitext(os.path.basename(midiFile))[0]
+        data = {
+            'tempo_bpm': tempo_bpm,
+            'total_time': total_time,
+            'notes': [serialize_note(n) for n in notes],
+        }
+
+        output_json_path = os.path.join(output_dir, base_name + '.json')
+        with open(output_json_path, 'w') as f:
+            json.dump(data, f, indent=4)
+
+        print(f"[MSG] JSON saved to {output_json_path}\n")
+
+        return JSONResponse(content={
+            "message": f"JSON saved to {output_json_path}",
+            "data": data})
+    except Exception as e:
+        return JSONResponse(content={"error": str(e)}, status_code=500)
 
 class PromptRequest(BaseModel):
     prompt: str
@@ -163,10 +179,11 @@ async def generate_music(prompt: str, filename: str, mididuration: int):
 
         try:
             inputPrompts = [prompt]
+            # Actually start generating...
             q.put("[MSG] Starting model.generate...\n")
             print("Calling model.generate() now...", flush=True)
 
-            res = model.generate(inputPrompts)  # <-- might be where it dies
+            res = model.generate(inputPrompts, progress=True)  # <-- might be where it dies
 
             print("model.generate() completed", flush=True)
             q.put("[MSG] Done generating audio\n")
@@ -189,7 +206,7 @@ async def generate_music(prompt: str, filename: str, mididuration: int):
             print("File exists?", os.path.exists(midi_filename))
             print(f"saves {midi_filename} success")
 
-            from server import analyze_with_pretty_midi, serialize_note  # or define them here
+            # from server import analyze_with_pretty_midi, serialize_note  # or define them here
             json_notes, json_tempo_bpm, json_total_time = analyze_with_pretty_midi(midi_filename)
             base_name = os.path.splitext(os.path.basename(midi_filename))[0]
             data = {
@@ -211,7 +228,8 @@ async def generate_music(prompt: str, filename: str, mididuration: int):
             q.put(f"[MSG] {err_msg}\n")
 
         finally:
-            sys.stdout.flush()
+            # sys.stdout.flush()
+            sys.stdout = sys.__stdout__
             q.put("done\n")
             q.put(None)
 
@@ -223,7 +241,8 @@ async def generate_music(prompt: str, filename: str, mididuration: int):
             line = q.get()
             if line is None:
                 break
-            yield line
+            # yield line
+            yield line.encode()
 
     return StreamingResponse(stream(), media_type="text/plain")
 
