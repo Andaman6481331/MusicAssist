@@ -113,31 +113,56 @@ async def wav_to_json(
 
 
 @app.get("/miditojson")
-async def midi_to_json(file: UploadFile = File(...)):
-    os.makedirs(UPLOAD_DIR, exist_ok=True)
-    # Save uploaded file
-    midiFile = os.path.join(UPLOAD_DIR, file.filename)
-    with open(midiFile, "wb") as buffer:
-        shutil.copyfileobj(file.file, buffer)
-
+async def midi_to_json(file: UploadFile = File(...),
+    action: str = Form("add_anyway")   # default action
+):
     try:
-        notes, tempo_bpm, total_time = analyze_with_pretty_midi(midiFile)
-        base_name = os.path.splitext(os.path.basename(midiFile))[0]
+        # --- Step 1. Decide where to save input file ---
+        name, ext = os.path.splitext(file.filename)
+        input_path = os.path.join(save_dir, file.filename)
+
+        if os.path.exists(input_path):
+            if action == "cancel":
+                return JSONResponse(content={
+                    "status": "cancelled",
+                    "message": "User cancelled conversion"
+                })
+            elif action == "add_anyway":
+                counter = 1
+                while os.path.exists(input_path):
+                    new_filename = f"{name}({counter}){ext}"
+                    input_path = os.path.join(save_dir, new_filename)
+                    counter += 1
+
+        # --- Step 2. Save uploaded file ---
+        with open(input_path, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+
+        # --- Step 3. Run conversion (your existing pipeline) ---
+        notes, tempo_bpm, total_time = analyze_with_pretty_midi(input_path)
+
+        # JSON output should match input filename base
+        base_name = os.path.splitext(os.path.basename(input_path))[0]
+        output_json_path = os.path.join(output_dir, base_name + ".json")
+
         data = {
-            'tempo_bpm': tempo_bpm,
-            'total_time': total_time,
-            'notes': [serialize_note(n) for n in notes],
+            "tempo_bpm": tempo_bpm,
+            "total_time": total_time,
+            "notes": [serialize_note(n) for n in notes],
         }
 
-        output_json_path = os.path.join(output_dir, base_name + '.json')
-        with open(output_json_path, 'w') as f:
+        with open(output_json_path, "w") as f:
             json.dump(data, f, indent=4)
 
         print(f"[MSG] JSON saved to {output_json_path}\n")
 
         return JSONResponse(content={
+            "status": "ok",
             "message": f"JSON saved to {output_json_path}",
-            "data": data})
+            "filename": os.path.basename(input_path),
+            "data": data
+        })
+
     except Exception as e:
         return JSONResponse(content={"error": str(e)}, status_code=500)
 

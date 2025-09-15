@@ -6,6 +6,7 @@ const WavToJson: React.FC = () =>{
     const [jsonData, setJsonData] = useState<any>(null);
     const [showPopup, setShowPopup] = useState(false);
     const [userChoice, setUserChoice] = useState<"overwrite" | "add_anyway" | "cancel">("cancel");
+    const [convertChoice, setConvertChoice] = useState<"wav" | "midi">("wav");
     const [error, setError] = useState("");
 
     const handleConvert = async () => {
@@ -60,14 +61,51 @@ const WavToJson: React.FC = () =>{
     }
   };  
 
+  const acceptMap: Record<string, string> = {
+    Midi: ".mid,.midi",
+    Wav: ".wav",
+    JSON: ".json"
+  };
   return (
     <div>
-      <input
-        type="file"
-        accept=".wav"
-        onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
-      />
-      <button onClick={handleConvert} className="playbtn">Convert</button>
+      <style>
+      {`
+        .black {
+          color: black;
+          font-weight: bold;
+        }
+      `}
+    </style>
+      <div className="upload-box2">
+        <input
+          type="file"
+          accept={acceptMap[convertChoice]}
+          onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
+          id="fileInput"
+          style={{ display: "none" }}
+        />
+        <div style={{display:"flex", alignItems:"center", justifyContent:"space-around", width:"100%"}}>
+          <button className="playbtn2" onClick={() => {
+              document.getElementById("fileInput")?.click();
+              handleConvert();
+            }} 
+          >
+            <div style={{display:"flex", justifyContent:"center", alignContent:"center"}}>
+              <img src="icon/upload.svg" alt="upload-icon"/>
+              <span>Choose Files</span>
+            </div>
+          </button>
+          <div style={{display:"flex", justifyContent:"space-between", width:"13rem"}}>
+            <button className="ddbtn" style={{display:"flex", justifyContent:"center", alignContent:"center"}} onClick={() => {setConvertChoice(convertChoice === "wav" ? "midi" : "wav")} } >
+              <span>{convertChoice.toUpperCase()}</span>  
+              <img src="icon/caret-bottom.svg" alt="icon" />
+            </button> 
+            <h1> to </h1>
+            <button className="ddbtn">JSON</button>
+          </div>
+        </div>
+        
+      </div>
 
       {/* Popup for duplicate filename */}
       {success ? (
@@ -95,22 +133,5 @@ const WavToJson: React.FC = () =>{
     </div>
   );
 };
-
-//     const handleConvert= (e: React.ChangeEvent<HTMLInputElement>) => {
-//         const file = e.target.files?.[0];
-//         if (file) {
-//         // Use the file name without extension
-//         const nameWithoutExt = file.name.replace(/\.[^/.]+$/, "");
-//         setSelectedFile(`${nameWithoutExt}`);
-//         }
-//     };
-
-//     return(
-//         <div>
-//         <input type="file" onChange={handleConvert}/>
-//             {success && (<h3>{selectedFile} Convert Successfully</h3>)}
-//         </div>
-//     )
-// };
 
 export default WavToJson;
