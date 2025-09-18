@@ -1,10 +1,12 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 // import { Outlet } from 'react-router-dom';
 import { useNavigate } from "react-router-dom";
 import "./based.css";
 
 const usedFilenames = ['my_song', 'test123']; // Fake existing list
 import { useLoading } from "./LoadingContext";
+import { addGenerationRecord } from "./data/generations";
+import { subscribeAuth } from "./auth";
 
 
 const PracticePage: React.FC = () => {
@@ -19,6 +21,12 @@ const PracticePage: React.FC = () => {
   const [inputMiss, setInputMiss] = useState("");
   
   const { setLoading, setPercent, setMessage } = useLoading();
+  const [userId, setUserId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const unsub = subscribeAuth((user) => setUserId(user?.uid ?? null));
+    return () => unsub();
+  }, []);
 
   const groups = [
       {
@@ -131,6 +139,22 @@ const PracticePage: React.FC = () => {
             // setLoadingPercent(0);
             setPercent(0)
             console.log("Generation done");
+            // Persist generation metadata for this user
+            if (userId) {
+              try {
+                await addGenerationRecord(userId, {
+                  filename,
+                  difficulty: selectedOptions["Difficulties"],
+                  genre: selectedOptions["Genre"],
+                  key: selectedOptions["Key"],
+                  durationSec: Number(selectedOptions["Duration(s)"] || 0),
+                  prompt: textprompt,
+                  favorite: false,
+                });
+              } catch (e) {
+                console.error("Failed saving record:", e);
+              }
+            }
             navigate(`/output/${filename}`);
             return;
           }
