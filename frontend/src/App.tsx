@@ -4,6 +4,7 @@ import "./App.css";
 import { Outlet, useLocation, Link } from "react-router-dom";
 import { LoadingProvider } from "./LoadingContext";
 import LoadingBar from "./LoadingBar";
+import AuthControls from "./auth/AuthControls";
 
 const sampleUrls: Record<string, string> = {
   "A0": "A0vH.mp3",
@@ -115,35 +116,23 @@ const App = () => {
   return (
     <LoadingProvider>
       <SamplerContext.Provider value={{samplerRef,gainRef}}>
-         <div>
+        <div style={{display: "flex", flexDirection: "column", minHeight: "100vh"}}>
           <header className="navbar">
             <Link to="/" style={{outline:"0"}}>
               <h1 className="title">Harmonic</h1>
             </Link>
             <div className="right-nav">
-              <Link className="title" to="/data">
-                My List
-              </Link>
-              <Link className="title" to="/test">
-                Tools
-              </Link>
-              <Link className="title" to="/practice">
-                Generate
-              </Link>
-              <Link className="title" to="/chord">
-                Theory
-              </Link>
-              {/* Login button */}
-              <Link className="title" to="/login">
-                Login
-              </Link>
+              <Link className="title" to="/test">Tools</Link>
+              <Link className="title" to="/practice">Generate</Link>
+              <Link className="title" to="/chord">Theory</Link>
+              <AuthControls />
             </div>
           </header>
-          <main style={{ display: "flex" }}>
+          <main style={{flex: 1}}>
+            <Outlet key={location.pathname}/>
           </main>
+          <LoadingBar />
         </div>
-        <LoadingBar />
-        <Outlet key={location.pathname}/>
       </SamplerContext.Provider>
     </LoadingProvider>
   );

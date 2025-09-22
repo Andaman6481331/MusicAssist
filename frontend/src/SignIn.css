@@ -1,64 +1,63 @@
-html {
-  height: 100%;
-}
-body {
-  margin: 0;
-  padding: 0;
-  font-family: sans-serif;
-  background: linear-gradient(#141e30, #446891);
-}
+/* unify theme with login: remove page-specific overrides */
 
 .signin-box {
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 400px;
-  padding: 40px;
   transform: translate(-50%, -50%);
-  background: rgba(59, 105, 150, 0.5);
+  width: min(420px, 92vw);
+  padding: 28px;
+  color: #0b1726;
+  background: rgba(255, 255, 255, 0.96);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
   box-sizing: border-box;
-  box-shadow: 0 15px 25px rgba(0, 0, 0, 0.6);
-  border-radius: 10px;
+  border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  display: grid;
+  grid-auto-rows: max-content;
+  row-gap: 16px;
+  align-content: center;
+  min-height: 360px;
+  animation: cardIn 400ms ease forwards;
+  /* Register accent palette: dark blue */
+  --accent: #0b3e91;         /* primary */
+  --accent-2: #165dbf;       /* secondary */
+  --accent-shadow: rgba(11, 62, 145, 0.35);
+  --accent-focus: rgba(11, 62, 145, 0.15);
 }
 
 .signin-box h2 {
-  margin: 0 0 30px;
+  margin: 0 0 18px;
   padding: 0;
-  color: #fff;
+  color: #0b1726;
   text-align: center;
+  font-size: 28px;
+  line-height: 1.2;
 }
+.auth-header { text-align: center; }
+.auth-header p { margin: 0; color: #5b6573; font-size: 14px; }
 
-.signin-box .user-box {
-  position: relative;
-}
-
-.signin-box .user-box input {
+.input-group { margin-bottom: 10px; }
+.input-label { display: block; font-size: 14px; margin: 8px 0 6px; color: #0b1726; font-weight: 700; }
+.input-wrap { position: relative; }
+.auth-input {
   width: 100%;
-  padding: 10px 0;
+  padding: 14px 12px;
   font-size: 16px;
-  color: #fff;
-  margin-bottom: 30px;
-  border: none;
-  border-bottom: 1px solid #fff;
+  color: #0b1726;
+  background: #ffffff;
+  border: 1px solid #cfd8e3;
+  border-radius: 10px;
   outline: none;
-  background: transparent;
 }
-.signin-box .user-box label {
-  position: absolute;
-  top: 0;
-  left: 0;
-  padding: 10px 0;
-  font-size: 16px;
-  color: #fff;
-  pointer-events: none;
-  transition: 0.5s;
-}
+.reveal { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: transparent; border: none; color: var(--accent-2); font-weight: 700; cursor: pointer; }
 
 .signin-box .user-box input:focus ~ label,
 .signin-box .user-box input:valid ~ label {
   top: -20px;
   left: 0;
-  color: #03e9f4;
+  color: var(--accent);
   font-size: 12px;
 }
 
@@ -144,6 +143,10 @@ body {
   }
 }
 
+.signin-box .user-box input::placeholder { color: #5b6573; opacity: 1; }
+
+.signin-box .user-box input:focus { border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-focus); }
+
 .signin-box a span:nth-child(4) {
   bottom: -100%;
   left: 0;
@@ -170,6 +173,7 @@ body {
   align-items: center;
   justify-content: center;
   height: 100vh;
+  color: red
 }
 
 .titleContainer {
@@ -224,20 +228,21 @@ body {
   width: 400px;
   font-size: large;
   border-radius: 8px;
-  border: 1px solid grey;
+  border: 1px solid black;
   padding-left: 8px;
 }
-input[type="button"] {
+
+.signin-box input[type="button"] {
   border: none;
-  background: rgb(253, 255, 226);
-  color: rgb(0, 0, 0);
+  background: #141e30;
+  color: rgb(255, 255, 255);
   padding: 12px 125px;
   margin: 10px;
   font-size: 15px;
   border-radius: 8px;
   cursor: pointer;
 }
-input[type="button"]:hover {
+.signin-box input[type="button"]:hover {
   background: #e1e1e1;
   color: rgb(0, 0, 0);
 }
@@ -248,7 +253,7 @@ input[type="button"]:hover {
 }
 
 .login-link-text {
-  color: #d4fdff;
+  color: #000000;
   text-decoration: none;
   font-weight: bold;
   cursor: pointer;
@@ -256,4 +261,134 @@ input[type="button"]:hover {
 
 .login-link-text:hover {
   text-decoration: underline;
+}
+
+/* Modern overrides to match login */
+
+.signin-box {
+  width: min(420px, 92vw);
+  padding: 28px;
+  color: #0b1726;
+  background: rgba(255, 255, 255, 0.96);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  animation: cardIn 400ms ease forwards;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 360px;
+}
+
+.signin-box h2 {
+  margin: 0 0 18px;
+  font-size: 28px;
+  line-height: 1.2;
+  text-align: center;
+  color: #0b1726;
+}
+
+.signin-box .user-box {
+  margin-bottom: 18px;
+}
+
+.signin-box form {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 12px;
+  width: 85%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.signin-box .user-box input {
+  padding: 14px 12px;
+  font-size: 16px;
+  color: #0b1726;
+  background: #ffffff;
+  border: 1px solid #cfd8e3;
+  border-radius: 10px;
+  outline: none;
+  transition: border-color 200ms ease, box-shadow 200ms ease, transform 120ms ease;
+}
+
+.signin-box .user-box input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px var(--accent-focus);
+}
+
+.signin-box .user-box .errorLabel {
+  display: block;
+  margin-top: 8px;
+  color: #b00020;
+  font-size: 13px;
+}
+
+.signin-box .inputButton {
+  width: 100%;
+  height: 48px;
+  border: none;
+  border-radius: 10px;
+  background: linear-gradient(145deg, var(--accent-2), var(--accent));
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 120ms ease, box-shadow 200ms ease, background 300ms ease;
+  margin-top: 12px;
+}
+
+.signin-box .inputButton:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px var(--accent-shadow);
+}
+
+.signin-box .inputButton:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(29, 161, 242, 0.25);
+}
+
+.signin-box .inputButton:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* Normalize legacy floating-label styles to match login error-label layout */
+.signin-box .user-box label {
+  position: static;
+  padding: 0;
+  font-size: 13px;
+  color: #b00020;
+  display: block;
+  margin-top: 8px;
+  pointer-events: auto;
+  transition: none;
+}
+.signin-box .user-box input:focus ~ label,
+.signin-box .user-box input:valid ~ label {
+  top: auto;
+  left: auto;
+  color: #b00020;
+  font-size: 13px;
+}
+
+/* Match link styles with login */
+.login-link { margin-top: 16px; text-align: center; font-size: 14px; }
+.login-link-text { color: var(--accent-2); text-decoration: none; font-weight: 700; }
+.login-link-text:hover { text-decoration: underline; }
+
+@keyframes cardIn {
+  from { opacity: 0; transform: translate(-50%, calc(-50% + 8px)); }
+  to { opacity: 1; transform: translate(-50%, -50%); }
+}
+
+/* Leaving animation when navigating to Login */
+.signin-box.leaving {
+  animation: cardOutRight 250ms ease forwards;
+}
+@keyframes cardOutRight {
+  from { opacity: 1; transform: translate(-50%, -50%); }
+  to { opacity: 0; transform: translate(calc(-50% + 10px), -50%); }
 }
