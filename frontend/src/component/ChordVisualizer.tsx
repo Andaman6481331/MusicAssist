@@ -1,153 +1,157 @@
-//Feature: Two Octave, Receive input from homepage, Display Easiest Chords
-import React, { useEffect } from "react";
-import * as Tone from "tone";
-import { useContext } from "react";
-import { SamplerContext } from "../App";
+import {useState, useEffect} from "react";
+import ChordPiano from "./ChordPiano";
 
-const keyNotes: Record<string, string> = {
-  C: "C4",
-  "C#": "C#4",
-  D: "D4",
-  "D#": "D#4",
-  E: "E4",
-  F: "F4",
-  "F#": "F#4",
-  G: "G4",
-  "G#": "G#4",
-  A: "A4",
-  "A#": "A#4",
-  B: "B4",
-};
+const ChordVisualizer: React.FC = () => {
+  const [isMuted, setIsMuted] = useState<boolean>(false);
+// const selectedChord = searchParams.get("chord") || "";
+  const [selectedMM, setMinorMajor] = useState<string>("");
+  const [selectedSus, setSus] = useState<string>("");
+  const [selectedExt, setExt] = useState<string>("");
+  const [selectedDom, setDom] = useState<string>("");
+  const [spSelect, setSp] = useState<string>("");
+  const [finalChord, setFinalChord] = useState<string>("Please Select the Chord");
+  const [selectedScale, setScale] = useState<string>("");
 
-// Define chord structures (basic major chords for this example)
-const chordNotes: Record<string, string[]> = {
-  C: ["C", "E", "G"], // C major
-  "C#": ["C#", "F", "G#"], // C# major
-  D: ["D", "F#", "A"], // D major
-  "D#": ["D#", "G", "A#"], // D# major
-  E: ["E", "G#", "B"], // E major
-  F: ["F", "A", "C"], // F major
-  "F#": ["F#", "A#", "C#"], // F# major
-  G: ["G", "B", "D"], // G major
-  "G#": ["G#", "C", "D#"], // G# major
-  A: ["A", "C#", "E"], // A major
-  "A#": ["A#", "D", "F"], // A# major
-  B: ["B", "D#", "F#"], // B major
-};
+  const showChordVisualizerInfo = (e: React.MouseEvent) => {
+    e.preventDefault(); // Prevents the anchor from jumping to top
+    alert("This section helps you build and visualize chords with custom extensions, sus, and voicings.");
+  };
 
-interface ChordVisualizerProps {
-  selectedChord: string;
-  isMuted?: boolean;
+  //mapping used in the selection Menu
+  const groups = [
+    {
+      name: "CORE QUALITY",
+      options: [
+        { value: "maj", label: "Major" },
+        { value: "m", label: "Minor" },
+      ],
+    },
+    {
+      name: "SUSPENDED/AUG/DIM",
+      options: [
+        { value: "", label: "none" },
+        { value: "sus2", label: "Sus2" },
+        { value: "sus4", label: "Sus4" },
+        { value: "aug", label: "aug" },
+        { value: "dim", label: "dim" },
+      ],
+    },
+    {
+      name: "EXTENDED",
+      options: [
+        { value: "", label: "none" },
+        { value: "7", label: "7" },
+        { value: "9", label: "9" },
+        { value: "11", label: "11" },
+        { value: "13", label: "13" },
+      ],
+    },
+    {
+      name: "DOMINANT",
+      options: [
+        { value: "", label: "none" },
+        { value: "dominant", label: "dominant" },
+      ],
+    },
+    {
+      name: "OTHERS",
+      options: [
+        { value: "", label: "none" },
+        { value: "add9", label: "add9" },
+        { value: "5", label: "5" },
+        { value: "6", label: "6" },
+      ],
+    },
+  ];
+
+  //Compute Actual Chord
+  const isUsingOthers = spSelect !== "";
+  const isDominant = selectedDom === "dominant";
+  const isMajorWithExtension = selectedMM === "maj" && selectedExt !== "" && spSelect === "";
+
+  const mmDisplay = isDominant
+    ? ""
+    : isMajorWithExtension
+      ? "maj"
+      : selectedMM === "maj"
+        ? ""
+        : selectedMM === "m"
+          ? "m"
+          : "";
+
+    useEffect(() => {
+        const chord = `${selectedScale}${mmDisplay}${
+            isUsingOthers ? "" : selectedExt
+        }${isUsingOthers ? "" : selectedSus}${
+            spSelect !== "" ? spSelect : ""
+        }`;
+
+        setFinalChord(chord);
+    }, [selectedScale, mmDisplay, selectedExt, selectedSus, spSelect, isUsingOthers]);
+
+  const funct = [setMinorMajor, setSus, setExt, setDom, setSp];
+
+    return(
+        <div>
+            <div style={{display:"flex", alignItems:"center", justifyContent:"center"}}>
+            <h1 className="card-title" >Chord Visualizer</h1>
+            <a href="#" onClick={showChordVisualizerInfo}>
+              <img src="/icon/info.svg" alt="Info" style={{ width: '2rem', height: '2rem', cursor: 'pointer'}} />
+            </a>
+          </div>
+          <div className="separater-around">
+              <div style={{fontSize:"5rem", fontWeight:"700"}}>
+              {selectedScale || "C"}
+              </div>
+              <div style={{display:"flex"}}>
+                {["C","D","E","F","G","A","B"].map((Note) =>(
+                  <button className="notebtn" onClick={() => setScale(Note)}>
+                    {Note}
+                  </button>
+                ))}
+              </div>
+            </div>     
+          <div style={{display:"flex",flexDirection:"row"}}>
+            <div>
+                   
+              <div className="selectormenu-container">
+                {groups.map((group, groupIdx) => (
+                    <div key={groupIdx}>
+                        <h3>{group.name}</h3>
+                        <div className="selector-wrapper" key={groupIdx}>
+                            {group.options.map((option, optionIdx) => (
+                                <div className="option" key={optionIdx}>
+                                <input
+                                    value={option.value}
+                                    name={group.name}
+                                    type="radio"
+                                    className="selector-input"
+                                    onClick={() => funct[groupIdx](option.value)}
+                                />
+                                <div className="selector-btn">
+                                    <span className="span">{option.label}</span>
+                                </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                ))}
+                </div>
+            </div>
+            <div style={{display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center"}}>
+              <a className="blueBtn">
+                {finalChord}
+              </a>
+              <ChordPiano
+                width={40}
+                height={160}
+                finalChord={finalChord}
+                isMuted={isMuted}
+              />
+            </div>
+          </div>
+        </div>
+    )
 }
-
-const ChordVisualizer: React.FC<ChordVisualizerProps> = ({ selectedChord, isMuted = false }) => {
-  const selectedChordNotes = selectedChord ? chordNotes[selectedChord] : [];
-  const sampler = useContext(SamplerContext);
-  // Load the sampler and check for errors
-
-  //Play Multiple Notes
-  useEffect(() => {
-    if (isMuted) return;
-  
-    const playChord = async () => {
-      if (sampler?.samplerRef.current && selectedChord) {
-        if (!sampler?.samplerRef.current || isMuted || !selectedChord || !sampler.samplerRef.current.loaded) return;
-        
-        await Tone.start(); // Ensure audio context is started
-  
-        const notes = chordNotes[selectedChord]
-          ?.map((note) => keyNotes[note])
-          .filter(Boolean); // remove undefined just in case
-          if (notes && notes.length > 0) {
-            sampler.samplerRef.current.triggerAttackRelease(notes, "1n"); // Play all notes together
-          }
-        }
-      };
-      if(sampler?.samplerRef.current){
-        playChord();
-      }
-  
-  }, [selectedChord]);
-  
-  const whiteKeys = ["C", "D", "E", "F", "G", "A", "B"];
-  const blackKeys = ["C#", "D#", "F#", "G#", "A#"];
-
-  return (
-    <div style={{ display: "flex", justifyContent: "center", position: "absolute"}}>
-      {/* White keys */}
-      <div style={{ display: "flex", zIndex: 0 }}>
-        {whiteKeys.map((key) => {
-          const isSelected = selectedChordNotes.includes(key);
-          return (
-            <div
-              key={key}
-              style={{
-                width: "40px",
-                height: "150px",
-                backgroundColor: isSelected ? "rgb(98, 208, 220)" : "white",
-                border: "1px solid black",
-                margin: "0",
-                position: "relative",
-                boxSizing: "border-box",
-              }}
-            >
-              <div
-                style={{
-                  position: "absolute",
-                  bottom: "5px",
-                  width: "100%",
-                  textAlign: "center",
-                  fontSize: "12px",
-                  color: isSelected ? "black": "white",
-                  userSelect: "none"
-                }}
-              >
-                {key}
-              </div>
-            </div>
-          );
-        })}
-      </div>
-
-      {/* Black keys */}
-      <div style={{ display: "flex", zIndex: 1 }}>  
-        {blackKeys.map((key) => {
-          const isSelected = selectedChordNotes.includes(key);
-
-          // Use conditional offsets to make sure black keys align properly
-          const position = { C: 40, D: 80, E: 120, F: 160, G: 200, A: 240, B: 280,};
-
-          return (
-            <div
-              key={key}
-              style={{
-                width: "25px",
-                height: "90px",
-                backgroundColor: isSelected ? "rgb(1, 57, 121)" : "black",
-                marginLeft: `${position[key.charAt(0) as keyof typeof position] - 295}px`,
-                zIndex: 1,
-                position: "absolute",
-              }}
-            >
-              <div
-                style={{
-                  position: "absolute",
-                  bottom: "5px",
-                  width: "100%",
-                  textAlign: "center",
-                  fontSize: "12px",
-                  userSelect: "none",
-                  color: isSelected ? "white" : "black"
-                }}
-              >
-                {key}
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
-};
 
 export default ChordVisualizer;

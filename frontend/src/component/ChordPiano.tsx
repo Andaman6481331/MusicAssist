@@ -34,7 +34,7 @@ interface ChordVisualizerProps {
   isMuted?: boolean;
 }
 
-const ChordVisualizer: React.FC<ChordVisualizerProps> = ({width = 40, height = 150, finalChord, isMuted = false }) => {
+const ChordPiano: React.FC<ChordVisualizerProps> = ({width = 40, height = 150, finalChord, isMuted = false }) => {
   const sampler = useContext(SamplerContext);
 
 
@@ -202,4 +202,4 @@ const ChordVisualizer: React.FC<ChordVisualizerProps> = ({width = 40, height = 1
   );
 };
 
-export default ChordVisualizer;
+export default ChordPiano;

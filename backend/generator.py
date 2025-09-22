@@ -1,9 +1,7 @@
 #activate the venv first before running
 #.venv\Scripts\activate
-
 import os
 import torchaudio
-import librosa
 from audiocraft.models import musicgen
 from datetime import datetime
 from basic_pitch.inference import predict_and_save, ICASSP_2022_MODEL_PATH

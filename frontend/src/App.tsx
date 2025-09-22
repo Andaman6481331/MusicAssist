@@ -124,15 +124,23 @@ const App = () => {
               <Link className="title" to="/data">
                 My List
               </Link>
-              <Link className="title" to="/test">
+              <Link className="title" to="/tools">
                 Tools
               </Link>
-              <Link className="title" to="/practice">
+              <Link className="title" to="/generate-prompt">
                 Generate
               </Link>
-              <Link className="title" to="/chord">
-                Theory
-              </Link>
+              <div className="dropdown" style={{position:"relative"}}>
+                <Link className="title" to="/theory">
+                  Theory
+                </Link>
+                <div className="dropdown-menu">
+                  <Link to="/theory/chords">Chords</Link>
+                  <Link to="/theory/scales">Scales</Link>
+                  <Link to="/theory/progressions">Progressions</Link>
+                </div>
+              </div>
+              
               {/* Login button */}
               <Link className="title" to="/login">
                 Login

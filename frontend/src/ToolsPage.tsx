@@ -10,12 +10,12 @@ import WavToJson from "./component/WavToJson";
 //   return song.trim().toLowerCase().replace(/[^a-z0-9 ]/g, "").replace(/\s+/g, "_");
 // };
 
-const TestPage: React.FC = () =>{
+const ToolsPage: React.FC = () =>{
     const [selectedSong, setSelectedSong] = useState<string>("");
     type UploadState = "idle" | "uploading" | "done";
     const [uploadState, setUploadState] = useState<UploadState>("idle");
-    const [selectedFile, setSelectedFile] = useState<File | null>(null);
-    const [jsonData, setJsonData] = useState<any>(null);
+    // const [selectedFile, setSelectedFile] = useState<File | null>(null);
+    // const [jsonData, setJsonData] = useState<any>(null);
 
     const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -35,13 +35,13 @@ const TestPage: React.FC = () =>{
         }
     };
 
-    type LoadMode = "JSON" | "Wav" | "Midi";
-    const [loadMode, setLoadMode] = useState<LoadMode>("JSON");
-    const fileTypes: Record<LoadMode, string[]> = {
-        JSON: [".json"],
-        Wav: [".wav"],
-        Midi: [".midi", ".mid"],
-    };
+    // type LoadMode = "JSON" | "Wav" | "Midi";
+    // const [loadMode, setLoadMode] = useState<LoadMode>("JSON");
+    // const fileTypes: Record<LoadMode, string[]> = {
+    //     JSON: [".json"],
+    //     Wav: [".wav"],
+    //     Midi: [".midi", ".mid"],
+    // };
 
   return(
     <div className="page-container2" style={{flexDirection:"column"}}>
@@ -49,7 +49,7 @@ const TestPage: React.FC = () =>{
             <div style={{width:"90%"}}>
                 <div className="separater">
                     <h1>Piano Visualizer</h1>
-                    <div className="package-container">
+                    {/* <div className="package-container">
                         <div className="package-tab-wrapper">
                             {( ["JSON", "Wav", "Midi"] as LoadMode[] ).map((mode) => (
                             <label htmlFor={mode} className="package-tab" key={mode}>
@@ -68,15 +68,17 @@ const TestPage: React.FC = () =>{
                             </label>
                             ))}
                         </div>
-                    </div>
+                    </div> */}
                 </div>
                 {uploadState === "idle" && (
                     <div className="upload-box">
                         <div className="circle-wrapper">
                             <img src="icon/music.svg" alt="music-icon" className="music-logo" />
                         </div>
-                        <h1>Load {loadMode.toUpperCase()} File</h1>
-                        <h2>Drag or select your {loadMode} file to play in piano roll</h2>
+                        {/* <h1>Load {loadMode.toUpperCase()} File</h1> */}
+                        <h1>Load JSON, MIDI, WAV File</h1>
+                        {/* <h2>Drag or select your {loadMode} file to play in piano roll</h2> */}
+                        <h2>Drag or select your file to play in piano roll</h2>
                         <button onClick={handleButtonClick} className="playbtn">
                             <div style={{display:"flex", justifyContent:"center", alignContent:"center"}}>
                                 <img src="icon/upload.svg" alt="upload-icon"/>
@@ -85,11 +87,13 @@ const TestPage: React.FC = () =>{
                         </button>
                         <input 
                             type="file" 
-                            accept={fileTypes[loadMode].join(",")}
+                            // accept={fileTypes[loadMode].join(",")}
+                            accept=".json,.wav,.mid,.midi"
                             ref={fileInputRef}
                             onChange={handleFileChange}
                         />
-                        <p>Support {fileTypes[loadMode].join(" & ")} files</p>
+                        {/* <p>Support {fileTypes[loadMode].join(" & ")} files</p> */}
+                        <p>Support .json, .wav, .mid, .midi files</p>
                     </div>
                     )}
                 {uploadState === "uploading" && (
@@ -114,11 +118,8 @@ const TestPage: React.FC = () =>{
             <h1>File Converter</h1>
             <WavToJson/>
         </div>
-        <div className="card-container" style={{minWidth:"900px"}}>
-            <h1>Midi to Json</h1>
-        </div>
     </div>
   );
 };
 
-export default TestPage
+export default ToolsPage;

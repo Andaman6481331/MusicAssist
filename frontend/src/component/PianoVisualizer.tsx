@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import * as Tone from "tone";
 import { useContext } from "react";
 import { SamplerContext } from "../App";
@@ -11,44 +11,94 @@ interface PianoVisualizerProps {
   width?: number;
   showKeyname?: boolean;
   externalKey?: { key: string; duration: number }[];
+  chordArrays?: string[][];
 }
 interface ActiveNote {
   key: string;
   endTime: number;
 }
 
-const PianoVisualizer: React.FC<PianoVisualizerProps> = ({isPlayable = true, scaleLength=3, startOctave=3, height=150, width=40, showKeyname = true, externalKey= []}) => {
+const PianoVisualizer: React.FC<PianoVisualizerProps> = ({isPlayable = true, scaleLength=3, startOctave=3, height=150, width=40, showKeyname = true, externalKey= [],}) => {
   // const [selectedKey, setSelectedKey] = useState<string>("C");
   const sampler = useContext(SamplerContext);
   const [selectedKey, setSelectedKey] = useState<string[]>([]);
   const [activeNotes, setActiveNotes] = useState<ActiveNote[]>([]);
+  const playingRef = useRef<{ abort: boolean }>({ abort: false });
 
   useEffect(() => {
-  if (externalKey && externalKey.length > 0) {
-    const now = Tone.now();
-    const newNotes: ActiveNote[] = externalKey.map(({ key, duration }) => ({
-      key,
-      endTime: now + duration,
-    }));
+    if (externalKey && externalKey.length > 0) {
+      const now = Tone.now();
+      const newNotes: ActiveNote[] = externalKey.map(({ key, duration }) => ({
+        key,
+        endTime: now + duration,
+      }));
 
-    setActiveNotes(prev =>
-      [...prev, ...newNotes].filter(n => n.endTime > now)
-    );
+      setActiveNotes(prev =>
+        [...prev, ...newNotes].filter(n => n.endTime > now)
+      );
 
-    const play = async () => {
-      await Tone.start();
-      if (sampler?.samplerRef.current) {
-        externalKey.forEach(({ key }) => {
-          sampler.samplerRef.current!.triggerAttackRelease(key, "1n");
-        });
-      }
-    };
+      const play = async () => {
+        await Tone.start();
+        if (sampler?.samplerRef.current) {
+          externalKey.forEach(({ key }) => {
+            sampler.samplerRef.current!.triggerAttackRelease(key, "1n");
+          });
+        }
+      };
 
-    play();
-  }
-}, [externalKey]);
+      play();
+    }
+  }, [externalKey]);
 
+  //Progression = play sequences of chords [][]
+  // useEffect(() => {
+  //   if (!chordArrays || chordArrays.length === 0) return;
 
+  //   // console.log(chordArrays);
+  //   const playChordsSequentially = async (chordArrays: string[][]) => {
+  //     await Tone.start();
+  //     if (!sampler?.samplerRef.current || playingRef.current.abort) return;
+
+  //     // Abort any previous sequence
+  //     if (playingRef.current.abort === false) {
+  //       playingRef.current.abort = true; // signal old sequence to stop
+  //     }
+  //     playingRef.current = { abort: false };
+
+  //     const chordDuration = 1000; // ms
+  //     const delayBetweenChords = 500; // ms
+
+  //     for (let i = 0; i < chordArrays.length; i++) {
+  //       if (playingRef.current.abort) break;
+  //       const chord = chordArrays[i];
+
+  //       // Highlight notes
+  //       setActiveNotes(chord.map(key => ({ key, endTime: Date.now() + chordDuration })));
+
+  //       // Play all notes in the chord
+  //       chord.forEach(note => {
+  //         sampler.samplerRef.current!.triggerAttackRelease(
+  //           note,
+  //           chordDuration / 1000 + "n"
+  //         );
+  //       });
+
+  //       // Wait chord duration
+  //       await new Promise(resolve => setTimeout(resolve, chordDuration));
+
+  //       // Remove highlight
+  //       setActiveNotes([]);
+
+  //       // Wait delay before next chord
+  //       await new Promise(resolve => setTimeout(resolve, delayBetweenChords));
+  //     }
+
+  //     // Clear highlights at the end
+  //     setActiveNotes([]);
+  //   };
+  //   playChordsSequentially(chordArrays);
+
+  // }, [chordArrays, sampler]);
 
   const handleKeyClick = async (key: string) => {
     // setSelectedKey([key]);samplerRef.
@@ -110,6 +160,7 @@ const PianoVisualizer: React.FC<PianoVisualizerProps> = ({isPlayable = true, sca
                 margin: "0",
                 position: "absolute",
                 boxSizing: "border-box",
+                // borderRadius: (note==="C4")? "10px 0 0 10px": (note==="B5")? "0 10px 10px 0": "0"
               }}
             >
               {showKeyname &&
@@ -148,10 +199,11 @@ const PianoVisualizer: React.FC<PianoVisualizerProps> = ({isPlayable = true, sca
               style={{
                 width: `${width*0.625}px`,
                 height: `${height*0.6}px`,
-                backgroundColor: isSelected ? "rgb(8, 117, 201)" : "black",
+                backgroundColor: isSelected ? "rgb(32, 173, 255)" : "rgb(7, 5, 106)",
                 left: `${left}px`,
                 zIndex: 2,
                 position: "absolute",
+                borderRadius: "0 0 5px 5px"
               }}
             >
               {showKeyname && 

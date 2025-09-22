@@ -63,7 +63,7 @@ const Home: React.FC = () => {
                 textAlign: "center",
                 marginRight: "2rem",
               }}
-              to="/practice"
+              to="/login"
             >
               Start Now
             </Link>
