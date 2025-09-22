@@ -320,6 +320,64 @@ box-shadow: -20px -20px 60px #083565, 20px 20px 60px #0e4d91;
     background: linear-gradient(145deg, #5594fa, #28a7f6);
   }
 }
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.08);
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.12s ease;
+}
+.btn img { width: 16px; height: 16px; filter: invert(1); }
+.btn:hover { background: rgba(255,255,255,0.14); transform: translateY(-1px); }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+.btn.danger { background: #de3b3b; border-color: #ff9a9a33; }
+.btn.danger:hover { background: #e94a4a; }
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 0 0 12px 0;
+}
+.toolbar-right { display: inline-flex; align-items: center; gap: 12px; }
+.toolbar .checkbox { display: inline-flex; align-items: center; gap: 8px; color: #e1e1e1; }
+
+.list {
+  display: grid;
+  gap: 8px;
+}
+.list-empty {
+  padding: 16px;
+  text-align: center;
+  color: #e1e1e1;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 10px;
+}
+.list-row {
+  display: grid;
+  grid-template-columns: auto auto 1fr auto auto;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.16);
+  background: rgba(255,255,255,0.08);
+}
+.icon-btn { background: transparent; border: none; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; padding: 4px; border-radius: 8px; }
+.icon-btn:hover { background: rgba(255,255,255,0.08); }
+.icon-btn svg { width: 20px; height: 20px; }
+.cell.grow { display: flex; flex-direction: column; }
+.item-title { font-weight: 800; color: #e6f1ff; }
+.item-sub { color: #b9d1ef; font-size: 0.9rem; }
+.cell.meta { color: #d1e2ff; font-size: 0.95rem; }
 .blueBtn{
   background: linear-gradient(#074689, #033e7d);
   font-size: xx-large;

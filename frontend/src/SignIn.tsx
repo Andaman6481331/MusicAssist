@@ -1,17 +1,20 @@
 // https://reactconf.org/create-a-login-form-in-react-typescript/
 import { useState } from 'react';
 import './SignIn.css';
-import { BrowserRouter as Router, Routes, Route, Navigate, Link } from 'react-router-dom';
-import Home from './HomePage.tsx';
-//import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { signupWithEmail } from './auth';
 
 function SignIn() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [leaving, setLeaving] = useState(false);
+  const navigate = useNavigate();
 
-  const onButtonClick = () => {
+  const onButtonClick = async () => {
     setEmailError('');
     setPasswordError('');
 
@@ -35,54 +38,82 @@ function SignIn() {
       return;
     }
 
-    // Navigate to Home if all validation passes
-    if (email) {
-      return (
-        <Router>
-          <Routes>
-            <Route path="/" element={<Home />} />
-          </Routes>
-        </Router>
-      );
-    } else {
-      return <Navigate to="/Component/SignIn/SignIn" />;
+    try {
+      setSubmitting(true);
+      await signupWithEmail(email, password);
+      navigate('/');
+    } catch (err: any) {
+      const message = err?.message || 'Registration failed';
+      setPasswordError(message);
+    } finally {
+      setSubmitting(false);
     }
   };
 
+  const gotoLogin = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    if (leaving) return;
+    setLeaving(true);
+    setTimeout(() => navigate('/login'), 250);
+  };
+
   return (
-    <div className="signin-box">
-      <h2>Register</h2>
-      <form>
-        <div className="user-box">
-          <input
-            value={email}
-            placeholder="Enter email address here"
-            onChange={(ev) => setEmail(ev.target.value)}
-            className="user-box"
-          />
-          <label className="errorLabel">{emailError}</label>
+    <div className={"signin-box" + (leaving ? " leaving" : "")}>
+      <div className="auth-header">
+        <h2>Register</h2>
+        <p>Create your account to start exploring Harmonic.</p>
+      </div>
+      <form onSubmit={(e) => { e.preventDefault(); onButtonClick(); }}>
+        <div className="input-group">
+          <label className="input-label" htmlFor="register-email">Email</label>
+          <div className="input-wrap">
+            <input
+              id="register-email"
+              value={email}
+              placeholder="Enter email address here"
+              onChange={(ev) => setEmail(ev.target.value)}
+              className="auth-input"
+              type="email"
+              autoComplete="email"
+            />
+          </div>
+          {emailError ? <small className="errorLabel">{emailError}</small> : null}
         </div>
-        <div className="user-box">
-          <input
-            value={password}
-            placeholder="Enter password here"
-            onChange={(ev) => setPassword(ev.target.value)}
-            className="user-box"
-            type="password"
-          />
-          <label className="errorLabel">{passwordError}</label>
+        <div className="input-group">
+          <label className="input-label" htmlFor="register-password">Password</label>
+          <div className="input-wrap">
+            <input
+              id="register-password"
+              value={password}
+              placeholder="Enter password here"
+              onChange={(ev) => setPassword(ev.target.value)}
+              className="auth-input"
+              type={showPassword ? 'text' : 'password'}
+              autoComplete="new-password"
+            />
+            <button
+              type="button"
+              aria-label={showPassword ? 'Hide password' : 'Show password'}
+              className="reveal"
+              onClick={() => setShowPassword((v) => !v)}
+            >
+              {showPassword ? 'Hide' : 'Show'}
+            </button>
+          </div>
+          {passwordError ? <small className="errorLabel">{passwordError}</small> : null}
         </div>
         <input
           onClick={onButtonClick}
           className="inputButton"
-          type="button"
-          value="Submit"
+          type="submit"
+          value={submitting ? 'Registering...' : 'Submit'}
+          disabled={submitting}
         />
       </form>
       <div className="login-link">
         <p>
             Already have an account?{' '}
-            <Link to="/login" className="login-link-text">
+            <Link to="/login" className="login-link-text" onClick={gotoLogin}>
                Login here
             </Link>
         </p>
