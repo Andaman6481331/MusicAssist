@@ -18,7 +18,7 @@ interface ActiveNote {
   endTime: number;
 }
 
-const PianoVisualizer: React.FC<PianoVisualizerProps> = ({isPlayable = true, scaleLength=3, startOctave=3, height=150, width=40, showKeyname = true, externalKey= [],}) => {
+const PianoVisualizer: React.FC<PianoVisualizerProps> = ({isPlayable = true, scaleLength=3, startOctave=3, height=150, width=40, showKeyname = true, externalKey= [],chordArrays= [[],[]] }) => {
   // const [selectedKey, setSelectedKey] = useState<string>("C");
   const sampler = useContext(SamplerContext);
   const [selectedKey, setSelectedKey] = useState<string[]>([]);
@@ -130,13 +130,40 @@ const PianoVisualizer: React.FC<PianoVisualizerProps> = ({isPlayable = true, sca
     blackKeys.map(note => ({ note: note + octave, base: note, octave }))
   );
 
+  //for progression chord highlight
+  // useEffect(() => {
+  //   if (!chordArrays || chordArrays.length === 0) return;
+
+  //   let isCancelled = false;
+
+  //   const playChords = async () => {
+  //     for (let i = 0; i < chordArrays.length; i++) {
+  //       if (isCancelled) break;
+
+  //       setSelectedKey(chordArrays[i]);          // set current chord
+  //       await new Promise(res => setTimeout(res, 1000)); // 1s duration
+
+  //       setSelectedKey([]);                 // clear chord
+  //       await new Promise(res => setTimeout(res, 500));  // 0.5s interval
+  //     }
+  //   };
+
+  //   playChords();
+
+  //   return () => {
+  //     isCancelled = true; // cleanup if component unmounts or chords change
+  //     setSelectedKey([]); // reset state
+  //   };
+  // }, [chordArrays]);
+
   return (
     <div
       style={{
         position: "relative",
         display: "flex",
         justifyContent: "center",
-        cursor: isPlayable ? "pointer" : "default"
+        cursor: isPlayable ? "pointer" : "default",
+        borderRadius:"1rem",
       }}
     >
       {/* White keys */}
@@ -160,7 +187,7 @@ const PianoVisualizer: React.FC<PianoVisualizerProps> = ({isPlayable = true, sca
                 margin: "0",
                 position: "absolute",
                 boxSizing: "border-box",
-                // borderRadius: (note==="C4")? "10px 0 0 10px": (note==="B5")? "0 10px 10px 0": "0"
+                borderRadius: (note==="C"+startOctave.toString())? "10px 0 0 10px": (note==="B"+(startOctave+scaleLength-1).toString())? "0 10px 10px 0": "0"
               }}
             >
               {showKeyname &&
@@ -187,7 +214,7 @@ const PianoVisualizer: React.FC<PianoVisualizerProps> = ({isPlayable = true, sca
         {allBlackKeys.map(({ note }) => {
           // const isSelected = note === selectedKey;
           // const isSelected = selectedKey.includes(note);
-          const isSelected = activeNotes.some(n => n.key === note && n.endTime > Tone.now());
+          const isSelected = activeNotes.some(n => n.key === note && n.endTime > Tone.now()) || selectedKey.includes(note);
 
           // Calculate left offset based on white keys
           const whiteKeyIndex = allWhiteKeys.findIndex(k => k.note.startsWith(note.charAt(0)) && k.octave === parseInt(note.slice(-1)));
@@ -199,7 +226,7 @@ const PianoVisualizer: React.FC<PianoVisualizerProps> = ({isPlayable = true, sca
               style={{
                 width: `${width*0.625}px`,
                 height: `${height*0.6}px`,
-                backgroundColor: isSelected ? "rgb(32, 173, 255)" : "rgb(7, 5, 106)",
+                backgroundColor: isSelected ? "rgba(22, 19, 169, 1)" : "rgb(7, 5, 106)",
                 left: `${left}px`,
                 zIndex: 2,
                 position: "absolute",

@@ -150,6 +150,74 @@ const ChordVisualizer: React.FC = () => {
               />
             </div>
           </div>
+          <style>
+            {`
+            /* From Uiverse.io by LightAndy1 */ 
+                    .selectormenu-container{
+                    background-color: rgba(171, 171, 171, 0.13);
+                    border: 1px solid #ffffff5d;
+                    border-radius: 0.5rem;
+                    width: 25rem;
+                    padding: 0 1rem 1rem 1rem;
+                    user-select: none;
+                    & h3{
+                        margin: 0.3rem 0.5rem;
+                        color: rgb(204, 217, 226);
+                    }
+                    }
+
+                    .selector-wrapper {
+                        --bg-color: rgb(28, 105, 160);
+                        position: relative;
+                        height: 2.5rem;
+                        background: linear-gradient(#074689, #033e7d);
+                        /* background-color: var(--bg-color); */
+                        border-radius: 3px;
+                        display: flex;
+                        flex-direction: row;
+                        align-items: center;
+                        justify-content: space-around;
+                        margin-bottom: 1rem;
+                    }
+                    
+                    .option {
+                        margin-right: 5px;
+                        width: 80.5px;
+                        height: 28px;
+                        position: relative;
+                        /* & :hover{
+                        background-color: rgba(240, 248, 255, 0.312);
+                        } */
+                    }
+                    
+                    .selector-input {
+                        width: 90%;
+                        height: 90%;
+                        position: absolute;
+                        appearance: none;
+                        cursor: pointer;
+                        
+                    }
+                    
+                    .selector-btn {
+                        width: 100%;
+                        height: 100%;
+                        border-radius: 50px;
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                    }
+                    
+                    .span {
+                        color: var(--font-color-dark);
+                    }
+                    
+                    .selector-input:checked + .selector-btn .span {
+                        font-weight: bolder;
+                        color: white;
+                    }
+            `}
+          </style>
         </div>
     )
 }

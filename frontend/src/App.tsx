@@ -84,15 +84,6 @@ const App = () => {
   const location = useLocation();
   const gainRef = useRef<Tone.Gain | null>(null);
 
-  // useEffect(() => {
-  //   const path = location.pathname;
-  //   const shouldEnableSampler = path === "/" || path === "/test" || path === "/output" || path === "/chord"; // any page that uses sampler
-
-  //   if (gainRef.current) {
-  //     gainRef.current.gain.setValueAtTime(shouldEnableSampler ? 1 : 0, Tone.now());
-  //   }
-  // }, [location]);
-
   useEffect(() => {
       // Load the sampler and check for errors
       const limiter = new Tone.Limiter(-1).toDestination();
@@ -122,9 +113,9 @@ const App = () => {
               <h1 className="title">Harmonic</h1>
             </Link>
             <div className="right-nav">
-              <Link className="title" to="/test">Tools</Link>
-              <Link className="title" to="/practice">Generate</Link>
-              <Link className="title" to="/chord">Theory</Link>
+              <Link className="title" to="/tools">Tools</Link>
+              <Link className="title" to="/generate-prompt">Generate</Link>
+              <Link className="title" to="/theory">Theory</Link>
               <AuthControls />
             </div>
           </header>

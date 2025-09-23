@@ -170,9 +170,9 @@ class PromptRequest(BaseModel):
     prompt: str
 
 @app.get("/generate")
-async def generate_music(prompt: str, filename: str, mididuration: int):
+async def generate_music(prompt: str, filename: str, mididuration: str):
     print("generate_music called with:", prompt, filename, mididuration, flush=True)
-    model.set_generation_params(duration=mididuration)
+    model.set_generation_params(duration=int(mididuration))
     q = Queue()
 
     def generate_and_capture():

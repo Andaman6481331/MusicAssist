@@ -8,7 +8,7 @@ const Triads: React.FC = () => {
 
     return(
         <div>
-            <div className="card-container" style={{flexDirection:"column"}}>
+            <div style={{flexDirection:"column"}}>
           <h1 className="card-title" style={{marginRight: "auto"}}>Chords : {selectedChord}</h1>
           <div className="card1">
             <CircleOfFifths
