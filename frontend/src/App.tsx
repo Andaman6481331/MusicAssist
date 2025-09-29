@@ -67,8 +67,6 @@ const sampleUrls: Record<string, string> = {
   "F#7vL": "Fs7vL.mp3"
 };
 
-// export const SamplerContext = createContext<React.MutableRefObject<Tone.Sampler | null> | null>(null);
-
 export const SamplerContext = createContext<{
   samplerRef: React.MutableRefObject<Tone.Sampler | null>,
   gainRef: React.MutableRefObject<Tone.Gain | null>
@@ -83,6 +81,7 @@ const App = () => {
   const samplerRef = useRef<Tone.Sampler | null>(null);
   const location = useLocation();
   const gainRef = useRef<Tone.Gain | null>(null);
+  const [isSamplerLoaded, setIsSamplerLoaded] = React.useState(false);
 
   useEffect(() => {
       // Load the sampler and check for errors
@@ -92,7 +91,10 @@ const App = () => {
 
       const s = new Tone.Sampler({
         urls: sampleUrls,
-        onload: () => {console.log("Sampler loaded");},
+        onload: () => {
+          console.log("Sampler loaded");
+          setIsSamplerLoaded(true);
+        },
         onerror: (error) => {console.error("Error loading sampler:", error);},
         baseUrl: "samples/",
         release: 2,
@@ -105,9 +107,13 @@ const App = () => {
     }, []);
 
   return (
-    <LoadingProvider>
+    <div>
       <SamplerContext.Provider value={{samplerRef,gainRef}}>
-        <div style={{display: "flex", flexDirection: "column", minHeight: "100vh"}}>
+        {!isSamplerLoaded ? (
+          <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
+            <h2>Loading samples...</h2>
+          </div>
+        ) : (<div style={{display: "flex", flexDirection: "column", minHeight: "100vh"}}>
           <header className="navbar">
             <Link to="/" style={{outline:"0"}}>
               <h1 className="title">Harmonic</h1>
@@ -121,11 +127,12 @@ const App = () => {
           </header>
           <main style={{flex: 1}}>
             <Outlet key={location.pathname}/>
+            <LoadingBar />
           </main>
-          <LoadingBar />
         </div>
+        )}
       </SamplerContext.Provider>
-    </LoadingProvider>
+    </div>
   );
 };
 

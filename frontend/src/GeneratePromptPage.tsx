@@ -3,7 +3,6 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./based.css";
 
-const usedFilenames = ['my_song', 'test123']; // Fake existing list
 import { useLoading } from "./LoadingContext";
 import { addGenerationRecord } from "./data/generations";
 import { subscribeAuth } from "./auth";
@@ -15,8 +14,9 @@ const PracticePage: React.FC = () => {
   const navigate = useNavigate();
   const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>({});
   const [showPopup, setShowPopup] = useState(false);
+  const [navPopup, setNavPopup] = useState(false);
   const [errorPopup, setErrorPopup] = useState(false);
-  const [filename, setFilename] = useState('Untitle');
+  const [filename, setFilename] = useState('Untitled');
   const [error, setError] = useState('');
   const [inputMiss, setInputMiss] = useState("");
   
@@ -104,65 +104,55 @@ const PracticePage: React.FC = () => {
     setError('');
     setShowPopup(false);
     setLoading(true);
-
+    
     const textprompt = `A solo piano performance featuring ${values[2]} chords style. The chords are played in ${values[1]} style providing a strong harmonic foundation. The piece is minimalistic and structured, suitable for ${values[0]} scale piano accompaniment. No melody, only ${values[2]} comping.`;
     // const textprompt = "A solo piano piece in the chord progression of C major, E major, F major, and G major, in the style of pop music, simple and beginner-friendly, slow tempo, clear melody and chords only, no accompaniment or vocals."
     const mididuration = values[3];
+
     console.log("Prompt:", textprompt);
+    // save for LoadingBar speed mapping
+    localStorage.setItem("mididuration", String(mididuration));
+      try {
+        const response = await fetch(
+          `http://localhost:8000/generate?prompt=${encodeURIComponent(textprompt)}&filename=${filename}&mididuration=${mididuration}`
+        );
 
-    try {
-      const response = await fetch(`http://localhost:8000/generate?prompt=${textprompt}&filename=${filename}&mididuration=${mididuration}`);
-      if (!response.body) throw new Error("No response body");
+        if (!response.ok) throw new Error("Generation failed");
 
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder("utf-8");
+        const data = await response.json();
 
-      let buffer = "";
-      while (true) {
-        const { value, done } = await reader.read();
-        if (done) break;
+        if (data.error) {
+          console.error("Backend error:", data.error);
+          console.error("Traceback:", data.traceback);
+          setPercent(0);
+          return;
+        }
 
-        buffer += decoder.decode(value, { stream: true });
+        console.log("Generation result:", data);
 
-        const lines = buffer.split("\n");
-        buffer = lines.pop() || "";
-
-        for (let line of lines) {
-          const trimmed = line.trim();
-
-          if (trimmed !== "" && !isNaN(Number(trimmed))) {
-            // setLoadingPercent(Number(trimmed));
-            setPercent(Number(trimmed));
-          }
-
-          if (trimmed === "done") {
-            // setLoadingPercent(0);
-            setPercent(0)
-            console.log("Generation done");
-            // Persist generation metadata for this user
-            if (userId) {
-              try {
-                await addGenerationRecord(userId, {
-                  filename,
-                  difficulty: selectedOptions["Difficulties"],
-                  genre: selectedOptions["Genre"],
-                  key: selectedOptions["Key"],
-                  durationSec: Number(selectedOptions["Duration(s)"] || 0),
-                  prompt: textprompt,
-                  favorite: false,
-                });
-              } catch (e) {
-                console.error("Failed saving record:", e);
-              }
-            }
-            navigate(`/output/${filename}`);
-            return;
+        // Save record after successful generation
+        if (userId) {
+          try {
+            await addGenerationRecord(userId, {
+              filename,
+              difficulty: selectedOptions["Difficulties"],
+              genre: selectedOptions["Genre"],
+              key: selectedOptions["Key"],
+              durationSec: Number(selectedOptions["Duration(s)"] || 0),
+              prompt: textprompt,
+              favorite: false,
+            });
+          } catch (e) {
+            console.error("Failed saving record:", e);
           }
         }
-      }
+      // Reset percent & navigate
+      setMessage("Finishing your masterpiece...");
+      setPercent(0);
+      setNavPopup(true);
     } catch (err) {
       console.error("Error generating:", err);
-      setPercent(0)
+      setPercent(0);
     } finally {
       setLoading(false);
     }
@@ -201,38 +191,7 @@ const PracticePage: React.FC = () => {
             </div>
           </div>
         ))}
-        {/* <div>
-            <div>
-              <progress value={isNaN(loadingPercent) ? 0 : loadingPercent} max="100" />
-              <p>{isNaN(loadingPercent) ? 0 : loadingPercent}%</p>
-            </div>
-            
-            {(loading) ?
-            <div className="spinner">
-              <div></div>   
-              <div></div>    
-              <div></div>    
-              <div></div>    
-              <div></div>    
-              <div></div>    
-              <div></div>    
-              <div></div>    
-              <div></div>    
-              <div></div>    
-            </div>
-            : <div></div>
-            }
-            
-            <div className="loader">
-              {[...Array(60)].map((_, i) => (
-                  <span
-                  key={i}
-                  className="bar"
-                  style={{ animationDelay: `${i * 0.03}s` }}
-                  />
-              ))}
-              </div>
-          </div> */}
+        
           <hr style={{height:"4px", margin:"2rem 0 1rem", backgroundColor:"#1b65b5", border:"none"}}/>
         <button onClick={() => {
             //check the missed input value
@@ -248,16 +207,7 @@ const PracticePage: React.FC = () => {
             setShowPopup(true);
           }} className="playbtn" style={{width:"100%", margin:"0"}}>Generate</button>
       </div>
-      {/* {showPopup && (
-            <div className="loading-screen">
-              <div className="spinner"></div>
-              <p>Generating your file...</p>
-              <p>{isNaN(loadingPercent) ? 0 : loadingPercent}%</p>
-            </div>
-          )} */}
-        {/* <div className="page-container2">
-          piano sheet here
-        </div> */}
+      {/*-----------------------------------------------------------------------------------------------*/}
         {showPopup && (
           <div className="popup-overlay">
             <div className="popup-box">
@@ -283,6 +233,18 @@ const PracticePage: React.FC = () => {
               <p style={{color:"black"}}>missing {inputMiss}</p>
               <div className="popup-buttons">
                 <button onClick={() => setErrorPopup(false)}>Cancel</button>
+              </div>
+            </div>
+          </div>
+        )}
+        {navPopup &&(
+          <div className="popup-overlay">
+            <div className="popup-box">
+              <h1 style={{color:"#1967d2"}}>Generating Done</h1>
+              <p>Go play {filename}</p>
+              <div className="popup-buttons">
+                <button onClick={() => navigate(`/output/${filename}`)}>Go</button>
+                <button onClick={() => setNavPopup(false)}>Cancel</button>
               </div>
             </div>
           </div>

@@ -104,8 +104,8 @@ const ChordVisualizer: React.FC = () => {
               {selectedScale || "C"}
               </div>
               <div style={{display:"flex"}}>
-                {["C","D","E","F","G","A","B"].map((Note) =>(
-                  <button className="notebtn" onClick={() => setScale(Note)}>
+                {["C","D","E","F","G","A","B"].map((Note,i) =>(
+                  <button className="notebtn" key={Note+i} onClick={() => setScale(Note)}>
                     {Note}
                   </button>
                 ))}
