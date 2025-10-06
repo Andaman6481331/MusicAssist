@@ -14,8 +14,8 @@ const ToolsPage: React.FC = () =>{
     const [selectedSong, setSelectedSong] = useState<string>("");
     type UploadState = "idle" | "uploading" | "done";
     const [uploadState, setUploadState] = useState<UploadState>("idle");
-    // const [selectedFile, setSelectedFile] = useState<File | null>(null);
-    // const [jsonData, setJsonData] = useState<any>(null);
+    const [guidePopup1, setGuidePopUp1] = useState(false);
+    const [guidePopup2, setGuidePopUp2] = useState(false);
 
     const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -35,40 +35,15 @@ const ToolsPage: React.FC = () =>{
         }
     };
 
-    // type LoadMode = "JSON" | "Wav" | "Midi";
-    // const [loadMode, setLoadMode] = useState<LoadMode>("JSON");
-    // const fileTypes: Record<LoadMode, string[]> = {
-    //     JSON: [".json"],
-    //     Wav: [".wav"],
-    //     Midi: [".midi", ".mid"],
-    // };
-
   return(
     <div className="page-container2" style={{flexDirection:"column"}}>
         <div className="card-container" style={{display:"flex",justifyContent:"center"}}>
             <div style={{width:"90%"}}>
-                <div className="separater">
+                <div style={{display:"flex", alignItems: "center"}}>
                     <h1>Piano Visualizer</h1>
-                    {/* <div className="package-container">
-                        <div className="package-tab-wrapper">
-                            {( ["JSON", "Wav", "Midi"] as LoadMode[] ).map((mode) => (
-                            <label htmlFor={mode} className="package-tab" key={mode}>
-                                <input
-                                type="radio"
-                                name="plan"
-                                id={mode}
-                                className="input"
-                                checked={loadMode === mode}
-                                onChange={() => {
-                                    setLoadMode(mode);
-                                    setUploadState("idle");
-                                }}
-                                />
-                                <span>{mode}</span>
-                            </label>
-                            ))}
-                        </div>
-                    </div> */}
+                    <div onClick={() => setGuidePopUp1(true)}>
+                        <img src="/icon/info.svg" alt="Info" style={{ width: '1.5rem', height: '1.5rem', cursor: 'pointer', margin: '0.5rem 0 0 0.5rem'}} />
+                    </div>
                 </div>
                 {uploadState === "idle" && (
                     <div className="upload-box">
@@ -87,12 +62,10 @@ const ToolsPage: React.FC = () =>{
                         </button>
                         <input 
                             type="file" 
-                            // accept={fileTypes[loadMode].join(",")}
                             accept=".json,.wav,.mid,.midi"
                             ref={fileInputRef}
                             onChange={handleFileChange}
                         />
-                        {/* <p>Support {fileTypes[loadMode].join(" & ")} files</p> */}
                         <p>Support .json, .wav, .mid, .midi files</p>
                     </div>
                     )}
@@ -114,10 +87,41 @@ const ToolsPage: React.FC = () =>{
                     )}
             </div>
         </div>
-        <div className="card-container" style={{minWidth:"900px"}}>
-            <h1>File Converter</h1>
-            <WavToJson/>
+        <div className="card-container" style={{minWidth:"900px", display:"flex",justifyContent:"center"}}>
+            <div style={{width:"90%"}}>
+                <div style={{display:"flex", alignItems: "center"}}>
+                    <h1>File Converter</h1>
+                    <div onClick={() => setGuidePopUp2(true)}>
+                        <img src="/icon/info.svg" alt="Info" style={{ width: '1.5rem', height: '1.5rem', cursor: 'pointer', margin: '0.5rem 0 0 0.5rem'}} />
+                    </div>
+                </div>
+                <WavToJson/>
+            </div>
         </div>
+        {guidePopup1 &&(
+          <div className="popup-overlay">
+            <div className="popup-box">
+              <h1>How to Upload?</h1>
+              <p>Upload your own <span style={{fontWeight:"bold"}}>MIDI or Music file</span> to view it in the <span style={{fontWeight:"bold"}}>interactive piano roll</span>. You can play, pause, or practice directly with the visual notes once it loads.</p>
+              <div className="popup-buttons">
+                <button onClick={() => setGuidePopUp1(false)}>Got it!</button>
+              </div>
+            </div>
+          </div>
+        )}
+        {guidePopup2 &&(
+          <div className="popup-overlay">
+            <div className="popup-box">
+              <h1>How to Convert?</h1>
+              <p>Convert your <span style={{fontWeight:"bold"}}>.wav</span> or <span style={{fontWeight:"bold"}}>.midi</span> file into a <span style={{fontWeight:"bold"}}>.json format</span> that this site can use. After it finishes converting, you’ll automatically move to the practice view to explore your
+              </p>
+              <span style={{fontStyle:"italic", color:"black"}}>Tip: Toggle between MIDI and WAV</span>
+              <div className="popup-buttons">
+                <button onClick={() => setGuidePopUp2(false)}>Got it!</button>
+              </div>
+            </div>
+          </div>
+        )}
     </div>
   );
 };

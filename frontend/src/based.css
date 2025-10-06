@@ -977,7 +977,9 @@ backdrop-filter: blur(50px);
   }
 }
 
-
+body.modal-open {
+  overflow: hidden; /* prevents page scroll */
+}
 .popup-overlay {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
@@ -992,9 +994,17 @@ backdrop-filter: blur(50px);
   background: white;
   padding: 24px;
   border-radius: 12px;
-  width: 300px;
+  width: 25rem;
   text-align: center;
   box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  user-select: none;
+  h1{
+    margin: 0;
+    color: #033e7d;
+  }
+  p{
+    color: black;
+  }
 }
 
 .popup-box input {
@@ -1320,6 +1330,7 @@ backdrop-filter: blur(50px);
   }
 }
 
-/* *{
-  border: 1px solid rgba(255, 0, 0, 0.237);
-} */
+*{
+  /* border: 1px solid rgba(255, 0, 0, 0.237); */
+  user-select: none;
+}

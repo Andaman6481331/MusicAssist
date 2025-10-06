@@ -10,7 +10,7 @@ To-Do List
 (DONE)5. Chord Progression Tools
 6.generate part add filename check (rn it simply skip)
 7.pianoroll app restart, movable, mute,  
-8.finish WavToJson - check inside handlefilechange for no similar json file
+(DONE)8.finish WavToJson - check inside handlefilechange for no similar json file
     
 
 Server Relate work

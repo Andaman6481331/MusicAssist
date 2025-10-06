@@ -16,6 +16,7 @@ const PracticePage: React.FC = () => {
   const [showPopup, setShowPopup] = useState(false);
   const [navPopup, setNavPopup] = useState(false);
   const [errorPopup, setErrorPopup] = useState(false);
+  const [guidePopup, setGuidePopUp] = useState(false);
   const [filename, setFilename] = useState('Untitled');
   const [error, setError] = useState('');
   const [inputMiss, setInputMiss] = useState("");
@@ -104,9 +105,10 @@ const PracticePage: React.FC = () => {
     setError('');
     setShowPopup(false);
     setLoading(true);
-    
-    const textprompt = `A solo piano performance featuring ${values[2]} chords style. The chords are played in ${values[1]} style providing a strong harmonic foundation. The piece is minimalistic and structured, suitable for ${values[0]} scale piano accompaniment. No melody, only ${values[2]} comping.`;
-    // const textprompt = "A solo piano piece in the chord progression of C major, E major, F major, and G major, in the style of pop music, simple and beginner-friendly, slow tempo, clear melody and chords only, no accompaniment or vocals."
+    //dif, genre, key
+    // const textprompt = `A solo piano performance featuring ${values[2]} chords style. The chords are played in ${values[1]} style providing a strong harmonic foundation. The piece is minimalistic and structured, suitable for ${values[0]} scale piano accompaniment. No melody, only ${values[2]} comping.`;
+    const textprompt = `Create a piano track built on ${values[0]} chords, performed in ${values[1]} style. The music should stay within the ${values[2]} scale and focus purely on chord comping, without any melody lines.`;
+
     const mididuration = values[3];
 
     console.log("Prompt:", textprompt);
@@ -162,10 +164,10 @@ const PracticePage: React.FC = () => {
     <div className="page-container2" style={{flexDirection:"column"}}>
       <div className="practice-selector">
         <div style={{display:"flex", alignItems:"center", justifyContent:"center"}}>
-          <h1 className="card-title" style={{margin:"0"}}>Generate Prompt</h1>
-          <a>
+          <h1 className="card-title" style={{margin:"0"}}>Generate Piano Piece</h1>
+          <div onClick={() => setGuidePopUp(true)}>
             <img src="/icon/info.svg" alt="Info" style={{ width: '1.5rem', height: '1.5rem', cursor: 'pointer', margin: '0.5rem 0 0 0.5rem'}} />
-          </a>
+          </div>
         </div>
         {groups.map((group, groupIdx) => (
           <div key={groupIdx}>
@@ -245,6 +247,17 @@ const PracticePage: React.FC = () => {
               <div className="popup-buttons">
                 <button onClick={() => navigate(`/output/${filename}`)}>Go</button>
                 <button onClick={() => setNavPopup(false)}>Cancel</button>
+              </div>
+            </div>
+          </div>
+        )}
+        {guidePopup &&(
+          <div className="popup-overlay">
+            <div className="popup-box">
+              <h1>How to Generate?</h1>
+              <p>Choose <span style={{fontWeight:"bold"}}>difficulty, genre, key, and duration,</span> then click Generate. A loading bar will appear at the bottom — once it’s done, you’ll be taken automatically to your new piano piece to play and practice.</p>
+              <div className="popup-buttons">
+                <button onClick={() => setGuidePopUp(false)}>Got it!</button>
               </div>
             </div>
           </div>

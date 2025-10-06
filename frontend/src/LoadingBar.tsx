@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLoading } from "./LoadingContext";
 import "./LoadingBar.css";
 
@@ -6,10 +6,6 @@ const LoadingBar = () => {
   const { loading, percent, setPercent, message, setMessage} = useLoading();
   
   const [hidden, setHidden] = useState(false);
-  const [dragging, setDragging] = useState(false);
-  const barRef = useRef<HTMLDivElement>(null);
-  const startYRef = useRef(0);
-  const startHeightRef = useRef(0);
 
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   // console.log("LoadingBar render:", { loading, percent, message });

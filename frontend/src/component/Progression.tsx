@@ -243,7 +243,7 @@ const Progression: React.FC = () => {
             </div>
           ))}
         </div>
-        <div style={{ borderRadius: "1rem", overflow: "hidden" }}>
+        <div>
           <div
             id="progressionPiano"
             style={{ marginLeft: "50%", height: "150px" }}
@@ -253,7 +253,6 @@ const Progression: React.FC = () => {
                 position: "relative",
                 display: "flex",
                 justifyContent: "center",
-                borderRadius: "1rem",
               }}
             >
               {/* White keys */}
