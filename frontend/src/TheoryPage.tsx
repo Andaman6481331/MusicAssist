@@ -21,7 +21,7 @@ const About: React.FC = () => {
             </label>
             <label className="nbtn" htmlFor="c">
               <input type="radio" id="c" name="nav" onChange={() => setActiveTab("Chords")}/>
-              <span>Chords</span>
+              <span>Create</span>
             </label>
             <label className="nbtn" htmlFor="s">
               <input type="radio" id="s" name="nav" onChange={() => setActiveTab("Scales")}/>

@@ -12,6 +12,8 @@ const ChordVisualizer: React.FC = () => {
   const [finalChord, setFinalChord] = useState<string>("Please Select the Chord");
   const [selectedScale, setScale] = useState<string>("");
 
+  const [guidePopup,setGuidePopUp] = useState(false);
+
   const showChordVisualizerInfo = (e: React.MouseEvent) => {
     e.preventDefault(); // Prevents the anchor from jumping to top
     alert("This section helps you build and visualize chords with custom extensions, sus, and voicings.");
@@ -93,11 +95,13 @@ const ChordVisualizer: React.FC = () => {
 
     return(
         <div>
-            <div style={{display:"flex", alignItems:"center", justifyContent:"center"}}>
-            <h1 className="card-title" >Chord Visualizer</h1>
-            <a href="#" onClick={showChordVisualizerInfo}>
-              <img src="/icon/info.svg" alt="Info" style={{ width: '2rem', height: '2rem', cursor: 'pointer'}} />
-            </a>
+            <div style={{display:"flex", alignItems:"center"}}>
+              <div style={{display:"flex", alignItems: "center"}}>
+                <div className="card-title">Chord Creator</div>
+                <div onClick={() => setGuidePopUp(true)}>
+                  <img src="/icon/info.svg" alt="Info" style={{ width: '1.5rem', height: '1.5rem', cursor: 'pointer', margin: '0.5rem 0 0 0.5rem'}} />
+                </div>
+              </div>
           </div>
           <div className="separater-around">
               <div style={{fontSize:"5rem", fontWeight:"700"}}>
@@ -150,6 +154,18 @@ const ChordVisualizer: React.FC = () => {
               />
             </div>
           </div>
+          {guidePopup &&(
+              <div className="popup-overlay">
+                <div className="popup-box">
+                  <h1>How to create Chords?</h1>
+                  <p>Select a <span style={{fontWeight:"bold"}}>base chord</span> (like C, D, E, G, etc.), then add an extension such as sus2, sus4, 7, or m7. Click <span style={{fontWeight:"bold"}}>Play</span> to hear the chord — the keys will <span style={{fontWeight:"bold"}}>light up</span> on the piano roll so you can <span style={{fontWeight:"bold"}}>see and learn</span> each note in the chord.</p>
+                  <p style={{fontStyle:"italic", color:"black"}}>💡 Tip: Try different extensions to hear how each one changes the chord’s color and mood!</p>
+                  <div className="popup-buttons">
+                    <button onClick={() => setGuidePopUp(false)}>Got it!</button>
+                  </div>
+                </div>
+              </div>
+            )}
           <style>
             {`
             /* From Uiverse.io by LightAndy1 */ 

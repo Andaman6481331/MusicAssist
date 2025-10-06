@@ -115,7 +115,7 @@ const ToolsPage: React.FC = () =>{
               <h1>How to Convert?</h1>
               <p>Convert your <span style={{fontWeight:"bold"}}>.wav</span> or <span style={{fontWeight:"bold"}}>.midi</span> file into a <span style={{fontWeight:"bold"}}>.json format</span> that this site can use. After it finishes converting, you’ll automatically move to the practice view to explore your
               </p>
-              <span style={{fontStyle:"italic", color:"black"}}>Tip: Toggle between MIDI and WAV</span>
+              <span style={{fontStyle:"italic", color:"black"}}>💡Tip: Toggle between MIDI and WAV</span>
               <div className="popup-buttons">
                 <button onClick={() => setGuidePopUp2(false)}>Got it!</button>
               </div>

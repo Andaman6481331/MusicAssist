@@ -39,6 +39,8 @@ const ScaleVisualizer: React.FC = () => {
   const [selectedScale, setSelectedScale] = useState<string>("D");
   const sampler = useContext(SamplerContext);
 
+  const [guidePopup, setGuidePopUp] = useState(false);
+
   const handleClick = async (key: string) => {
     await Tone.start();
     const scaleKeys = KeyOnScale[key];
@@ -71,8 +73,12 @@ const ScaleVisualizer: React.FC = () => {
   return (
     <div style={{width: "100%"}}>
       <div className="separater"> 
-        {/* fix separater class plz*/}
-        <h1>Scale Visualizer</h1>
+        <div style={{display:"flex", alignItems: "center"}}>
+          <div className="card-title">Scale Visualizer</div>
+          <div onClick={() => setGuidePopUp(true)}>
+            <img src="/icon/info.svg" alt="Info" style={{ width: '1.5rem', height: '1.5rem', cursor: 'pointer', margin: '0.5rem 0 0 0.5rem'}} />
+          </div>
+        </div>
         <div>searchbox</div>
       </div>
       <h2>Major Scales</h2>
@@ -115,7 +121,19 @@ const ScaleVisualizer: React.FC = () => {
           </div>
         ))}
       </div>
-      
+      {guidePopup &&(
+        <div className="popup-overlay">
+          <div className="popup-box">
+            <h1>What is Music Scale?</h1>
+            <p>A <span style={{fontWeight:"bold"}}>piano scale</span> is a set of notes played in order, forming the base of melodies and chords. Each scale has its own sound — for example, C Major sounds bright, while A Minor feels softer.</p>
+            <p>Select any scale to see the notes <span style={{fontWeight:"bold"}}>light up</span> on the piano. You can play or practice along to learn finger positions and note patterns.</p>
+            <p style={{fontStyle:"italic", color:"black"}}>💡 Tip: Start with C Major — it uses only white keys and is great for beginners!</p>
+            <div className="popup-buttons">
+              <button onClick={() => setGuidePopUp(false)}>Got it!</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

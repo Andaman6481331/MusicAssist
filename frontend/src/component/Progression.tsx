@@ -12,6 +12,7 @@ const Progression: React.FC = () => {
   const [selectedScale, setScale] = useState<string>("");
   const [activeNotes, setActiveNotes] = useState<ActiveNote[]>([]);
   const playingRef = useRef<{ abort: boolean }>({ abort: false });
+  const [guidePopup, setGuidePopUp]= useState(false);
 
   const allKey = [
     "C3","C#3","D3","D#3","E3","F3","F#3","G3","G#3","A3","A#3","B3",
@@ -198,27 +199,25 @@ const Progression: React.FC = () => {
 
   return (
     <div>
+      <div style={{display:"flex", alignItems: "center"}}>
       <div className="card-title">Chord Progression</div>
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          width: "80%",
-          margin: "0 auto",
-        }}
-      >
-        <div className="separater-around">
-          <div style={{ fontSize: "5rem", fontWeight: "700" }}>
+        <div onClick={() => setGuidePopUp(true)}>
+          <img src="/icon/info.svg" alt="Info" style={{ width: '1.5rem', height: '1.5rem', cursor: 'pointer', margin: '0.5rem 0 0 0.5rem'}} />
+        </div>
+      </div>
+        <div className="separater-around" style={{borderRadius:"5rem",backgroundColor:"rgba(0, 0, 0, 0.14)", margin:"0.5rem 0"}}>
+          <div style={{ fontSize: "5rem", fontWeight: "700", width:"3rem"}}>
             {selectedScale || "C"}
           </div>
           <div style={{ display: "flex" }}>
             {["C", "D", "E", "F", "G", "A", "B"].map((Note, i) => (
-              <button className="notebtn" key={Note + i} onClick={() => setScale(Note)}>
+              <button className={`notebtn ${selectedScale === Note ? "selected" : "C"}`} key={Note + i} onClick={() => setScale(Note)}>
                 {Note}
               </button>
             ))}
           </div>
         </div>
+      <div style={{display: "flex", flexDirection: "column", width: "80%", margin: "0 auto"}}>
         <div className="prog-layout">
           {progressions.map((prog, idx) => (
             <div
@@ -325,6 +324,20 @@ const Progression: React.FC = () => {
               </div>
             </div>
           </div>
+        {guidePopup &&(
+          <div className="popup-overlay">
+            <div className="popup-box">
+              <h1>What is Chord Progression?</h1>
+              <p>A <span style={{fontWeight:"bold"}}>chord progression</span> is a series of chords played in a specific order that gives a song its harmony and mood. It’s the foundation that supports the melody.
+                You can <span style={{fontWeight:"bold"}}>choose any key</span>, then pick from a list of <span style={{fontWeight:"bold"}}>common progressions</span> (like I–V–vi–IV) that fit that key.
+              </p>
+              <p style={{fontStyle:"italic", color:"black"}}>💡Tip: You can also create your own custom progression to explore different sounds!</p>
+              <div className="popup-buttons">
+                <button onClick={() => setGuidePopUp(false)}>Got it!</button>
+              </div>
+            </div>
+          </div>
+        )}
         </div>
       </div>
     </div>
