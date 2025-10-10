@@ -30,15 +30,18 @@ const PianoRollApp: React.FC<PianoRollAppProps> = ({onNotePlayed, width=25, heig
   const sampler = useContext(SamplerContext);
   const [notes, setNotes] = useState<Note[]>([]);
   const [tempo, setTempo] = useState<number>(120);
-  const [totalTime, setTotalTime] = useState<number>(8);
-  const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const scrollRef = useRef<SVGGElement>(null);
   const animationRef = useRef<number | null>(null);
   const playedKeysRef = useRef<Set<string>>(new Set());
   const [, forceUpdate] = useState(0); // dummy state to trigger re-render
   const triggerUpdate = () => forceUpdate(prev => (prev + 1) % 10000);
+  
+  const [isPlaying, setIsPlaying] = useState<boolean>(false);
+  const [totalTime, setTotalTime] = useState<number>(8);
   const [pausedTime, setPausedTime] = useState<number>(0);
   const startTimeRef = useRef<number | null>(null);
+
+  const isDraggingRef = useRef(false);
 
   const svgWidth = 49*width;
   const svgHeight = 6*height;
@@ -79,6 +82,7 @@ const PianoRollApp: React.FC<PianoRollAppProps> = ({onNotePlayed, width=25, heig
           setNotes(scaledNotes);
           setTempo(data.tempo_bpm);
           setTotalTime(data.total_time * tempoFactor);
+          console.log(totalTime);
 
            // Reset playback state here
           if (animationRef.current) {
@@ -101,7 +105,60 @@ const PianoRollApp: React.FC<PianoRollAppProps> = ({onNotePlayed, width=25, heig
   const pixelsPerBeat = svgHeight / 8; // adjust how much 1 beat moves visually
   const pixelsPerSecond = (tempo / 60) * pixelsPerBeat;
 
-// Play & Pause Function
+  const animate = (now: number) => {  
+    const played = new Set<number>();
+    const visualOffsetStart = -svgHeight / 5; // Start slightly above screen
+    const maxOffset = total_svg_height*2;
+    if (!startTimeRef.current) return;
+    const elapsed = (now - startTimeRef.current) / 1000;
+    const offset = visualOffsetStart + elapsed * pixelsPerSecond;
+    const newPausedTime = now - startTimeRef.current;
+    setPausedTime(newPausedTime);
+     
+    // Scroll downward
+    if (scrollRef.current) {
+      scrollRef.current.setAttribute('transform', `translate(0, ${offset})`);
+    }
+    
+    const keysToAdd: string[] = [];
+    const threshold = 2; // Pixel precision
+    notes.forEach((note, i) => {
+      if (played.has(i)) return;
+      // const noteBase = note.name.slice(0, -1);
+      // const octave = parseInt(note.name.slice(-1));
+      // const baseX = keyPositionMap[noteBase] || 0;
+      const y = svgHeight - (note.time / totalTime) * total_svg_height;
+      const visualYBottom = y + offset;
+      // Trigger when note's **bottom** touches bottom of screen
+      if (!played.has(i) && Math.abs(visualYBottom - svgHeight) <= threshold) {
+        played.add(i);
+
+        const normalized = Tone.Frequency(note.midi, "midi").toNote();
+        keysToAdd.push(normalized);
+        triggerUpdate();
+        if (sampler?.samplerRef.current) {
+          sampler.samplerRef.current.triggerAttackRelease(normalized, note.duration, undefined, note.velocity);
+        }
+        setTimeout(() => {
+          playedKeysRef.current.delete(normalized);
+          triggerUpdate();
+        }, note.duration * 1000);
+      }
+    });
+    if (keysToAdd.length > 0) {
+      keysToAdd.forEach(k => playedKeysRef.current.add(k));
+      triggerUpdate();
+    }
+    // if (offset <= maxOffset) {
+    if (elapsed < totalTime+2) { //+2 play for two extra seconds
+      animationRef.current = requestAnimationFrame(animate);
+    } else {
+      setIsPlaying(false);
+      setPausedTime(0);
+      console.log("playing done");
+    }
+  };
+  // Play & Pause Function
   const playMidi = async () => {
     if (notes.length === 0 || !sampler) return;
 
@@ -110,60 +167,8 @@ const PianoRollApp: React.FC<PianoRollAppProps> = ({onNotePlayed, width=25, heig
 
     const svg = scrollRef.current;
     if (!svg) return;
-
-    const played = new Set<number>();
-    const visualOffsetStart = -svgHeight / 5; // Start slightly above screen
-    const maxOffset = total_svg_height*2;
     startTimeRef.current = performance.now() - pausedTime;
             
-    
-    const animate = (now: number) => {
-      if (!startTimeRef.current) return;
-      const elapsed = (now - startTimeRef.current) / 1000;
-      const offset = visualOffsetStart + elapsed * pixelsPerSecond;
-      setPausedTime(now - startTimeRef.current);
-      // Scroll downward
-      if (scrollRef.current) {
-        scrollRef.current.setAttribute('transform', `translate(0, ${offset})`);
-      }
-      
-      const keysToAdd: string[] = [];
-      const threshold = 2; // Pixel precision
-      notes.forEach((note, i) => {
-        if (played.has(i)) return;
-        // const noteBase = note.name.slice(0, -1);
-        // const octave = parseInt(note.name.slice(-1));
-        // const baseX = keyPositionMap[noteBase] || 0;
-        const y = svgHeight - (note.time / totalTime) * total_svg_height;
-        const visualYBottom = y + offset;
-        // Trigger when note's **bottom** touches bottom of screen
-        if (!played.has(i) && Math.abs(visualYBottom - svgHeight) <= threshold) {
-          played.add(i);
-
-          const normalized = Tone.Frequency(note.midi, "midi").toNote();
-          keysToAdd.push(normalized);
-          triggerUpdate();
-          if (sampler?.samplerRef.current) {
-            sampler.samplerRef.current.triggerAttackRelease(normalized, note.duration, undefined, note.velocity);
-          }
-          setTimeout(() => {
-            playedKeysRef.current.delete(normalized);
-            triggerUpdate();
-          }, note.duration * 1000);
-        }
-      });
-      if (keysToAdd.length > 0) {
-        keysToAdd.forEach(k => playedKeysRef.current.add(k));
-        triggerUpdate();
-      }
-      if (offset <= maxOffset) {
-      // if (elapsed < totalTime) {
-        animationRef.current = requestAnimationFrame(animate);
-      } else {
-        setIsPlaying(false);
-        setPausedTime(0);
-      }
-    };
     animationRef.current = requestAnimationFrame(animate);
   // requestAnimationFrame(animate);
   };
@@ -173,6 +178,113 @@ const PianoRollApp: React.FC<PianoRollAppProps> = ({onNotePlayed, width=25, heig
       cancelAnimationFrame(animationRef.current);
       animationRef.current = null;
     }
+  };
+  const restartMidi = () => {
+    // 1️⃣ Reset timing
+    startTimeRef.current = performance.now(); // start fresh now
+    setPausedTime(0);
+
+    // 2️⃣ Reset played notes tracking
+    playedKeysRef.current.clear();
+
+    // 3️⃣ Reset the scroll position visually
+    if (scrollRef.current) {
+      const visualOffsetStart = -svgHeight / 5;
+      scrollRef.current.setAttribute('transform', `translate(0, ${visualOffsetStart})`);
+    }
+
+    // 4️⃣ Optionally restart animation if already playing
+    if (isPlaying) {
+      if (animationRef.current !== null) {
+        cancelAnimationFrame(animationRef.current);
+      }
+      animationRef.current = requestAnimationFrame((now) => {
+        startTimeRef.current = performance.now(); // ensure correct sync
+        animate(now); // call your animation loop again
+      });
+    }
+  };
+
+  const seekForward = (seconds = 5) => {
+    // if (!isPlaying) return;
+
+    setPausedTime(prev => {
+      const newTime = Math.min(prev + seconds * 1000, totalTime * 1000); // clamp to song length
+      // Update startTimeRef for animation
+      startTimeRef.current = performance.now() - newTime;
+
+      // Update scroll position
+      if (scrollRef.current) {
+        const offset = -svgHeight / 5 + (newTime / 1000) * pixelsPerSecond;
+        scrollRef.current.setAttribute("transform", `translate(0, ${offset})`);
+      }
+      return newTime;
+    });
+  };
+
+  const seekBackward = (seconds = 5) => {
+    // if (!isPlaying) return;
+
+    setPausedTime(prev => {
+      const newTime = Math.max(prev - seconds * 1000, 0); // clamp at 0
+      // Update startTimeRef for animation
+      startTimeRef.current = performance.now() - newTime;
+
+      // Update scroll position
+      if (scrollRef.current) {
+        const offset = -svgHeight / 5 + (newTime / 1000) * pixelsPerSecond;
+        scrollRef.current.setAttribute("transform", `translate(0, ${offset})`);
+      }
+
+      return newTime;
+    });
+  };
+
+  const handleSeekClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    const bar = e.currentTarget;
+    const rect = bar.getBoundingClientRect();
+    const clickX = e.clientX - rect.left;
+
+    const newTime = (clickX / rect.width) * totalTime*1000; //*1000 = change totaltime to ms
+    setPausedTime(newTime);
+    // console.log("new play time(ms) is "+newTime);
+
+    // Update animation timing
+    startTimeRef.current = performance.now() - newTime;
+
+    // Update scroll
+    if (scrollRef.current) {
+      const offset = -svgHeight / 5 + (newTime / 1000) * pixelsPerSecond;
+      scrollRef.current.setAttribute("transform", `translate(0, ${offset})`);
+    }
+
+    // Start dragging
+  isDraggingRef.current = true;
+
+  const onMouseMove = (moveEvent: MouseEvent) => {
+    if (!isDraggingRef.current) return;
+
+    const dragX = moveEvent.clientX - rect.left;
+    const clampedX = Math.max(0, Math.min(dragX, rect.width));
+
+    const newTime = (clampedX / rect.width) * totalTime * 1000;
+    setPausedTime(newTime);
+    startTimeRef.current = performance.now() - newTime;
+
+    if (scrollRef.current) {
+      const offset = -svgHeight / 5 + (newTime / 1000) * pixelsPerSecond;
+      scrollRef.current.setAttribute("transform", `translate(0, ${offset})`);
+    }
+  };
+
+  const onMouseUp = () => {
+    isDraggingRef.current = false; // stop dragging
+    window.removeEventListener("mousemove", onMouseMove);
+    window.removeEventListener("mouseup", onMouseUp);
+  };
+
+  window.addEventListener("mousemove", onMouseMove);
+  window.addEventListener("mouseup", onMouseUp);
   };
 
   const handleMidiFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -360,13 +472,46 @@ const PianoRollApp: React.FC<PianoRollAppProps> = ({onNotePlayed, width=25, heig
             </div>
         </div>
       </div>
-      <button 
-        onClick={() => {isPlaying ? pausePlayback() : playMidi();}} 
-        className='playbtn'
-        style={{ margin: '0.5rem 0', width:"100%"}}
-      >
-        {isPlaying ? 'Pause' : 'Play'}
-      </button>
+      <div
+        className="pianorollbar"
+          style={{
+            position: "relative",
+            height: "8px",
+            background: "#ddd",
+            width: "100%",
+            borderRadius: "4px",
+            cursor: "pointer",
+          }}
+          onClick={(e) => handleSeekClick(e)}
+        >
+          <div
+            className="piano-progress"
+            style={{
+              width: `${(pausedTime / ((totalTime+2)*10))}%`, //+2 extra 2s, *10 from /1000*100=10
+              height: "100%",
+              background: "#2196f3",
+              borderRadius: "4px",
+            }}
+          />
+        </div>
+
+      <div style={{display:"flex"}}>
+        <button onClick={() => {isPlaying ? pausePlayback() : playMidi();}} className='pianorollbtn'>
+          {isPlaying ? 
+           <img src="/icon/pause.svg" alt="pause-icon" style={{width: '1.5rem', height: '1.5rem'}}/> 
+          :<img src="/icon/play.svg" alt="play-icon" style={{width: '1.5rem', height: '1.5rem'}}/> 
+          }
+        </button>
+        <button onClick={() => restartMidi()} className='pianorollbtn'>
+          <img src="/icon/reload.svg" alt="reload-icon" style={{width: '1.5rem', height: '1.5rem'}}/> 
+        </button>
+        <button onClick={() => seekBackward()} className='pianorollbtn'>
+          <img src="/icon/backwards.svg" alt="backwards-icon" style={{width: '1.5rem', height: '1.5rem'}}/> 
+        </button>
+        <button onClick={() => seekForward()} className='pianorollbtn'>
+          <img src="/icon/forwards.svg" alt="forwards-icon" style={{width: '1.5rem', height: '1.5rem'}}/> 
+        </button>
+      </div>
     </div>
   );
 };
