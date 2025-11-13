@@ -31,3 +31,4 @@ __pycache__/
 *.pyo
 *.pyc
 backend/__pycache__/server.cpython-39.pyc
+/backend/generated_wav
