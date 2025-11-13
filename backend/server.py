@@ -18,7 +18,7 @@ import librosa
 import shutil
 import contextlib
 import torch
-import asyncio, re
+import asyncio
 
 from utils.music_utils import analyze_with_pretty_midi, serialize_note, convertWavToMidi
 
@@ -91,7 +91,7 @@ async def wav_to_json(
 
         # JSON output should match input filename base
         base_name = os.path.splitext(os.path.basename(input_path))[0]
-        output_json_path = os.path.join(output_dir, re.sub(r'[^a-zA-Z0-9_\-]', '_', base_name) + ".json")
+        output_json_path = os.path.join(output_dir, base_name + ".json")
 
         data = {
             "tempo_bpm": tempo_bpm,

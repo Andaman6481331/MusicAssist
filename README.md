@@ -4,14 +4,13 @@
 
 To-Do List
 1. Change homepage guide to simplier ui
-(DONE)2. Move the guide to each page: generator/fileupload/learn&explore
+2. Move the guide to each page: generator/fileupload/learn&explore
 (DONE)3. finish FileCoverter Section UI
 (DONE)4. Loadingbar fix
 (DONE)5. Chord Progression Tools
 6.generate part add filename check (rn it simply skip)
-(DONE)7.pianoroll app restart, movable, mute,  
+7.pianoroll app restart, movable, mute,  
 (DONE)8.finish WavToJson - check inside handlefilechange for no similar json file
-7.format all piano json file and pianorollapp tgt
     
 
 Server Relate work

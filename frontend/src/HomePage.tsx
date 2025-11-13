@@ -77,7 +77,6 @@ const Home: React.FC = () => {
           </div>
         </div>
       </div>
-      <img src="./img/pianoBG.webp" alt="bg" style={{width:"100vw"}}/>
       <div className="page-container2">
         {/* <div className="card-container" style={{ width: "25%", display: "flex", justifyContent: "center", minWidth:"300px"}}> */}
         <div style={{ margin: "1rem 0 1rem 3rem"}}>

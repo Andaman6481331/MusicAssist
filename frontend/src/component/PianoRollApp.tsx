@@ -66,38 +66,13 @@ const PianoRollApp: React.FC<PianoRollAppProps> = ({onNotePlayed, width=25, heig
 // Load Json file
   useEffect(() => {
     fetch(`/JsonOutputs/${fileName}.json`)
-    //   .then(response => {
-    //     console.log("Fetching JSON:", `/JsonOutputs/${fileName}.json`);
-    //     if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    //     return response.json();
-    //   })
-    // fetch(`/JsonOutputs/${fileName.replace(/[^a-zA-Z0-9_\-]/g, "_")}.json`)
-    // fetch(`/JsonOutputs/${fileName}.json`)
-    // fetch("/JsonOutputs/My_name_is_Brian_2_.json")
-    .then(async (response) => {
-      console.log("Fetching JSON:", `/JsonOutputs/${fileName}.json`);
-      console.log("Actual URL:", response.url);
-    console.log("Response status:", response.status);
-      
-      if (!response.ok) {
-        // Log the full HTML if server returned it
-        const text = await response.text();
-        console.error(`Fetch failed: HTTP ${response.status}`, text.slice(0, 200));
-        throw new Error(`HTTP ${response.status}`);
-      }
-
-      // Safely check if it's valid JSON
-      const text = await response.text();
-      try {
-        return JSON.parse(text);
-      } catch (err) {
-        console.error("Invalid JSON response (likely HTML):", text.slice(0, 200));
-        throw new Error("Invalid JSON format");
-      }
-    })
-    .then(data => {
-        // if (data.notes && Array.isArray(data.notes)) {
-        if (data.notes) {
+      .then(response => {
+        console.log("Fetching JSON:", `/JsonOutputs/${fileName}.json`);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        return response.json();
+      })
+      .then(data => {
+        if (data.notes && Array.isArray(data.notes)) {
           const tempoFactor = 120 / data.tempo_bpm;  // 120 is your "reference" tempo
           const scaledNotes = data.notes.map((n: Note) => ({
             ...n,
