@@ -1,4 +1,5 @@
 import { getAuthSafe } from './firebase';
+
 import {
   onAuthStateChanged,
   signInWithEmailAndPassword,
@@ -36,6 +37,7 @@ export async function logout() {
   if (!auth) return;
   await signOut(auth);
 }
+
 
 
 

@@ -115,7 +115,7 @@ const ChordVisualizer: React.FC = () => {
                 ))}
               </div>
             </div>     
-          <div style={{display:"flex",flexDirection:"row"}}>
+          <div style={{display:"flex",flexDirection:"row", justifyContent:"space-around"}}>
             <div>
                    
               <div className="selectormenu-container">

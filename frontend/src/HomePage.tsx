@@ -2,6 +2,7 @@ import React, { useState, useRef } from "react";
 import "./based.css";
 import PianoRollApp from "./component/PianoRollApp";
 import { useSearchParams, Link } from "react-router-dom";
+import { useGlobalBoolean} from "./GlobalBooleanContext";
 
 const formatFileName = (title: string | undefined): string => {
   if (!title || !title.includes(" - ")) return "";
@@ -21,13 +22,14 @@ const profiles = [
 
 const Home: React.FC = () => {
   // const [selectedChord, setSelectedChord] = useState<string>("");
-  const [searchParams] = useSearchParams();
+  // const [searchParams] = useSearchParams();
+  const { isGlobalEnabled } = useGlobalBoolean();
   const [selectedSong, setSelectedSong] = useState<string>(
     "Ed Sheeran - unrival"
   );
   // const [selectedSong, setSelectedSong] = useState<string>("Yiruma - River Flow In You");
-  const [isMuted, setIsMuted] = useState<boolean>(false);
-  const selectedChord = searchParams.get("chord") || "C";
+  // const [isMuted, setIsMuted] = useState<boolean>(false);
+  // const selectedChord = searchParams.get("chord") || "C";
   const fileName = selectedSong ? formatFileName(selectedSong) : "";
 
   const targetRef = useRef<HTMLDivElement>(null);
@@ -56,17 +58,31 @@ const Home: React.FC = () => {
               justifyContent: "center",
             }}
           >
-            <Link
-              className="playbtn"
-              style={{
-                width: "10rem",
-                textAlign: "center",
-                marginRight: "2rem",
-              }}
-              to="/login"
-            >
-              Start Now
-            </Link>
+            { ! isGlobalEnabled ?
+              (<Link
+                className="playbtn"
+                style={{
+                  width: "10rem",
+                  textAlign: "center",
+                  marginRight: "2rem",
+                }}
+                to="/login"
+              >
+                Go to Login
+              </Link>):
+              (<Link
+                className="playbtn"
+                style={{
+                  width: "10rem",
+                  textAlign: "center",
+                  marginRight: "2rem",
+                }}
+                to="/generate-prompt"
+              >
+                Start Now
+              </Link>)
+            }
+
             <a
               className="linebtn"
               onClick={scrollToSection}
@@ -77,7 +93,7 @@ const Home: React.FC = () => {
           </div>
         </div>
       </div>
-      <img src="./img/pianoBG.webp" alt="bg" style={{width:"100vw"}}/>
+      {/* <img src="./img/pianoBG.webp" alt="bg" style={{width:"100vw"}}/> */}
       <div className="page-container2">
         {/* <div className="card-container" style={{ width: "25%", display: "flex", justifyContent: "center", minWidth:"300px"}}> */}
         <div style={{ margin: "1rem 0 1rem 3rem"}}>

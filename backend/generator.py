@@ -18,9 +18,11 @@ model.set_generation_params(duration=10)
 # predict_and_save(wav_files, save_dir, True, False, False, False, ICASSP_2022_MODEL_PATH)
 
 prompt = (
-    "A solo piano piece in the chord progression of C major, E major, F major, and G major, "
-    "in the style of pop music, simple and beginner-friendly, slow tempo, "
-    "clear melody and chords only, no accompaniment or vocals."
+    # "A solo piano piece in the chord progression of C major, E major, F major, and G major, "
+    # "in the style of pop music, simple and beginner-friendly, slow tempo, "
+    # "clear melody and chords only, no accompaniment or vocals."
+    "Easy pop piano piece in C major, with a simple right-hand melody and left-hand broken chords. Smooth I–V–vi–IV progression, clearly playable with two hands.",
+    "Soft piano ballad in G major, slow tempo, clear melody line, and gentle arpeggios. Beginner-friendly and playable with two hands."
 )
 
 save_dir = "generated_wav"

@@ -15,16 +15,17 @@ import SignIn from "./SignIn.tsx";
 import Storage from "./Storage.tsx";
 import ToolsPage from "./ToolsPage.tsx";
 
-import { SamplerContext } from "./App.tsx"; // or create a separate context file
+import { SamplerContext } from "./App.tsx";
 import { LoadingProvider } from "./LoadingContext";
-
+import { GlobalBooleanProvider } from "./GlobalBooleanContext";
 
 const Root = () => {
   const samplerRef = useRef<Tone.Sampler | null>(null);
   const gainRef = useRef<Tone.Gain | null>(null);
  
   return (
-    <LoadingProvider>
+    <GlobalBooleanProvider>
+      <LoadingProvider>
       <SamplerContext.Provider value={{ samplerRef, gainRef }}>
         <BrowserRouter>
           <Routes>
@@ -41,7 +42,8 @@ const Root = () => {
           </Routes>
         </BrowserRouter>
       </SamplerContext.Provider>
-    </LoadingProvider>
+      </LoadingProvider>
+    </GlobalBooleanProvider>
   );
 };
 

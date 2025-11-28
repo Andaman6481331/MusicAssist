@@ -122,7 +122,7 @@ def convertWavToMidi(wav_files):
 
 ################################################################################################
 save_dir = "../Collection"
-file_path = '../Collection/Koon_p_basic_pitch.mid'
+file_path = '../Collection/cccprompt.mid'
 output_dir = '../frontend/public/JsonOutputs'
 
 base_name = os.path.splitext(os.path.basename(file_path))[0]        # Get the base filename without extension

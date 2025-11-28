@@ -1,16 +1,26 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { logout, subscribeAuth } from '.';
+import { useGlobalBoolean } from '../GlobalBooleanContext.tsx';
 
 const AuthControls = () => {
   const [email, setEmail] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
+  const { setIsGlobalEnabled } = useGlobalBoolean();
+
 
   useEffect(() => {
     const unsub = subscribeAuth((user) => {
       setEmail(user?.email ?? null);
+
+      if (user) {
+        setIsGlobalEnabled(true);   // logged in
+      } else {
+        setIsGlobalEnabled(false);  // logged out
+      }
+
       setLoading(false);
     });
     return () => unsub();

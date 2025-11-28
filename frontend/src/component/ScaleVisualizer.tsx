@@ -79,7 +79,7 @@ const ScaleVisualizer: React.FC = () => {
             <img src="/icon/info.svg" alt="Info" style={{ width: '1.5rem', height: '1.5rem', cursor: 'pointer', margin: '0.5rem 0 0 0.5rem'}} />
           </div>
         </div>
-        <div>searchbox</div>
+        {/* <div>searchbox</div> */}
       </div>
       <h2>Major Scales</h2>
       <div className="scales-wrapper">

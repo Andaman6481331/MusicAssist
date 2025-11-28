@@ -1,6 +1,13 @@
 import mido
-from basic_pitch.inference import predict_and_save, ICASSP_2022_MODEL_PATH
+# from basic_pitch.inference import predict_and_save, ICASSP_2022_MODEL_PATH
 import pretty_midi, os
+import librosa
+import soundfile as sf
+from basic_pitch.inference import predict, Model
+from basic_pitch import ICASSP_2022_MODEL_PATH
+
+# Load model once globally
+model = Model(ICASSP_2022_MODEL_PATH)
 
 save_dir = "../Collection"
 
@@ -58,12 +65,53 @@ def serialize_note(n):
         'velocity': n['velocity']
     }
 
-def convertWavToMidi(wav_files):
-    try:
-        predict_and_save([wav_files], save_dir, True, False, False, False, ICASSP_2022_MODEL_PATH)
-        print(f"Conversion successful: {wav_files}")
+# def convertWavToMidi(wav_files):
+#     try:
+#         predict_and_save([wav_files], save_dir, True, False, False, False, ICASSP_2022_MODEL_PATH)
+#         print(f"Conversion successful: {wav_files}")
 
-        midi_path = os.path.join(save_dir, os.path.splitext(os.path.basename(wav_files))[0] + "_basic_pitch.mid")
-        return midi_path
-    except Exception as e:\
-            print(f"Error: {str(e)}\n")
+#         midi_path = os.path.join(save_dir, os.path.splitext(os.path.basename(wav_files))[0] + "_basic_pitch.mid")
+#         return midi_path
+#     except Exception as e:\
+#             print(f"Error: {str(e)}\n")
+
+def ConvertWavToMidi(wav_file: str, save_dir: str):
+    """
+    Convert a WAV file to MIDI using Basic-Pitch with preprocessing.
+    
+    Parameters:
+        wav_file (str): Path to input WAV file.
+        save_dir (str): Directory to save the MIDI file.
+        
+    Returns:
+        tuple[str, int]: (Path to saved MIDI, number of notes detected)
+    """
+    os.makedirs(save_dir, exist_ok=True)
+    
+    # Processed WAV path
+    processed_path = os.path.join(save_dir, "processed_" + os.path.basename(wav_file))
+    
+    # 1️⃣ Load and preprocess audio
+    y, sr = librosa.load(wav_file, sr=22050, mono=True)
+    y = y / max(abs(y))                        # Normalize
+    y = librosa.effects.preemphasis(y, coef=0.97)  # Boost attack
+    y, _ = librosa.effects.trim(y, top_db=30) # Trim silence
+    
+    sf.write(processed_path, y, sr)
+    
+    # 2️⃣ Predict notes / MIDI
+    model_output, midi_data, note_events = predict(
+        audio_path=processed_path,
+        model_or_model_path=model,
+        onset_threshold=0.35,
+        frame_threshold=0.25,
+        minimum_note_length=50,
+        minimum_frequency=30,
+        maximum_frequency=3000
+    )
+    
+    # 3️⃣ Save MIDI
+    output_midi_path = os.path.join(save_dir, os.path.basename(wav_file).replace(".wav", ".mid"))
+    midi_data.write(output_midi_path)
+    
+    return output_midi_path, len(note_events)

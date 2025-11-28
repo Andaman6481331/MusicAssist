@@ -7,7 +7,7 @@ from pydantic import BaseModel
 import os, threading, torchaudio, traceback
 from audiocraft.models import musicgen
 from datetime import datetime
-from basic_pitch.inference import predict_and_save, ICASSP_2022_MODEL_PATH
+# from basic_pitch.inference import predict_and_save, ICASSP_2022_MODEL_PATH
 from queue import Queue
 import sys
 import json
@@ -20,7 +20,8 @@ import contextlib
 import torch
 import asyncio, re
 
-from utils.music_utils import analyze_with_pretty_midi, serialize_note, convertWavToMidi
+from utils.music_utils import analyze_with_pretty_midi, serialize_note, ConvertWavToMidi
+# from convert_wav.py import ConvertWavToMidi
 
 app = FastAPI()
 
@@ -86,7 +87,7 @@ async def wav_to_json(
             shutil.copyfileobj(file.file, buffer)
 
         # --- Step 3. Run conversion (your existing pipeline) ---
-        midiFile = convertWavToMidi(input_path)
+        midiFile, note_count = ConvertWavToMidi(input_path, save_dir)
         notes, tempo_bpm, total_time = analyze_with_pretty_midi(midiFile)
 
         # JSON output should match input filename base
@@ -298,20 +299,20 @@ async def generate_music(prompt: str, filename: str, mididuration: str):
             print(f"Audio saved: {wav_filename}")
 
             # Convert to MIDI
-            predict_and_save([wav_filename], save_dir, True, False, False, False, ICASSP_2022_MODEL_PATH)
+            midiFile, note_count = ConvertWavToMidi(wav_filename, save_dir)
 
-            original_midi = wav_filename.replace(".wav", "_basic_pitch.mid")
-            renamed_midi = wav_filename.replace(".wav", ".mid")
-            if os.path.exists(original_midi):
-                os.rename(original_midi, renamed_midi)
-            midi_filename = renamed_midi
+            # original_midi = wav_filename.replace(".wav", "_basic_pitch.mid")
+            # renamed_midi = wav_filename.replace(".wav", ".mid")
+            # if os.path.exists(original_midi):
+            #     os.rename(original_midi, renamed_midi)
+            # midi_filename = renamed_midi
 
-            print("Looking for MIDI file:", midi_filename)
-            print("File exists?", os.path.exists(midi_filename))
+            # print("Looking for MIDI file:", midi_filename)
+            # print("File exists?", os.path.exists(midi_filename))
 
             # Analyze MIDI
-            json_notes, json_tempo_bpm, json_total_time = analyze_with_pretty_midi(midi_filename)
-            base_name = os.path.splitext(os.path.basename(midi_filename))[0]
+            json_notes, json_tempo_bpm, json_total_time = analyze_with_pretty_midi(midiFile)
+            base_name = os.path.splitext(os.path.basename(midiFile))[0]
             data = {
                 'tempo_bpm': json_tempo_bpm,
                 'total_time': json_total_time,

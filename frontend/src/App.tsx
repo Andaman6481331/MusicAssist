@@ -1,9 +1,10 @@
-import React, { useEffect, useRef, createContext} from "react";
+import React, { useEffect, useRef, createContext, useState, ReactNode} from "react";
 import * as Tone from "tone";
 import "./App.css";
 import { Outlet, useLocation, Link } from "react-router-dom";
 import LoadingBar from "./LoadingBar";
 import AuthControls from "./auth/AuthControls";
+import { useGlobalBoolean, GlobalBooleanProvider } from './GlobalBooleanContext.tsx';
 
 const sampleUrls: Record<string, string> = {
   "A0": "samples/A0vH.mp3",
@@ -81,6 +82,7 @@ const App = () => {
   const location = useLocation();
   const gainRef = useRef<Tone.Gain | null>(null);
   const [isSamplerLoaded, setIsSamplerLoaded] = React.useState(false);
+  const { isGlobalEnabled } = useGlobalBoolean();
 
   useEffect(() => {
       // Load the sampler and check for errors
@@ -117,8 +119,11 @@ const App = () => {
               <h1 className="title">Harmonic</h1>
             </Link>
             <div className="right-nav">
+              {
+                !isGlobalEnabled ?(<div></div>):
+                (<Link className="title" to="/generate-prompt">Generate</Link>)
+              }
               <Link className="title" to="/tools">Tools</Link>
-              <Link className="title" to="/generate-prompt">Generate</Link>
               <Link className="title" to="/theory">Theory</Link>
               <AuthControls />
             </div>
@@ -130,7 +135,7 @@ const App = () => {
         </div>
         )}
       </SamplerContext.Provider>
-    </div>
+  </div>
   );
 };
 

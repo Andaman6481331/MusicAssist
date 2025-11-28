@@ -107,7 +107,9 @@ const PracticePage: React.FC = () => {
     setLoading(true);
     //dif, genre, key
     // const textprompt = `A solo piano performance featuring ${values[2]} chords style. The chords are played in ${values[1]} style providing a strong harmonic foundation. The piece is minimalistic and structured, suitable for ${values[0]} scale piano accompaniment. No melody, only ${values[2]} comping.`;
-    const textprompt = `Create a piano track built on ${values[0]} chords, performed in ${values[1]} style. The music should stay within the ${values[2]} scale and focus purely on chord comping, without any melody lines.`;
+    // const textprompt = `Create a piano track built on ${values[0]} chords, performed in ${values[1]} style. The music should stay within the ${values[2]} scale and focus purely on chord comping, without any melody lines.`;
+    // const textprompt = `Soft piano ballad in G major, slow tempo, clear melody line, and gentle arpeggios. Beginner-friendly and playable with two hands.`;
+    const textprompt = `Simple classical-style piano solo in C major, clear phrasing, steady left-hand accompaniment, and an easy melody suitable for beginners.`;
 
     const mididuration = values[3];
 

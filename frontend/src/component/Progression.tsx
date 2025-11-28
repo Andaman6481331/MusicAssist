@@ -68,6 +68,8 @@ const Progression: React.FC = () => {
     VIImaj7: [11, 15, 18, 22], // Bmaj7
     vii: [11, 14, 18], // B minor
     vii7: [11, 14, 18, 21], // Bm7
+
+    VIIb:[10, 14, 17]
   };
 
   const progressions = [

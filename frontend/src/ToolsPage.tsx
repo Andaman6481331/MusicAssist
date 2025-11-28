@@ -39,11 +39,19 @@ const ToolsPage: React.FC = () =>{
     <div className="page-container2" style={{flexDirection:"column"}}>
         <div className="card-container" style={{display:"flex",justifyContent:"center"}}>
             <div style={{width:"90%"}}>
-                <div style={{display:"flex", alignItems: "center"}}>
-                    <h1>Piano Visualizer</h1>
-                    <div onClick={() => setGuidePopUp1(true)}>
-                        <img src="/icon/info.svg" alt="Info" style={{ width: '1.5rem', height: '1.5rem', cursor: 'pointer', margin: '0.5rem 0 0 0.5rem'}} />
+                <div style={{display:"flex", alignItems: "center", justifyContent:"space-between"}}>
+                    <div style={{display:"flex", alignItems: "center"}}>
+                         <h1>Piano Visualizer</h1>
+                        <div onClick={() => setGuidePopUp1(true)}>
+                            <img src="/icon/info.svg" alt="Info" style={{ width: '1.5rem', height: '1.5rem', cursor: 'pointer', margin: '0.5rem 0 0 0.5rem'}} />
+                        </div>
                     </div>
+                   
+                    {uploadState === "done" &&(
+                        <div onClick={() => setUploadState("idle")}>
+                            exit    
+                        </div>
+                    )}
                 </div>
                 {uploadState === "idle" && (
                     <div className="upload-box">
