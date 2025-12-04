@@ -29,13 +29,7 @@ interface PianoRollAppProps {
   fileName?: string;
 }
 
-const PianoRollApp: React.FC<PianoRollAppProps> = ({
-  onNotePlayed,
-  width = 25,
-  height = 100,
-  showNote = true,
-  fileName = "unrival",
-}) => {
+const PianoRollApp: React.FC<PianoRollAppProps> = ({onNotePlayed, width = 25, height = 100, showNote = true, fileName = "unrival",}) => {
   const [user, setUser] = useState<any>(null);
 
   useEffect(() => {
@@ -60,22 +54,22 @@ const PianoRollApp: React.FC<PianoRollAppProps> = ({
 
   const svgWidth = 49 * width;
   const svgHeight = 6 * height;
-  const whiteCount = 49;
-  const whiteWidth = svgWidth / whiteCount;
+  const totalWhiteKeys = 49;
+  const whiteKeyWidth = svgWidth / totalWhiteKeys;
 
   const keyPositionMap: Record<string, number> = {
-    C: whiteWidth * 0,
-    "C#": whiteWidth * 0 + whiteWidth * 0.7,
-    D: whiteWidth * 1,
-    "D#": whiteWidth * 1 + whiteWidth * 0.7,
-    E: whiteWidth * 2,
-    F: whiteWidth * 3,
-    "F#": whiteWidth * 3 + whiteWidth * 0.7,
-    G: whiteWidth * 4,
-    "G#": whiteWidth * 4 + whiteWidth * 0.7,
-    A: whiteWidth * 5,
-    "A#": whiteWidth * 5 + whiteWidth * 0.7,
-    B: whiteWidth * 6,
+    "C": whiteKeyWidth * 0,
+    "C#": whiteKeyWidth * 0 + whiteKeyWidth * 0.7,
+    "D": whiteKeyWidth * 1,
+    "D#": whiteKeyWidth * 1 + whiteKeyWidth * 0.7,
+    "E": whiteKeyWidth * 2,
+    "F": whiteKeyWidth * 3,
+    "F#": whiteKeyWidth * 3 + whiteKeyWidth * 0.7,
+    "G": whiteKeyWidth * 4,
+    "G#": whiteKeyWidth * 4 + whiteKeyWidth * 0.7,
+    "A": whiteKeyWidth * 5,
+    "A#": whiteKeyWidth * 5 + whiteKeyWidth * 0.7,
+    "B": whiteKeyWidth * 6,
   };
 
   // ------------------------------------------------------------
@@ -147,7 +141,6 @@ const PianoRollApp: React.FC<PianoRollAppProps> = ({
   const animate = (now: number) => {
     const played = new Set<number>();
     const visualOffsetStart = -svgHeight / 5;
-    const maxOffset = total_svg_height * 2;
 
     if (!startTimeRef.current) return;
 
@@ -362,7 +355,7 @@ const PianoRollApp: React.FC<PianoRollAppProps> = ({
       sampler.samplerRef.current.triggerAttackRelease(key, "1n");
     }
   };
-
+  
   const octaves = Array.from({ length: 7 }, (_, i) => 1 + i);
   const whiteKeys = ["C", "D", "E", "F", "G", "A", "B"];
   const blackKeys = ["C#", "D#", "F#", "G#", "A#"];
@@ -393,7 +386,8 @@ const PianoRollApp: React.FC<PianoRollAppProps> = ({
               const octave = parseInt(note.name.slice(-1));
               const baseX = keyPositionMap[noteBase] || 0;
 
-              const x = baseX + (octave - 1) * whiteCount * width;
+              const x = baseX + (octave - 1) * whiteKeyWidth * 7;
+              // const x = baseX + (octave - 1) * whiteCount * width;
               const y = svgHeight - (note.time / totalTime) * total_svg_height;
               const heightPx = note.duration * pixelsPerSecond;
               const yAdjusted = y - heightPx;
@@ -403,11 +397,12 @@ const PianoRollApp: React.FC<PianoRollAppProps> = ({
                   <rect
                     x={x}
                     y={yAdjusted}
-                    width={
-                      note.name.includes("#")
-                        ? whiteWidth * 0.6
-                        : whiteWidth
-                    }
+                    // width={
+                    //   note.name.includes("#")
+                    //     ? whiteWidth * 0.6
+                    //     : whiteWidth
+                    // }
+                    width={note.name.includes("#") ? whiteKeyWidth * 0.6 : whiteKeyWidth}
                     height={heightPx}
                     rx={4}
                     ry={4}
@@ -428,7 +423,7 @@ const PianoRollApp: React.FC<PianoRollAppProps> = ({
 
                   {showNote && (
                     <text
-                      x={x + whiteWidth / 2}
+                      x={x + whiteKeyWidth / 2}
                       y={yAdjusted + heightPx / 2}
                       fill="white"
                       fontSize={12}

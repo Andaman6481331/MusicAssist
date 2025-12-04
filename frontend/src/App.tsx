@@ -87,7 +87,13 @@ const App = () => {
   useEffect(() => {
       // Load the sampler and check for errors
       const limiter = new Tone.Limiter(-1).toDestination();
-      const gain = new Tone.Gain(0).connect(limiter); // Gain node before limiter
+
+        const reverb = new Tone.Reverb({
+          decay: 4,
+          wet: 0.35,     // 35% reverb is good for piano
+        }).connect(limiter);
+
+      const gain = new Tone.Gain(0).connect(reverb); // Gain node before limiter
       // gainRef.current = gain;
 
       const s = new Tone.Sampler({
@@ -121,10 +127,10 @@ const App = () => {
             <div className="right-nav">
               {
                 !isGlobalEnabled ?(<div></div>):
-                (<Link className="title" to="/generate-prompt">Generate</Link>)
+                (<Link className="title" to="/generate-prompt">Practicing</Link>)
               }
               <Link className="title" to="/tools">Tools</Link>
-              <Link className="title" to="/theory">Theory</Link>
+              <Link className="title" to="/theory">Self-Study</Link>
               <AuthControls />
             </div>
           </header>

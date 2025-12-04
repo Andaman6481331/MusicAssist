@@ -48,7 +48,7 @@ const ToolsPage: React.FC = () =>{
                     </div>
                    
                     {uploadState === "done" &&(
-                        <div onClick={() => setUploadState("idle")}>
+                        <div onClick={() => setUploadState("idle")} className="playbtn">
                             exit    
                         </div>
                     )}
