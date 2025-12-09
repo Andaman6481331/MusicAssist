@@ -6,8 +6,7 @@ import soundfile as sf
 from basic_pitch.inference import predict, Model
 from basic_pitch import ICASSP_2022_MODEL_PATH
 
-# Load model once globally
-model = Model(ICASSP_2022_MODEL_PATH)
+
 
 save_dir = "../Collection"
 
@@ -75,6 +74,9 @@ def serialize_note(n):
 #     except Exception as e:\
 #             print(f"Error: {str(e)}\n")
 
+# Load model once globally
+model = Model(ICASSP_2022_MODEL_PATH)
+
 def ConvertWavToMidi(wav_file: str, save_dir: str):
     """
     Convert a WAV file to MIDI using Basic-Pitch with preprocessing.
@@ -103,11 +105,11 @@ def ConvertWavToMidi(wav_file: str, save_dir: str):
     model_output, midi_data, note_events = predict(
         audio_path=processed_path,
         model_or_model_path=model,
-        onset_threshold=0.35,
-        frame_threshold=0.25,
-        minimum_note_length=50,
-        minimum_frequency=30,
-        maximum_frequency=3000
+        onset_threshold=0.7,        # mini length can be high, priority at the 2 thres
+        frame_threshold=0.5,
+        minimum_note_length=120,
+        minimum_frequency=55,
+        maximum_frequency=1700
     )
     
     # 3️⃣ Save MIDI
