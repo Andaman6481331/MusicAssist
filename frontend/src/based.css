@@ -175,13 +175,21 @@
     display: flex;
     justify-content: space-between;
     background: linear-gradient(#14458A,#144387);
-    min-width: 1000px;
-    width: 100%;
+    /* min-width: 100%; */
+    min-height: 100vh;
 }
 
 .page-container3{
   background-color: #1a58b0;
   height: 100vh;
+}
+
+.teaching-page-container{
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(#14458A,#144387);
+  min-height: 100vh;
+  padding: 2rem 5rem;
 }
 
 .mainbar{
@@ -234,6 +242,14 @@
   margin: 0 3rem;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
+  text-align: center;
+  background-color: rgba(0, 0, 0, 0.1);
+  border-radius: 2rem 2rem 0 0;
+}
+.nav-elim-bottom2{
+  /* margin: 0 1rem; */
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
   text-align: center;
   background-color: rgba(0, 0, 0, 0.1);
   border-radius: 2rem 2rem 0 0;
@@ -1312,7 +1328,7 @@ body.modal-open {
   border-radius: 50%;
   width: 2.5rem;
   height: 2.5rem;
-  margin-right: 1rem;
+  margin: auto 0.5rem;
   &:hover{
     background-color: rgba(143, 170, 253, 0.311);
   }
@@ -1356,4 +1372,25 @@ body.modal-open {
 *{
   /* border: 1px solid rgba(255, 0, 0, 0.237); */
   user-select: none;
+}
+
+.line{
+  background-color: white;
+  /* position: absolute; */
+  width: 90%;
+  height: 2px;
+  display: flex;
+  margin: 1rem auto;
+}
+
+.patternBtn{
+  display:"flex";
+  padding: 0.5rem;
+  width: 12rem;
+  background-color: #4078C3;
+  text-align: center;
+  cursor: pointer;
+  &:hover{
+    background-color: #4c83cb;
+  }
 }

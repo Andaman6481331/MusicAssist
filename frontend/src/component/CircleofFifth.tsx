@@ -53,8 +53,8 @@ export default function CircleOfFifths({selectedChord, setSelectedChord}: Props)
               points={Array.from({ length: 12 })
                 .map((_, i) => {
                   const angle = (i / 12) * 2 * Math.PI;
-                  const x = radius * Math.sin(angle) - 10;
-                  const y = -radius * Math.cos(angle) - 10;
+                  const x = radius * Math.sin(angle) - 5;
+                  const y = -radius * Math.cos(angle) - 8;
                   return `${x},${y}`;
                 })
                 .join(" ")}

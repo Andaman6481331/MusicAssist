@@ -131,6 +131,7 @@ const App = () => {
               }
               <Link className="title" to="/tools">Tools</Link>
               <Link className="title" to="/theory">Self-Study</Link>
+              <Link className="title" to="/levels">Levels</Link>
               <AuthControls />
             </div>
           </header>

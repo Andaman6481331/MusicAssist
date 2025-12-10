@@ -19,6 +19,8 @@ import { SamplerContext } from "./App.tsx";
 import { LoadingProvider } from "./LoadingContext";
 import { GlobalBooleanProvider } from "./GlobalBooleanContext";
 
+import CoreBasic from "./teachingComponent/CoreBasics.tsx";
+
 const Root = () => {
   const samplerRef = useRef<Tone.Sampler | null>(null);
   const gainRef = useRef<Tone.Gain | null>(null);
@@ -38,6 +40,8 @@ const Root = () => {
               <Route path="register" element={<SignIn />} />
               <Route path="data" element={<Storage />} />
               <Route path="tools" element={<ToolsPage />} />
+
+              <Route path="levels" element={<CoreBasic />} />
             </Route>
           </Routes>
         </BrowserRouter>
