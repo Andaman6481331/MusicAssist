@@ -20,6 +20,8 @@ import { LoadingProvider } from "./LoadingContext";
 import { GlobalBooleanProvider } from "./GlobalBooleanContext";
 
 import CoreBasic from "./teachingComponent/CoreBasics.tsx";
+import QuestionPage from "./teachingComponent/QuestionPage.tsx";
+import ResultPage from "./teachingComponent/ResultPage.tsx";
 
 const Root = () => {
   const samplerRef = useRef<Tone.Sampler | null>(null);
@@ -42,6 +44,8 @@ const Root = () => {
               <Route path="tools" element={<ToolsPage />} />
 
               <Route path="levels" element={<CoreBasic />} />
+              <Route path="Result" element={<ResultPage/>} />
+              <Route path="test/:level" element={<QuestionPage />} />
             </Route>
           </Routes>
         </BrowserRouter>

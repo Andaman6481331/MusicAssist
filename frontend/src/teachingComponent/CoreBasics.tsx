@@ -1,8 +1,9 @@
 import {useContext, useState} from "react";
 import * as Tone from "tone";
 import { SamplerContext } from "../App";
+import {Link } from "react-router-dom";
 
-import ProgressLine from "./subComponent/progressLine";
+import ProgressLine from "./subComponent/ProgressLine";
 import CircleOfFifths from "../component/CircleofFifth";
 import ChordPiano from "../component/ChordPiano";
 import Progression from "../component/Progression";
@@ -136,7 +137,7 @@ const CoreBasic: React.FC = () => {
           {activeTab === "Scales" && 
           <div className="card-container elimtop" style={{margin:0, padding:"2rem 5rem"}}>
             <div style={{display:"flex"}}>
-              <div style={{marginRight:"15%"}}>
+              <div>
                 <div style={{display:"flex", alignItems: "center"}}>
                   <div className="card-title">Major Scales</div>
                 </div>
@@ -206,7 +207,8 @@ const CoreBasic: React.FC = () => {
             <div className="line"/>
             <div style={{ display:"flex",textAlign: "center" , justifyContent: "space-between"}}>
               <button onClick={() => {setActiveTab("Scales")}} className="playbtn" style={{width:"10rem", borderRadius:"5rem"}}>Scales</button>
-              <button onClick={() => {setActiveTab("Progressions")}} className="playbtn" style={{width:"10rem", borderRadius:"5rem"}}>To Test</button>
+              {/* <button onClick={() => {setActiveTab("Progressions")}} className="playbtn" style={{width:"10rem", borderRadius:"5rem"}}>To Test</button> */}
+              <Link to="/test/1" className="playbtn" style={{width:"10rem", borderRadius:"5rem"}}>Test</Link>
             </div>
           </div>}
 

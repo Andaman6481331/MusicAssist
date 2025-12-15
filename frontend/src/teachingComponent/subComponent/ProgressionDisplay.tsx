@@ -266,10 +266,6 @@ const ProgressionDisplay: React.FC<ProgressionDisplayProps> = ({progType="I-IV-V
     }
   };
 
-  const playPopBalladProgression = async() => {
-
-  };
-
     useEffect(() => {
         if (!selectedScale) return;
         if (selectedPattern == "Block Chord"){
@@ -320,12 +316,12 @@ const ProgressionDisplay: React.FC<ProgressionDisplayProps> = ({progType="I-IV-V
                     k.note.startsWith(note.charAt(0)) &&
                     k.octave === parseInt(note.slice(-1))
                 );
-                const left = whiteKeyIndex * 40 - 40 * (21 / 2);
+                const left = whiteKeyIndex * 50 - 50 * (21 / 2);
                 return (
                     <div
                     key={note}
                     style={{
-                        width: `${40}px`,
+                        width: `${50}px`,
                         height: `${150}px`,
                         backgroundColor: isSelected ? "rgb(32, 173, 255)" : "white",
                         border: "1px solid black",
@@ -356,12 +352,12 @@ const ProgressionDisplay: React.FC<ProgressionDisplayProps> = ({progType="I-IV-V
                     k.note.startsWith(note.charAt(0)) &&
                     k.octave === parseInt(note.slice(-1))
                 );
-                const left = whiteKeyIndex * 40 + 40 * 0.7 - (40 * 21) / 2; // 420 = half pianoroll size = make absolute position centered , 28 = margin btw white and black key
+                const left = whiteKeyIndex * 50 + 50 * 0.7 - (50 * 21) / 2; // 420 = half pianoroll size = make absolute position centered , 28 = margin btw white and black key
                 return (
                     <div
                     key={note}
                     style={{
-                        width: `${40 * 0.625}px`,
+                        width: `${50 * 0.625}px`,
                         height: `${150 * 0.6}px`,
                         backgroundColor: isSelected
                         ? "rgba(22, 19, 169, 1)"

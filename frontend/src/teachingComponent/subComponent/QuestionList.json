@@ -1,0 +1,76 @@
+[
+  {
+  "level_number": 1,
+  "level_name": "Core Basics",
+  "questions": [
+    { "question": "Which notes make up the C major triad?", "choices": ["C–D–G","C–E–G","C–F–A","C–E–A"], "correct": 1 },
+    { "question": "What makes a triad major?", "choices": ["Root → minor 3rd → 5th","Root → major 3rd → 5th","Root → perfect 4th → 6th","Any three notes"], "correct": 1 },
+    { "question": "Which of these is a major triad?", "choices": ["A–C–E","D–F–A","G–B–D","E–G–B"], "correct": 2 },
+    { "question": "In a major triad, the middle interval is always a…", "choices": ["Major 3rd","Minor 3rd","Perfect 4th","Tritone"], "correct": 0 },
+    { "question": "What is the pattern of a major scale?", "choices": ["W–H–W–W–H–W–W","W–W–H–W–W–W–H","H–W–W–H–W–W–W","W–H–H–W–W–W–H"], "correct": 1 },
+    { "question": "Which is the correct C major scale?", "choices": ["C–D–E–F–G–A–B–C","C–D–E–G–A–B–C","C–D–E–F#–G–A–B–C","C–E–F–G–A–B–C"], "correct": 0 },
+    { "question": "How many sharps or flats does G major have?", "choices": ["0","1 sharp","2 sharps","1 flat"], "correct": 1 },
+    { "question": "Which note is the 4th degree of D major?", "choices": ["G","F#","E","A"], "correct": 0 }
+  ]
+}
+,
+{
+  "level_number": 2,
+  "level_name": "Minor Essentials",
+  "questions": [
+    { "question": "Which notes create the A minor triad?", "choices": ["A–C–E","A–C#–E","A–D–F","A–E–G"], "correct": 0 },
+    { "question": "What makes a triad minor?", "choices": ["Major 3rd on bottom","Minor 3rd on bottom","Perfect 4th on bottom","Augmented interval"], "correct": 1 },
+    { "question": "Which of these is a minor triad?", "choices": ["C–E–G","D–F–A","G–B–D","F#–A#–C#"], "correct": 1 },
+    { "question": "Which is the 5th of E minor?", "choices": ["B","G","F#","A"], "correct": 0 },
+    { "question": "What is the pattern of a natural minor scale?", "choices": ["W–H–W–W–H–W–W","W–W–H–W–W–W–H","H–W–W–H–W–W–W","W–H–H–W–W–W–H"], "correct": 0 },
+    { "question": "Which is the correct A natural minor scale?", "choices": ["A–B–C–D–E–F–G–A","A–B–C#–D–E–F#–G#–A","A–C–D–E–G–A","A–B–D–E–F–G–A"], "correct": 0 },
+    { "question": "What is the 7th note of E natural minor?", "choices": ["D","F","D#","C"], "correct": 0 },
+    { "question": "How many sharps or flats does A natural minor have?", "choices": ["0","1 sharp","1 flat","2 sharps"], "correct": 0 }
+  ]
+}
+,
+{
+  "level_number": 3,
+  "level_name": "Chord Inversions",
+  "questions": [
+    { "question": "What is the 1st inversion of C major?", "choices": ["C–E–G","G–C–E","E–G–C","E–C–G"], "correct": 2 },
+    { "question": "What note is at the bottom of a 2nd inversion triad?", "choices": ["Root","3rd","5th","7th"], "correct": 2 },
+    { "question": "Which is F major in 1st inversion?", "choices": ["F–A–C","A–C–F","C–F–A","C–A–F"], "correct": 1 },
+    { "question": "Which inversion has the biggest interval on the bottom?", "choices": ["Root","1st inversion","2nd inversion","None"], "correct": 2 }
+  ]
+}
+,
+{
+  "level_number": 4,
+  "level_name": "Extended Harmony",
+  "questions": [
+    { "question": "Which notes form G7?", "choices": ["G–B–D–F","G–B–D–F#","G–C–D–F","G–A–C–E"], "correct": 0 },
+    { "question": "What is the interval between the root and 7th in a dominant 7th chord?", "choices": ["Major 7th","Minor 7th","Perfect 5th","Augmented 4th"], "correct": 1 },
+    { "question": "Which is a major 7th chord?", "choices": ["C–E–G–Bb","C–E–G–B","C–Eb–G–Bb","C–Eb–G–B"], "correct": 1 },
+    { "question": "Which chord fits the ii–V–I in C major?", "choices": ["Dm7–G7–Cmaj7","D7–Gm7–C7","Dm–Gm–Cdim","F–C–G"], "correct": 0 }
+  ]
+}
+,
+{
+  "level_number": 5,
+  "level_name": "Modal Colors — Dorian",
+  "questions": [
+    { "question": "Dorian mode is similar to the natural minor scale but with a raised…", "choices": ["2nd","4th","6th","7th"], "correct": 2 },
+    { "question": "Which notes form D Dorian?", "choices": ["D–E–F–G–A–Bb–C","D–E–F–G–A–B–C","D–E–F#–G–A–B–C#","D–E–F–A–Bb–C"], "correct": 0 },
+    { "question": "Which chord is commonly used in Dorian progressions?", "choices": ["i–VII","i–IV","i–VI","i–V"], "correct": 1 },
+    { "question": "What is characteristic of Dorian harmony?", "choices": ["Bright major sound","Bluesy dominant feel","Minor sound with a bright 6th","Augmented color"], "correct": 2 }
+  ]
+}
+,
+{
+  "level_number": 6,
+  "level_name": "Modal Colors — Mixolydian",
+  "questions": [
+    { "question": "Mixolydian is similar to the major scale but with a lowered…", "choices": ["2nd","3rd","6th","7th"], "correct": 3 },
+    { "question": "Which notes form G Mixolydian?", "choices": ["G–A–B–C–D–E–F","G–A–B–C–D–E–F#","G–A–Bb–C–D–E–F","G–A–C–D–E–F–G"], "correct": 0 },
+    { "question": "Mixolydian is commonly used over which chord type?", "choices": ["Major 7","Dominant 7","Minor 7","Diminished"], "correct": 1 },
+    { "question": "Which progression fits a Mixolydian sound?", "choices": ["I–IV–V","I–♭VII–IV","ii–V–I","i–VI–VII"], "correct": 1 }
+  ]
+}
+
+]
