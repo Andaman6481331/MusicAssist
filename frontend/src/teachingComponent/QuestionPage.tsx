@@ -24,7 +24,6 @@ export type LevelData = {
 
 const QuestionPage: React.FC = () => {
     const navigate = useNavigate();
-    const [checkPopUp, setCheckPopUp] = useState(Boolean);
 
     const [currentQ, setCurrentQ] = useState(0);
     
@@ -33,11 +32,12 @@ const QuestionPage: React.FC = () => {
     const levelData = (questions as LevelData[]).find(
         l => l.level_number === levelNumber
     );
-
+    
     if (!levelData) {
         return <p>Level not found</p>;
     }
     
+    const q = levelData.questions[currentQ];  
     // const [answers, setAnswers] = useState<Record<number, number>>({});
     const totalQuestions = levelData.questions.length;
 
@@ -47,14 +47,7 @@ const QuestionPage: React.FC = () => {
     const [score, setScore] = useState(0);
     const [submitted, setSubmitted] = useState<boolean>();
 
-    const handleResult = () => {
-        setTimeout(()=>{
-            navigate("/result");
-        },1500)
-    }
-
     const handleSubmit = (questionIndex: number) => {
-        
         const selected = answers[questionIndex];
         if (selected === null || selected === undefined) return;
 
@@ -68,14 +61,68 @@ const QuestionPage: React.FC = () => {
 
         setTimeout(() => {
             setSubmitted(false);
-            if(questionIndex+1 == totalQuestions){
-                handleResult();
-            }
             setCurrentQ(prev => prev + 1);
         }, 1500);
     };
 
-    const q = levelData.questions[currentQ];  
+    const exitTest = () => {
+        navigate("/");
+    };
+    const redoTest = () => {
+        setCurrentQ(0);
+    };
+
+    if (currentQ >= totalQuestions) {
+        return (
+            <div className="popup-overlay">
+                <div className="popup-box">
+                    {score > (totalQuestions/2) ? (
+                        <div>
+                            <div style={{height:"10rem"}}>
+                                <img src="/img/rewards.png" alt="reward" style={{
+                                    height: "100%",
+                                    width: "100%",
+                                    objectFit: "contain",
+                                    display: "block"
+                                    }}/>
+                            </div>
+                            <h1>🎉Congratulation🎉</h1>
+                            <p style={{fontWeight:"bolder", margin:0}}>
+                                Final score: {score}/{totalQuestions}
+                            </p>
+                            <p style={{margin:0}}>
+                                You Passed! You’re ready for the next lesson.
+                            </p>
+                            <div className="popup-buttons">
+                                <button onClick={()=>exitTest()}>Continue</button>
+                            </div>
+                        </div>
+                        ):(
+                        <div>
+                            <div style={{height:"10rem"}}>
+                                <img src="/img/fail.png" alt="fail" style={{
+                                    height: "100%",
+                                    width: "100%",
+                                    objectFit: "contain",
+                                    display: "block"
+                                    }}/>
+                            </div>
+                            <h1>👍Better Luck Next Time</h1>
+                            <p style={{fontWeight:"bolder", margin:0}}>
+                                Final score: {score}/{totalQuestions}
+                            </p>
+                            <p style={{margin:0}}>
+                                You’re improving! Give it another try... 
+                            </p>
+                            <div className="popup-buttons">
+                                <button onClick={()=>redoTest()}>Try Again</button>
+                            </div>
+                        </div>)
+                    }
+                </div>
+            </div>
+        );
+    }
     
     return(
         <div style={{padding:"2rem 5rem"}}>
@@ -90,7 +137,8 @@ const QuestionPage: React.FC = () => {
                 </div>
             </div>
             <div className="teach-page-content">
-                    <div> 
+                    <div>
+                        
                         <p><span style={{backgroundColor:"#144387", borderRadius:"1rem", padding:"0.5rem"}}>Q{currentQ+1}.</span> {q.question}</p>
                         <div style={{marginLeft:"2rem"}}>
                             <div style={{display:"grid", gridTemplateColumns:"1fr 1fr", gridTemplateRows:"auto", gap:"1rem 2rem"}}>
@@ -150,63 +198,8 @@ const QuestionPage: React.FC = () => {
                     </div>
                     <div className="playbtn" style={{width:"5rem", justifySelf:"flex-end"}} onClick={()=> {handleSubmit(currentQ)}}>Submit</div>
             </div>
-            {checkPopUp &&(
-                <div className="popup-overlay">
-                    <div className="popup-box">
-                        Checking
-                    </div>
-                </div>
-            )}
         </div>
     )
 }
 
 export default QuestionPage;
-
-
-
-{/* <div className="teach-page-content">
-                {levelData.questions.map((q, qIndex) => (
-                    <div key={qIndex}>
-                        <p><span style={{backgroundColor:"#144387", borderRadius:"1rem", padding:"0.5rem"}}>Q{qIndex + 1}.</span> {q.question}</p>
-                        <div style={{marginLeft:"2rem"}}>
-                            <div style={{display:"grid", gridTemplateColumns:"1fr 1fr", gridTemplateRows:"auto", gap:"1rem 2rem"}}>
-                                {q.choices.map((choice, cIndex) => {
-                                    const isSelected = answers[qIndex] === cIndex;
-                                    const isCorrect = cIndex === q.correct;
-
-                                    if (submitted) {
-                                        if (selected && isCorrect) bgColor = "#2ecc71"; // correct
-                                        else if (selected && !isCorrect) bgColor = "#e74c3c"; // wrong
-                                        else if (isCorrect) bgColor = "#2ecc71"; // show correct
-                                    } else if (selected) {
-                                        bgColor = "#1ec7ff";
-                                    } 
-
-                                    return(
-                                    <label
-                                        key={choice}
-                                        className="choiceBtn"
-                                        style={{ display: "flex", cursor: "pointer", backgroundColor: isSelected ? "#4489F9" : "#5386CA" }}
-                                    >
-                                    <input
-                                        type="radio"
-                                        name={`q-${qIndex}`}
-                                        value={cIndex}
-                                        checked={isSelected}
-                                        onChange={() =>
-                                        setAnswers((prev) => ({
-                                            ...prev,
-                                            [qIndex]: cIndex,
-                                        }))
-                                        }
-                                        style={{ display: "none" }}
-                                    />
-                                    <div style={{backgroundColor: isSelected ? "#0F66F3" : "#4078C3",borderRadius:"1rem 0 0 1rem", padding:"1rem"}}>{cIndex+1}</div>
-                                    <div style={{padding:"1rem 0.5rem 1rem 1rem"}}>{choice}</div>
-                                    </label>
-                                )})}
-                            </div>
-                        </div>
-                    </div>
-                ))} */}
