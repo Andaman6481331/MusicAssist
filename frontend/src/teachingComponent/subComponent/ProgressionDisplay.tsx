@@ -138,42 +138,43 @@ const ProgressionDisplay: React.FC<ProgressionDisplayProps> = ({progType="I-IV-V
     }
 
     function getArpreggioNotes(selectedScale: string, progression: string[], seqPattern: number[]) {
-    const rootIndex = allKey.findIndex(
-        (k) => k.startsWith(selectedScale) && k.endsWith("3")
-    );
-    if (rootIndex === -1) return [];
+        const rootIndex = allKey.findIndex(
+            (k) => k.startsWith(selectedScale) && k.endsWith("3")
+        );
+        if (rootIndex === -1) return [];
 
-    const degreeToSemitone: Record<string, number> = {
-        I: 0,
-        II: 2,
-        iii: 3,
-        III: 4,
-        IV: 5,
-        V: 7,
-        vi: 8,
-        VI: 9,
-        VIIb: 10,
-        VII: 11,
-    };
+        const degreeToSemitone: Record<string, number> = {
+            I: 0,
+            i:0,
+            II: 2,
+            iii: 3,
+            III: 4,
+            IV: 5,
+            V: 7,
+            vi: 8,
+            VI: 9,
+            VIIb: 10,
+            VII: 11,
+        };
 
-    const arpregPattern = seqPattern; // 1 → 5 → 8
+        const arpregPattern = seqPattern; // 1 → 5 → 8
 
-    const result: string[] = [];
+        const result: string[] = [];
 
-    progression.forEach((deg) => {
-        const semitoneOffset = degreeToSemitone[deg];
-        if (semitoneOffset === undefined) return;
+        progression.forEach((deg) => {
+            const semitoneOffset = degreeToSemitone[deg];
+            if (semitoneOffset === undefined) return;
 
-        const chordRootIndex = rootIndex + semitoneOffset;
+            const chordRootIndex = rootIndex + semitoneOffset;
 
-        const notes = arpregPattern
-        .map((n) => allKey[chordRootIndex + n])
-        .filter(Boolean);
+            const notes = arpregPattern
+            .map((n) => allKey[chordRootIndex + n])
+            .filter(Boolean);
 
-        result.push(...notes);
-    });
+            result.push(...notes);
+        });
 
-    return result; // flat array
+        return result; // flat array
     }
 
       const sleep = (ms: number, abortRef: { abort: boolean }) => {
@@ -277,7 +278,7 @@ const ProgressionDisplay: React.FC<ProgressionDisplayProps> = ({progType="I-IV-V
         }
     }, [selectedScale]);
 
-
+//[0, 7, 12] [0, 7, 4, 7, 4]
     return (
         <div>
             <div style={{display:"flex", justifyContent:"flex-end"}}>

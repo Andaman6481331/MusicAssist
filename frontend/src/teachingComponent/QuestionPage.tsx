@@ -2,14 +2,6 @@ import React,{ useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import questions from "./subComponent/QuestionList.json"
 
-type Question = {
-  level: number;
-  levelName: string;
-  question: string;
-  choices: string[];
-  correct: number;
-};
-
 export type RawQuestion = {
   question: string;
   choices: string[];

@@ -1,10 +1,12 @@
-//Feature: Two Octave, Receive input from homepage 
-const keys = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
-
+type Mode = "major" | "minor";
 interface Props {
   selectedChord: string | null;
   setSelectedChord: (chord: string) => void;
+  mmtype?: Mode;
 }
+
+//Feature: Two Octave, Receive input from homepage 
+const keys = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
 
 // Define chord structures (basic major chords for this example)
 const chordNotes: Record<string, string[]> = {
@@ -20,9 +22,22 @@ const chordNotes: Record<string, string[]> = {
   A: ["A", "C#", "E"], // A major
   "A#": ["A#", "D", "F"], // A# major
   B: ["B", "D#", "F#"], // B major
+  Cm:  ["C", "D#", "G"],   // C minor
+  "C#m": ["C#", "E", "G#"], // C# minor
+  Dm:  ["D", "F", "A"],    // D minor
+  "D#m": ["D#", "F#", "A#"], // D# minor
+  Em:  ["E", "G", "B"],    // E minor
+  Fm:  ["F", "G#", "C"],   // F minor
+  "F#m": ["F#", "A", "C#"], // F# minor
+  Gm:  ["G", "A#", "D"],   // G minor
+  "G#m": ["G#", "B", "D#"], // G# minor
+  Am:  ["A", "C", "E"],    // A minor
+  "A#m": ["A#", "C#", "F"], // A# minor
+  Bm:  ["B", "D", "F#"],   // B minor
 };
 
-export default function CircleOfFifths({selectedChord, setSelectedChord}: Props) {
+
+export default function CircleOfFifths({selectedChord, setSelectedChord, mmtype="major",}: Props) {
   const radius = 125;
   const center = radius * 1.25;
 
@@ -31,7 +46,18 @@ export default function CircleOfFifths({selectedChord, setSelectedChord}: Props)
   const highlightedIndices = selectedChordNotes.map((note) =>
     keys.indexOf(note)
   );
-  const selectedPoints = highlightedIndices.map((i) => {
+  // const selectedChordNotesMinor = selectedChord ? chordNotesMinor[selectedChord] : [];
+  const highlightedIndicesMinor = selectedChordNotes.map((note) =>
+    keys.indexOf(note)
+  );
+
+  const finalHighLight =
+  mmtype === "major"
+    ? highlightedIndices
+    : highlightedIndicesMinor;
+
+
+  const selectedPoints = finalHighLight.map((i) => {
     const angle = (i / 12) * 2 * Math.PI;
     const x = radius * Math.sin(angle);
     const y = -radius * Math.cos(angle);
@@ -95,7 +121,13 @@ export default function CircleOfFifths({selectedChord, setSelectedChord}: Props)
                   transition: "all 0.3s ease-in-out",
                 }}
                 
-                onClick={() => setSelectedChord(key)}
+                onClick={() => {
+                  if (mmtype === "major"){
+                    setSelectedChord(key)
+                  } else {
+                    setSelectedChord(key+"m")
+                  }
+                }}
               >
                 {key}
               </text>

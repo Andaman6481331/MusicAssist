@@ -121,7 +121,15 @@ const App = () => {
           </div>
         ) : (<div style={{display: "flex", flexDirection: "column"}}>
           <header className="navbar">
-            <Link to="/" style={{outline:"0"}}>
+            <Link to="/" style={{outline:"0", display:"flex"}}>
+              <div style={{height:"40px", margin:"50px 20px 0 20px"}}>
+                  <img src="/harmonic_logo(1).svg" alt="logo" style={{
+                      height: "100%",
+                      width: "100%",
+                      objectFit: "contain",
+                      display: "block"
+                      }}/>
+              </div>
               <h1 className="title">Harmonic</h1>
             </Link>
             <div className="right-nav">
@@ -131,7 +139,7 @@ const App = () => {
               }
               <Link className="title" to="/tools">Tools</Link>
               <Link className="title" to="/theory">Self-Study</Link>
-              <Link className="title" to="/levels">Levels</Link>
+              <Link className="title" to="/lessons">Lessons</Link>
               <AuthControls />
             </div>
           </header>

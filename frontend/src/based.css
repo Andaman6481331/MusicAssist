@@ -285,6 +285,13 @@
   background-color: rgba(0, 0, 0, 0.1);
   border-radius: 2rem 2rem 0 0;
 }
+.nav-elim-bottom3{
+  display: flex;
+  background-color: rgba(0, 0, 0, 0.1);
+  border-radius: 2rem 2rem 0 0;
+  padding: 0 5rem;
+  align-items: center;
+}
 .nbtn {
   display: block;
   width: 100%;
@@ -1433,4 +1440,59 @@ body.modal-open {
   width: 80%;
   cursor: pointer;
   transition: 0.3s ease-in-out;
+}
+.lesson-titles{
+  display: flex;
+  justify-content: space-between;
+  background-color: #5386CA;
+  padding: 0.5rem 2rem;
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 500;
+  &:hover{
+    background-color: #5d91d4;
+    cursor: pointer;
+  }
+}
+
+.lesson-details {
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  transform: translateY(-8px);
+  transition:
+    max-height 0.3s ease,
+    /* opacity 0.5s ease, */
+    transform 0.5s ease;
+  background-color: #699ad6;
+  margin-bottom: 1rem;
+  padding: 1rem 1rem 0 1rem;
+  box-sizing: border-box;
+}
+
+.lesson-details.slide {
+  max-height: 500px;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* child elements */
+.lesson-details .label {
+  display: flex;
+  background-color: #29599C;
+  border-radius: 1rem;
+  font-size: smaller;
+  justify-content: center;
+  align-items: center;
+  padding: 0.2rem 0.5rem;
+  margin: 0 0.2rem;
+}
+
+.lesson-details h3 {
+  margin: 0 1rem 0 0;
+}
+
+.lesson-details p {
+  text-indent: 30px;
+  margin-bottom: 0;
 }

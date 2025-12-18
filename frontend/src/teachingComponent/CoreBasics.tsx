@@ -6,7 +6,6 @@ import {Link } from "react-router-dom";
 import ProgressLine from "./subComponent/ProgressLine";
 import CircleOfFifths from "../component/CircleofFifth";
 import ChordPiano from "../component/ChordPiano";
-import Progression from "../component/Progression";
 import ScalePiano from "../component/ScalePiano";
 import ProgressionDisplay from "./subComponent/ProgressionDisplay";
 
@@ -231,7 +230,3 @@ const CoreBasic: React.FC = () => {
 };
 
 export default CoreBasic;
-
-<style>
-  
-</style>
