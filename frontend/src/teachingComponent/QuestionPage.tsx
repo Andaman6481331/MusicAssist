@@ -58,7 +58,7 @@ const QuestionPage: React.FC = () => {
     };
 
     const exitTest = () => {
-        navigate("/");
+        navigate("/lessons");
     };
     const redoTest = () => {
         setCurrentQ(0);
@@ -121,9 +121,9 @@ const QuestionPage: React.FC = () => {
             <div className="teach-page-header">
                 <h1>Level - {levelData.level_number} Test</h1>
                 <h3>{levelData.level_name}</h3>
-                <Link style={{position:"absolute", left:"2rem", top:"2rem"}} to={"/levels"}>
+                {/* <Link style={{position:"absolute", left:"2rem", top:"2rem"}} to={"/levels"}>
                     <img src="/icon/arrow-left.svg" alt="back" />
-                </Link>
+                </Link> */}
                 <div style={{position:"absolute", right:"2rem", top:"2rem"}}>
                      {score} / {totalQuestions}
                 </div>

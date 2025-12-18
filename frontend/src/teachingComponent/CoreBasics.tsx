@@ -1,7 +1,7 @@
 import {useContext, useState} from "react";
 import * as Tone from "tone";
 import { SamplerContext } from "../App";
-import {Link } from "react-router-dom";
+import {Link, useNavigate } from "react-router-dom";
 
 import ProgressLine from "./subComponent/ProgressLine";
 import CircleOfFifths from "../component/CircleofFifth";
@@ -30,8 +30,10 @@ const CoreBasic: React.FC = () => {
   const [selectedChord, setSelectedChord] = useState<string>("");
   const [selectedScale, setSelectedScale] = useState<string>("C");
   const [playingKey, setPlayingKey] = useState<string>("");
-  
   const [guidePopup, setGuidePopUp]= useState(false);
+
+  const [navCheckPopUp, setNavCheckPopUp] = useState(false);
+  const navigate = useNavigate();
 
   const sampler = useContext(SamplerContext);
 
@@ -206,8 +208,9 @@ const CoreBasic: React.FC = () => {
             <div className="line"/>
             <div style={{ display:"flex",textAlign: "center" , justifyContent: "space-between"}}>
               <button onClick={() => {setActiveTab("Scales")}} className="playbtn" style={{width:"10rem", borderRadius:"5rem"}}>Scales</button>
-              {/* <button onClick={() => {setActiveTab("Progressions")}} className="playbtn" style={{width:"10rem", borderRadius:"5rem"}}>To Test</button> */}
-              <Link to="/test/1" className="playbtn" style={{width:"10rem", borderRadius:"5rem"}}>Test</Link>
+              <button className="playbtn" style={{width:"10rem", borderRadius:"5rem"}} onClick={() => {setNavCheckPopUp(true)}}>
+                Test
+              </button>
             </div>
           </div>}
 
@@ -221,6 +224,18 @@ const CoreBasic: React.FC = () => {
               </p>
               <div className="popup-buttons">
                 <button onClick={() => setGuidePopUp(false)}>Got it!</button>
+              </div>
+            </div>
+          </div>
+        )}
+        {navCheckPopUp &&(
+          <div className="popup-overlay">
+            <div className="popup-box">
+              <h1>Moving to Test</h1>
+              <p>Once you move you will not be able to return to the lesson, are you ready?</p>
+              <div className="popup-buttons">
+                <button onClick={() => setNavCheckPopUp(false)}>Study a bit more</button>
+                <button onClick={() => navigate("/test/1")}>Lets start the test!</button>
               </div>
             </div>
           </div>

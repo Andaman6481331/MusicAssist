@@ -137,7 +137,7 @@ const ProgressionDisplay: React.FC<ProgressionDisplayProps> = ({progType="I-IV-V
         return result;
     }
 
-    function getArpreggioNotes(selectedScale: string, progression: string[], seqPattern: number[]) {
+    function getArpreggioNotes(selectedScale: string, progression: string[], mode: string) {
         const rootIndex = allKey.findIndex(
             (k) => k.startsWith(selectedScale) && k.endsWith("3")
         );
@@ -157,13 +157,23 @@ const ProgressionDisplay: React.FC<ProgressionDisplayProps> = ({progType="I-IV-V
             VII: 11,
         };
 
-        const arpregPattern = seqPattern; // 1 → 5 → 8
+        // const arpregPattern = seqPattern; // 1 → 5 → 8
 
         const result: string[] = [];
 
         progression.forEach((deg) => {
             const semitoneOffset = degreeToSemitone[deg];
             if (semitoneOffset === undefined) return;
+
+            //[0, 7, 12] [0, 7, 4, 7, 4]
+            let arpregPattern = [0, 7, 12];
+            if (mode === "A"){
+                if (deg === deg.toLowerCase()) arpregPattern = [0,3,7,12]
+                else arpregPattern = [0, 4, 7, 12];
+            }else if (mode === "P"){
+                if (deg === deg.toLowerCase()) arpregPattern = [0, 7, 3, 7, 3]
+                else arpregPattern = [0, 7, 4, 7, 4];
+            }
 
             const chordRootIndex = rootIndex + semitoneOffset;
 
@@ -241,11 +251,12 @@ const ProgressionDisplay: React.FC<ProgressionDisplayProps> = ({progType="I-IV-V
     setActiveNotes([]);
   };
 
-  const playArpregProgression = async(seq: number[]) => {
+  const playArpregProgression = async(Mode: string) => {
     if (!sampler?.samplerRef.current) return;
     const progSequence = progression.find((p) => p.name === progType)?.sequence ?? [];
 
-    const arpregNotes = getArpreggioNotes(selectedScale,progSequence,seq);
+
+    const arpregNotes = getArpreggioNotes(selectedScale,progSequence,Mode);
     
     for (let i = 0; i < arpregNotes.length; i++) {
         const note = arpregNotes[i];
@@ -258,10 +269,12 @@ const ProgressionDisplay: React.FC<ProgressionDisplayProps> = ({progType="I-IV-V
         if (sampler?.samplerRef.current) {
             sampler.samplerRef.current.triggerAttackRelease(note, "2n");
         }
-        if(i%seq.length==(seq.length-1)){
-            await new Promise((resolve) => setTimeout(resolve, 400));
+
+        const seqLength = Mode === "A"? 4: Mode === "P"? 5: 4;
+        if(i%seqLength==(seqLength-1)){
+            await new Promise((resolve) => setTimeout(resolve, 400)); // wait before next chord
         }else{
-            await new Promise((resolve) => setTimeout(resolve, 300)); // wait 300ms before next note
+            await new Promise((resolve) => setTimeout(resolve, 250)); // wait before next note
         }
         setActiveNotes([]);
     }
@@ -272,13 +285,12 @@ const ProgressionDisplay: React.FC<ProgressionDisplayProps> = ({progType="I-IV-V
         if (selectedPattern == "Block Chord"){
             playBlockProgression();
         }else  if(selectedPattern == "Arpreggio"){
-            playArpregProgression([0, 7, 12]);
+            playArpregProgression("A");
         }else  if(selectedPattern == "Pop Ballad"){
-            playArpregProgression([0, 7, 4, 7, 4]);
+            playArpregProgression("P");
         }
     }, [selectedScale]);
 
-//[0, 7, 12] [0, 7, 4, 7, 4]
     return (
         <div>
             <div style={{display:"flex", justifyContent:"flex-end"}}>

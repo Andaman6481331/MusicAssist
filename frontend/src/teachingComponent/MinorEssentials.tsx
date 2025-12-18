@@ -1,7 +1,7 @@
 import {useContext, useState} from "react";
 import * as Tone from "tone";
 import { SamplerContext } from "../App";
-import {Link } from "react-router-dom";
+import {Link, useNavigate } from "react-router-dom";
 
 import ProgressLine from "./subComponent/ProgressLine";
 import CircleOfFifths from "../component/CircleofFifth";
@@ -46,8 +46,9 @@ const MinorEssentials: React.FC = () => {
   const [selectedChord, setSelectedChord] = useState<string>("");
   const [selectedScale, setSelectedScale] = useState<string>("C");
   const [playingKey, setPlayingKey] = useState<string>("");
-  
   const [guidePopup, setGuidePopUp]= useState(false);
+  const [navCheckPopUp, setNavCheckPopUp] = useState(false);
+  const navigate = useNavigate();
 
   const sampler = useContext(SamplerContext);
 
@@ -92,7 +93,7 @@ const MinorEssentials: React.FC = () => {
         </div>
         <ProgressLine
           firstLevel="Minor triads"
-          secondLevel="Minor scales"
+          secondLevel="Natural Minor scales"
           thirdLevel="i-V-i pattern"
           />
       </div>
@@ -119,14 +120,14 @@ const MinorEssentials: React.FC = () => {
                 <div className="card-title">Minor Triads</div>
           
                 <ul style={{margin:0}}>
-                  <li>A chord made of three notes: root, major third, perfect fifth.</li>
+                  <li>A chord made of three notes: root, minor third, perfect fifth.</li>
                   <ul>
                     <li>Root</li>
-                    <li>Major third (4 notes above root)</li>
+                    <li>Minor third (3 notes above root)</li>
                     <li>Perfect fifth (7 notes above root)</li>
                   </ul>
-                  <li>Creates a bright, stable sound.</li>
-                  <li>Example: C–E–G (C major).</li>
+                  <li>Creates a darker, emotional, or sad sound.</li>
+                  <li>Example: C–E♭–G (C minor).</li>
                 </ul>
                 <span style={{fontWeight:"bold"}}>💡Try clicking the note on the key circle and play chords!!</span>
               </div>
@@ -155,16 +156,16 @@ const MinorEssentials: React.FC = () => {
             <div style={{display:"flex"}}>
               <div>
                 <div style={{display:"flex", alignItems: "center"}}>
-                  <div className="card-title">Minor Scales</div>
+                  <div className="card-title">Natural Minor Scales</div>
                 </div>
                 <ul style={{margin:0}}>
-                  <li>A set of 7 notes following the pattern: W–W–H–W–W–W–H.</li>
+                  <li>A set of 7 notes following the pattern: W–H–W–W–H–W–W.</li>
                   <ul>
                     <li>W = Whole Step (2 keys apart) Ex: C → D (skips C♯)</li>
-                    <li>H = Half Step (1 key apart) Ex: E → F (no key in between)</li>
+                    <li>H = Half Step (1 key apart) Ex: E♭ → F (no key in between)</li>
                   </ul>
-                  <li>Forms the foundation for key signatures and melodies.</li>
-                  <li>Example: C major scale = C–D–E–F–G–A–B.</li>
+                  <li>Forms the foundation for minor-key melodies and harmony.</li>
+                  <li>Example: C natural minor scale = C–D–E♭–F–G–A♭–B♭.</li>
                 </ul>
                 <span style={{fontWeight:"bold"}}>🎹 Try clicking the note and listen!!</span>
               </div>
@@ -205,15 +206,14 @@ const MinorEssentials: React.FC = () => {
                   <div className="card-title">I - IV - V Progressions</div>
                 </div>
                 <ul style={{margin:0}}>
-                  <li>A very common chord pattern using the 1st, 4th, and 5th chords of a major scale.</li>
-                  <li>One of the most important chord progressions in all music — pop, classical, anime, gospel, rock, everything.</li>
-                  <li>Creates strong musical movement (home → away → return).</li>
+                  <li>A very common chord pattern using the 1st and 5th chords in a minor key.</li>
+                  <li>Widely used in pop ballads, classical, film music, and emotional songs.</li>
+                  <li>Creates strong emotional movement (home → tension → home).</li>
                   <ul>
-                    <li><span style={{fontWeight:"bold"}}>I → IV :</span> Feels like taking a step forward.</li>
-                    <li><span style={{fontWeight:"bold"}}>IV → V :</span> Feels like tension is rising, preparing for the climax.</li>
-                    <li><span style={{fontWeight:"bold"}}>V → I :</span> Feels like coming home or resolving a question.</li>
+                    <li><span style={{fontWeight:"bold"}}>i → V :</span> Feels like tension is building, asking a musical question.</li>
+                    <li><span style={{fontWeight:"bold"}}>V → i :</span> Feels like release and emotional resolution.</li>
                   </ul>
-                  <li>Example in C major: C (I) → F (IV) → G (V).</li>
+                  <li>Example in C minor: Cm (i) → G (V) → Cm (i).</li>
                 </ul>
               </div>
             </div>
@@ -225,21 +225,32 @@ const MinorEssentials: React.FC = () => {
             <div className="line"/>
             <div style={{ display:"flex",textAlign: "center" , justifyContent: "space-between"}}>
               <button onClick={() => {setActiveTab("Scales")}} className="playbtn" style={{width:"10rem", borderRadius:"5rem"}}>Scales</button>
-              {/* <button onClick={() => {setActiveTab("Progressions")}} className="playbtn" style={{width:"10rem", borderRadius:"5rem"}}>To Test</button> */}
-              <Link to="/test/1" className="playbtn" style={{width:"10rem", borderRadius:"5rem"}}>Test</Link>
+              <button className="playbtn" style={{width:"10rem", borderRadius:"5rem"}} onClick={() => {setNavCheckPopUp(true)}}>
+                Test
+              </button>
             </div>
           </div>}
-
-
         {guidePopup &&(
           <div className="popup-overlay">
             <div className="popup-box">
               <h1>Guide</h1>
               <p >
-                This level introduces the essential building blocks of music. Students learn major triads, the most common major scales, and simple I–IV–V progressions that appear in almost every genre. The goal is to build basic hand coordination and help learners recognize how chords move in predictable patterns.
+                Here we expand into the minor sound world. Students practice minor triads, the natural minor scale, and basic i–V–i progressions that define minor-key harmony. This level helps learners hear emotional contrast between major and minor and strengthens left-hand chord control.
               </p>
               <div className="popup-buttons">
                 <button onClick={() => setGuidePopUp(false)}>Got it!</button>
+              </div>
+            </div>
+          </div>
+        )}
+        {navCheckPopUp &&(
+          <div className="popup-overlay">
+            <div className="popup-box">
+              <h1>Moving to Test</h1>
+              <p>Once you move you will not be able to return to the lesson, are you ready?</p>
+              <div className="popup-buttons">
+                <button onClick={() => setNavCheckPopUp(false)}>Study a bit more</button>
+                <button onClick={() => navigate("/test/2")}>Lets start the test!</button>
               </div>
             </div>
           </div>
