@@ -25,9 +25,23 @@ const Storage: React.FC = () => {
   const masterCheckboxRef = useRef<HTMLInputElement | null>(null);
   const selectedIds = useMemo(() => Object.keys(selected).filter((k) => selected[k]), [selected]);
 
+  // Sort records: favorites first, then by creation date (newest first)
+  const sortedRecords = useMemo(() => {
+    return [...records].sort((a, b) => {
+      // First, sort by favorite status (true first)
+      if (a.favorite !== b.favorite) {
+        return a.favorite ? -1 : 1;
+      }
+      // If favorite status is the same, sort by creation date (newest first)
+      const dateA = a.createdAt?.toDate ? a.createdAt.toDate().getTime() : 0;
+      const dateB = b.createdAt?.toDate ? b.createdAt.toDate().getTime() : 0;
+      return dateB - dateA;
+    });
+  }, [records]);
+
   const toggleSelectAll = (checked: boolean) => {
     const map: Record<string, boolean> = {};
-    records.forEach((r) => { map[r.id] = checked; });
+    sortedRecords.forEach((r) => { map[r.id] = checked; });
     setSelected(map);
   };
 
@@ -57,7 +71,7 @@ const Storage: React.FC = () => {
     }
   };
 
-  const allCount = records.length;
+  const allCount = sortedRecords.length;
   const checkedCount = selectedIds.length;
   const isAllChecked = allCount > 0 && checkedCount === allCount;
   const isIndeterminate = checkedCount > 0 && checkedCount < allCount;
@@ -94,10 +108,10 @@ const Storage: React.FC = () => {
 
         <div className="list">
           {loading && <div className="list-empty">Loading...</div>}
-          {!loading && records.length === 0 && (
+          {!loading && sortedRecords.length === 0 && (
             <div className="list-empty">No items yet. Generate something from the Generate tab.</div>
           )}
-          {records.map((rec) => (
+          {sortedRecords.map((rec) => (
             <div className="list-row" key={rec.id}>
               <div className="cell checkbox">
                 <input
