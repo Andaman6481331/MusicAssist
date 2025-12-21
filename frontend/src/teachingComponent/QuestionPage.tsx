@@ -62,6 +62,8 @@ const QuestionPage: React.FC = () => {
         navigate("/lessons");
     };
     const redoTest = () => {
+        setScore(0);
+        setAnswers([null]);
         setCurrentQ(0);
     };
 
