@@ -21,6 +21,7 @@ import { GlobalBooleanProvider } from "./GlobalBooleanContext";
 
 import CoreBasics from "./teachingComponent/CoreBasics.tsx";
 import MinorEssentials from "./teachingComponent/MinorEssentials.tsx";
+import ChordInversions from "./teachingComponent/ChordInversions.tsx";
 
 import QuestionPage from "./teachingComponent/QuestionPage.tsx";
 import LessonsMenuPage from "./teachingComponent/LessonsMenuPage.tsx";
@@ -50,6 +51,7 @@ const Root = () => {
               
               <Route path="core-basics" element={<CoreBasics />} />
               <Route path="minor-essentials" element={<MinorEssentials />} />
+              <Route path="chord-inversions" element={<ChordInversions />} />
             </Route>
           </Routes>
         </BrowserRouter>
