@@ -1,10 +1,13 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
+const highestLevelPassed = 1; // user passed level 1–2
+
 const LessonMenuPage: React.FC = () =>{
     const [guidePopup, setGuidePopUp] = useState(false);
     const [showDetails, setShowDetails] = useState<number | null>(null);
     const navigate = useNavigate();
+    
 
     const handleClick = (index: number) => {
         setShowDetails(prev => (prev === index ? null : index));
@@ -45,12 +48,16 @@ const LessonMenuPage: React.FC = () =>{
                 <div className="card-container elimtop" style={{margin:0, padding:"1rem 10rem"}}>
                     {levels.map(([title], index) => {
                         const isOpen = showDetails === index;
+                        const isUnlocked = index <= highestLevelPassed;
 
                         return (
                             <div key={title}>
                             <div
                                 className="lesson-titles"
-                                onClick={() => handleClick(index)}
+                                onClick={() => {
+                                    if (!isUnlocked) return;
+                                    handleClick(index)}}
+                                style={!isUnlocked?{backgroundColor:"#5387ca4e", color:"#ffffff6a", cursor:"default"}:{backgroundColor:"#5386CA"}}
                             >
                                 {title}
                             </div>

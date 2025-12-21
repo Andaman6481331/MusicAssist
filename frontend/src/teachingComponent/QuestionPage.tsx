@@ -57,7 +57,8 @@ const QuestionPage: React.FC = () => {
         }, 1500);
     };
 
-    const exitTest = () => {
+    const passTest = () => {
+        // highestLevelPassed = levelNumber - 1 //
         navigate("/lessons");
     };
     const redoTest = () => {
@@ -86,7 +87,7 @@ const QuestionPage: React.FC = () => {
                                 You Passed! You’re ready for the next lesson.
                             </p>
                             <div className="popup-buttons">
-                                <button onClick={()=>exitTest()}>Continue</button>
+                                <button onClick={()=>passTest()}>Continue</button>
                             </div>
                         </div>
                         ):(
