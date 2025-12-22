@@ -1,6 +1,8 @@
 import React,{ useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import questions from "./subComponent/QuestionList.json"
+import { subscribeAuth } from "../auth";
+import { updateUserProgress } from "../data/lessonProgression";
 
 export type RawQuestion = {
   question: string;
@@ -18,12 +20,20 @@ const QuestionPage: React.FC = () => {
     const navigate = useNavigate();
 
     const [currentQ, setCurrentQ] = useState(0);
+    const [userId, setUserId] = useState<string | null>(null);
     
     const { level } = useParams<{ level: string }>();
     const levelNumber = Number(level);
     const levelData = (questions as LevelData[]).find(
         l => l.level_number === levelNumber
     );
+    
+    useEffect(() => {
+        const unsub = subscribeAuth((user) => {
+            setUserId(user?.uid ?? null);
+        });
+        return () => unsub();
+    }, []);
     
     if (!levelData) {
         return <p>Level not found</p>;
@@ -57,8 +67,30 @@ const QuestionPage: React.FC = () => {
         }, 1500);
     };
 
-    const passTest = () => {
-        // highestLevelPassed = levelNumber - 1 //
+    const passTest = async () => {
+        // When user passes levelNumber N, highestLevelPassed should be N - 1
+        // This unlocks lesson index N (which corresponds to levelNumber N + 1)
+        if (userId) {
+            try {
+                const newHighestLevel = levelNumber - 1;
+                console.log(`✅ User passed levelNumber ${levelNumber}, setting highestLevelPassed to ${newHighestLevel} for userId: ${userId}`);
+                await updateUserProgress(userId, newHighestLevel);
+                console.log("✅ Progress saved to Firebase successfully!");
+            } catch (error: any) {
+                console.error("❌ ERROR: Failed to save progress to Firebase:", error);
+                console.error("Error details:", {
+                    message: error?.message,
+                    code: error?.code,
+                    userId: userId,
+                    levelNumber: levelNumber
+                });
+                const errorMsg = error?.message || "Unknown error";
+                alert(`Warning: Could not save your progress.\n\nError: ${errorMsg}\n\nPlease check the browser console (F12) for more details.`);
+            }
+        } else {
+            console.warn("⚠️ User not logged in, cannot save progress");
+            alert("Warning: You're not logged in. Your progress won't be saved.");
+        }
         navigate("/lessons");
     };
     const redoTest = () => {

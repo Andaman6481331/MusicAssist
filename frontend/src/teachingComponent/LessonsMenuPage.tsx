@@ -1,12 +1,59 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-
-const highestLevelPassed = 1; // user passed level 1–2
+import { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { subscribeAuth } from "../auth";
+import { getUserProgress } from "../data/lessonProgression";
 
 const LessonMenuPage: React.FC = () =>{
     const [guidePopup, setGuidePopUp] = useState(false);
     const [showDetails, setShowDetails] = useState<number | null>(null);
+    const [highestLevelPassed, setHighestLevelPassed] = useState<number>(-1);
     const navigate = useNavigate();
+    const location = useLocation();
+
+    const loadProgress = async (user: any) => {
+        if (user) {
+            try {
+                const progress = await getUserProgress(user.uid);
+                console.log(`[Lessons Page] Loaded progress: highestLevelPassed = ${progress}`, {
+                    userId: user.uid,
+                    meaning: progress === -1 
+                        ? "No lessons passed yet (new user or no database record)" 
+                        : `Passed lesson ${progress + 1} (should unlock lesson ${progress + 2})`
+                });
+                setHighestLevelPassed(progress);
+            } catch (error) {
+                console.error("Error loading user progress:", error);
+                setHighestLevelPassed(-1);
+            }
+        } else {
+            // Not logged in - no progression
+            console.log("[Lessons Page] User not logged in, no progression");
+            setHighestLevelPassed(-1);
+        }
+    };
+
+    useEffect(() => {
+        const unsub = subscribeAuth((user) => {
+            loadProgress(user);
+        });
+        
+        return () => unsub();
+    }, []);
+
+    // Reload progression when navigating back to this page
+    useEffect(() => {
+        if (location.pathname === "/lessons") {
+            // Reload after a short delay to ensure database write completed
+            const timer = setTimeout(() => {
+                subscribeAuth((user) => {
+                    if (user) {
+                        loadProgress(user);
+                    }
+                })();
+            }, 300);
+            return () => clearTimeout(timer);
+        }
+    }, [location.pathname]);
     
 
     const handleClick = (index: number) => {
@@ -48,7 +95,8 @@ const LessonMenuPage: React.FC = () =>{
                 <div className="card-container elimtop" style={{margin:0, padding:"1rem 10rem"}}>
                     {levels.map(([title], index) => {
                         const isOpen = showDetails === index;
-                        const isUnlocked = index <= highestLevelPassed;
+                        // Lesson 1 (index 0) is always unlocked                      
+                        const isUnlocked = index === 0 || index <= highestLevelPassed + 1;
 
                         return (
                             <div key={title}>
@@ -72,7 +120,12 @@ const LessonMenuPage: React.FC = () =>{
 
                                 <p>{details[index][3]}</p>
 
-                                <button className="playbtn" style={{ width: "5rem", justifySelf:"flex-end"}} onClick={() => goToCourse(index)}>
+                                <button 
+                                    className="playbtn" 
+                                    style={{ width: "5rem", justifySelf:"flex-end", opacity: isUnlocked ? 1 : 0.5, cursor: isUnlocked ? "pointer" : "not-allowed" }} 
+                                    onClick={() => isUnlocked && goToCourse(index)}
+                                    disabled={!isUnlocked}
+                                >
                                 Start
                                 </button>
                             </div>
