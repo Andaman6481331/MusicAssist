@@ -1,33 +1,3 @@
-const HarmonicMinorScales:Record<string, string[]> = {
-  "A":  ["A", "B", "C", "D", "E", "F", "G#"],
-  "Bb": ["Bb", "C", "Db", "Eb", "F", "Gb", "A"],
-  "B":  ["B", "C#", "D", "E", "F#", "G", "A#"],
-  "C":  ["C", "D", "Eb", "F", "G", "Ab", "B"],
-  "C#": ["C#", "D#", "E", "F#", "G#", "A", "B#"],
-  "D":  ["D", "E", "F", "G", "A", "Bb", "C#"],
-  "Eb": ["Eb", "F", "Gb", "Ab", "Bb", "Cb", "D"],
-  "E":  ["E", "F#", "G", "A", "B", "C", "D#"],
-  "F":  ["F", "G", "Ab", "Bb", "C", "Db", "E"],
-  "F#": ["F#", "G#", "A", "B", "C#", "D", "E#"],
-  "G":  ["G", "A", "Bb", "C", "D", "Eb", "F#"],
-  "Ab": ["Ab", "Bb", "Cb", "Db", "Eb", "Fb", "G"],
-};
-
-const MelodicMinorScales:Record<string, string[]> = {
-  "A":  ["A", "B", "C", "D", "E", "F#", "G#"],
-  "Bb": ["Bb", "C", "Db", "Eb", "F", "G", "A"],
-  "B":  ["B", "C#", "D", "E", "F#", "G#", "A#"],
-  "C":  ["C", "D", "Eb", "F", "G", "A", "B"],
-  "C#": ["C#", "D#", "E", "F#", "G#", "A#", "B#"],
-  "D":  ["D", "E", "F", "G", "A", "B", "C#"],
-  "Eb": ["Eb", "F", "Gb", "Ab", "Bb", "C", "D"],
-  "E":  ["E", "F#", "G", "A", "B", "C#", "D#"],
-  "F":  ["F", "G", "Ab", "Bb", "C", "D", "E"],
-  "F#": ["F#", "G#", "A", "B", "C#", "D#", "E#"],
-  "G":  ["G", "A", "Bb", "C", "D", "E", "F#"],
-  "Ab": ["Ab", "Bb", "Cb", "Db", "Eb", "F", "G"],
-};
-
 import {useContext, useState} from "react";
 import * as Tone from "tone";
 import { SamplerContext } from "../App";
@@ -40,37 +10,119 @@ import Progression from "../component/Progression";
 import ScalePiano from "../component/ScalePiano";
 import ProgressionDisplay from "./subComponent/ProgressionDisplay";
 import InversionDisplay from "./subComponent/InversionDisplay";
-// import InversionDisplay from "./subComponent/InversionDisplay";
-
-const minorChordNotes: Record<string, string[]> = {
-  C: ["C", "Eb", "G"],        // C minor
-  "C#": ["C#", "E", "G#"],    // C# minor
-  D: ["D", "F", "A"],         // D minor
-  "D#": ["D#", "F#", "A#"],   // D# minor (Enharmonic: Eb minor)
-  E: ["E", "G", "B"],         // E minor
-  F: ["F", "Ab", "C"],        // F minor
-  "F#": ["F#", "A", "C#"],    // F# minor
-  G: ["G", "Bb", "D"],        // G minor
-  "G#": ["G#", "B", "D#"],    // G# minor (Enharmonic: Ab minor)
-  A: ["A", "C", "E"],         // A minor
-  "A#": ["A#", "C#", "F"],    // A# minor (Enharmonic: Bb minor)
-  B: ["B", "D", "F#"],        // B minor
-};
 
 const keys = ["Cm", "C#m", "Dm", "D#m", "Em", "Fm", "F#m", "Gm", "G#m", "Am", "A#m", "Bm"];
-const minorScale: Record<string, string[]> = {
-  "Cm":   ["C4", "D4", "D#4", "F4", "G4", "G#4", "A#4", "C5"],
-  "C#m":  ["C#4", "D#4", "E4", "F#4", "G#4", "A4", "B4", "C#5"],
-  "Dm":   ["D4", "E4", "F4", "G4", "A4", "A#4", "C5", "D5"],
-  "D#m":  ["D#4", "F4", "F#4", "G#4", "A#4", "B4", "C#5", "D#5"],
-  "Em":   ["E4", "F#4", "G4", "A4", "B4", "C5", "D5", "E5"],
-  "Fm":   ["F4", "G4", "G#4", "A#4", "C5", "C#5", "D#5", "F5"],
-  "F#m":  ["F#4", "G#4", "A4", "B4", "C#5", "D5", "E5", "F#5"],
-  "Gm":   ["G4", "A4", "A#4", "C5", "D5", "D#5", "F5", "G5"],
-  "G#m":  ["G#4", "A#4", "B4", "C#5", "D#5", "E5", "F#5", "G#5"],
-  "Am":   ["A4", "B4", "C5", "D5", "E5", "F5", "G5", "A5"],
-  "A#m":  ["A#4", "C5", "C#5", "D#5", "F5", "F#5", "G#5", "A#5"],
-  "Bm":   ["B4", "C#5", "D5", "E5", "F#5", "G5", "A5", "B5"]
+const harmonicMinorScale: Record<string, string[]> = {
+  "Cm": [
+    "C4","D4","D#4","F4","G4","G#4","B4","C5",
+    "A#4","G#4","G4","F4","D#4","D4","C4"
+  ],
+
+  "C#m": [
+    "C#4","D#4","E4","F#4","G#4","A4","C5","C#5",
+    "B4","A4","G#4","F#4","E4","D#4","C#4"
+  ],
+
+  "Dm": [
+    "D4","E4","F4","G4","A4","A#4","C#5","D5",
+    "C5","A#4","A4","G4","F4","E4","D4"
+  ],
+
+  "D#m": [
+    "D#4","F4","F#4","G#4","A#4","B4","D5","D#5",
+    "C#5","B4","A#4","G#4","F#4","F4","D#4"
+  ],
+
+  "Em": [
+    "E4","F#4","G4","A4","B4","C5","D#5","E5",
+    "D5","C5","B4","A4","G4","F#4","E4"
+  ],
+
+  "Fm": [
+    "F4","G4","G#4","A#4","C5","C#5","E5","F5",
+    "D#5","C#5","C5","A#4","G#4","G4","F4"
+  ],
+
+  "F#m": [
+    "F#4","G#4","A4","B4","C#5","D5","F5","F#5",
+    "E5","D5","C#5","B4","A4","G#4","F#4"
+  ],
+
+  "Gm": [
+    "G4","A4","A#4","C5","D5","D#5","F#5","G5",
+    "F5","D#5","D5","C5","A#4","A4","G4"
+  ],
+
+  "G#m": [
+    "G#4","A#4","B4","C#5","D#5","E5","G5","G#5",
+    "F#5","E5","D#5","C#5","B4","A#4","G#4"
+  ],
+
+  "Am": [
+    "A4","B4","C5","D5","E5","F5","G#5","A5",
+    "G5","F5","E5","D5","C5","B4","A4"
+  ],
+
+  "A#m": [
+    "A#4","C5","C#5","D#5","F5","F#5","A5","A#5",
+    "G#5","F#5","F5","D#5","C#5","C5","A#4"
+  ],
+
+  "Bm": [
+    "B4","C#5","D5","E5","F#5","G5","A#5","B5",
+    "A5","G5","F#5","E5","D5","C#5","B4"
+  ]
+};
+
+const melodicMinorScale: Record<string, string[]> = {
+  "Cm": [
+    "C4","D4","D#4","F4","G4","A4","B4","C5",
+    "A#4","G#4","G4","F4","D#4","D4","C4"
+  ],
+  "C#m": [
+    "C#4","D#4","E4","F#4","G#4","A#4","C5","C#5",
+    "B4","A4","G#4","F#4","E4","D#4","C#4"
+  ],
+  "Dm": [
+    "D4","E4","F4","G4","A4","B4","C#5","D5",
+    "C5","A#4","A4","G4","F4","E4","D4"
+  ],
+  "D#m": [
+    "D#4","F4","F#4","G#4","A#4","C5","D5","D#5",
+    "C#5","B4","A#4","G#4","F#4","F4","D#4"
+  ],
+  "Em": [
+    "E4","F#4","G4","A4","B4","C#5","D#5","E5",
+    "D5","C5","B4","A4","G4","F#4","E4"
+  ],
+  "Fm": [
+    "F4","G4","G#4","A#4","C5","D5","E5","F5",
+    "D#5","C#5","C5","A#4","G#4","G4","F4"
+  ],
+  "F#m": [
+    "F#4","G#4","A4","B4","C#5","D#5","F5","F#5",
+    "E5","D5","C#5","B4","A4","G#4","F#4"
+  ],
+  "Gm": [
+    "G4","A4","A#4","C5","D5","E5","F#5","G5",
+    "F5","D#5","D5","C5","A#4","A4","G4"
+  ],
+  "G#m": [
+    "G#4","A#4","B4","C#5","D#5","F5","G5","G#5",
+    "F#5","E5","D#5","C#5","B4","A#4","G#4"
+  ],
+  "Am": [
+    "A4","B4","C5","D5","E5","F#5","G#5","A5",
+    "G5","F5","E5","D5","C5","B4","A4"
+  ],
+  "A#m": [
+    "A#4","C5","C#5","D#5","F5","G5","A5","A#5",
+    "G#5","F#5","F5","D#5","C#5","C5","A#4"
+  ],
+  "Bm": [
+    "B4","C#5","D5","E5","F#5","G#5","A#5","B5",
+    "A5","G5","F#5","E5","D5","C#5","B4"
+  ]
 };
 
 const ChordInversions: React.FC = () => {
@@ -86,7 +138,10 @@ const ChordInversions: React.FC = () => {
 
   const handleClick = async (key: string) => {
       await Tone.start();
-      const scaleKeys = minorScale[key];
+
+      let scaleKeys = harmonicMinorScale[key];
+      selectedScaleMode == "Harmonic Minor"? scaleKeys = harmonicMinorScale[key] : scaleKeys = melodicMinorScale[key];
+      
       if (!sampler) {
         console.error("Sampler not loaded");
         return;
@@ -95,14 +150,6 @@ const ChordInversions: React.FC = () => {
       setSelectedScale(key);
       
       for (let i = 0; i < scaleKeys.length; i++) {
-        const note = scaleKeys[i];
-        if (sampler?.samplerRef.current) {
-          sampler.samplerRef.current.triggerAttackRelease(note, "1n");
-        }
-        setPlayingKey(note);
-        await new Promise((resolve) => setTimeout(resolve, 250)); // wait 250ms before next note
-      }
-      for (let i = scaleKeys.length-2; i >= 0; i--) {
         const note = scaleKeys[i];
         if (sampler?.samplerRef.current) {
           sampler.samplerRef.current.triggerAttackRelease(note, "1n");
@@ -147,10 +194,6 @@ const ChordInversions: React.FC = () => {
               <input type="radio" id="p" name="nav" onChange={() => setActiveTab("Progressions")} checked={activeTab === "Progressions"}/>
               <span>Progressions</span>
             </label>
-            {/* <label className="nbtn" htmlFor="p">
-              <input type="radio" id="p" name="nav" onChange={() => setActiveTab("Progressions")} checked={activeTab === "Progressions"}/>
-              <span>Progressions</span>
-            </label> */}
           </div>
 
           {activeTab === "Inversions" && 
@@ -226,7 +269,7 @@ const ChordInversions: React.FC = () => {
                   scaleLength={2}
                   width={60}
                   height={150}
-                  highlightNotes={minorScale[selectedScale]}
+                  highlightNotes={selectedScaleMode == "Harmonic Minor"? harmonicMinorScale[selectedScale] : melodicMinorScale[selectedScale]}
                   playingNote={playingKey}
                   scale={selectedScale}
                   />
@@ -293,7 +336,7 @@ const ChordInversions: React.FC = () => {
               <p>Once you move you will not be able to return to the lesson, are you ready?</p>
               <div className="popup-buttons">
                 <button onClick={() => setNavCheckPopUp(false)}>Study a bit more</button>
-                <button onClick={() => navigate("/test/2")}>Lets start the test!</button>
+                <button onClick={() => navigate("/test/3")}>Lets start the test!</button>
               </div>
             </div>
           </div>

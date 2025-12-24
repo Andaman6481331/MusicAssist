@@ -25,6 +25,7 @@ import ChordInversions from "./teachingComponent/ChordInversions.tsx";
 
 import QuestionPage from "./teachingComponent/QuestionPage.tsx";
 import LessonsMenuPage from "./teachingComponent/LessonsMenuPage.tsx";
+import ExtendHamony from "./teachingComponent/ExtendHamony.tsx";
 
 const Root = () => {
   const samplerRef = useRef<Tone.Sampler | null>(null);
@@ -52,6 +53,7 @@ const Root = () => {
               <Route path="core-basics" element={<CoreBasics />} />
               <Route path="minor-essentials" element={<MinorEssentials />} />
               <Route path="chord-inversions" element={<ChordInversions />} />
+              <Route path="extended-harmony" element={<ExtendHamony />} />
             </Route>
           </Routes>
         </BrowserRouter>

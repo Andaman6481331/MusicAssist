@@ -1,11 +1,8 @@
 import { useState } from "react";
 import PianoVisualizer from "../../component/PianoVisualizer";
 
+type Octave = 3 | 4 | 5;
 type OctaveTriple = [number, number, number];
-
-const MIN_OCT = 3;
-const MID_OCT = 4;
-const MAX_OCT = 5;
 
 //chord C-F
 const rootInvert: OctaveTriple   = [4, 4, 4]; // l l l
@@ -23,11 +20,6 @@ const firstInvert3: OctaveTriple  = [4, 4, 4]; // h l l
 const secondInvert3: OctaveTriple = [4, 5, 4]; // h h l
 
 const keys = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
-// const octaves = [3,4,5];
-type Octave = 3 | 4 | 5;
-// const allKeys = octaves.flatMap(octave =>
-//     keys.map(note => ({ note: note + octave, base: note, octave }))
-// );
 
 const noteToPitch = (note: string, octave: number) =>
   octave * 12 + keys.indexOf(note);
@@ -52,10 +44,6 @@ const InversionDisplay: React.FC = () => {
         "A#": ["A#", "D", "F"], // A# major
         B: ["B", "D#", "F#"], // B major
     };
-
-    const clamp = (val: number, min: number, max: number) =>
-        Math.min(max, Math.max(min, val));
-
 
     const playInversion = (form?: string) => {
         const notes = notesOnChord[selectedChord] || [];
