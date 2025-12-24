@@ -74,8 +74,8 @@ const minorScale: Record<string, string[]> = {
 };
 
 const ChordInversions: React.FC = () => {
-  const [activeTab, setActiveTab] = useState("Triads");
-  const [selectedChord, setSelectedChord] = useState<string>("");
+  const [activeTab, setActiveTab] = useState("Inversions");
+  const [selectedScaleMode, setScaleMode] = useState("Harmonic Minor");
   const [selectedScale, setSelectedScale] = useState<string>("C");
   const [playingKey, setPlayingKey] = useState<string>("");
   const [guidePopup, setGuidePopUp]= useState(false);
@@ -111,6 +111,10 @@ const ChordInversions: React.FC = () => {
         await new Promise((resolve) => setTimeout(resolve, 250)); // wait 250ms before next note
       }
     };
+
+  const toggleScaleMode = ()=>{
+    selectedScaleMode==="Harmonic Minor"? setScaleMode("Melodic Minor") :setScaleMode("Harmonic Minor");
+  };
   
   return(
     <div className="teaching-page-container">
@@ -132,7 +136,7 @@ const ChordInversions: React.FC = () => {
 
       <div className="nav-elim-bottom2">
             <label className="nbtn" htmlFor="t">
-              <input type="radio" id="t" name="nav" onChange={() => setActiveTab("Triads")} checked={activeTab === "Triads"}/>
+              <input type="radio" id="t" name="nav" onChange={() => setActiveTab("Inversions")} checked={activeTab === "Inversions"}/>
               <span>Inversions</span>
             </label>
             <label className="nbtn" htmlFor="s">
@@ -143,24 +147,32 @@ const ChordInversions: React.FC = () => {
               <input type="radio" id="p" name="nav" onChange={() => setActiveTab("Progressions")} checked={activeTab === "Progressions"}/>
               <span>Progressions</span>
             </label>
+            {/* <label className="nbtn" htmlFor="p">
+              <input type="radio" id="p" name="nav" onChange={() => setActiveTab("Progressions")} checked={activeTab === "Progressions"}/>
+              <span>Progressions</span>
+            </label> */}
           </div>
 
-          {activeTab === "Triads" && 
+          {activeTab === "Inversions" && 
           <div className="card-container elimtop" style={{margin:0, padding:"2rem 5rem"}}>
             <div style={{display:"flex"}}>
               <div style={{marginRight:"15%"}}>
-                <div className="card-title">Minor Triads</div>
-          
-                <ul style={{margin:0}}>
-                  <li>A chord made of three notes: root, minor third, perfect fifth.</li>
-                  <ul>
-                    <li>Root</li>
-                    <li>Minor third (3 notes above root)</li>
-                    <li>Perfect fifth (7 notes above root)</li>
+                <div className="card-title">Chord Inversions</div>
+                  <ul style={{ margin: 0 }}>
+                    <li>The same chord notes rearranged in a different order.</li>
+                    <ul>
+                      <li><b>Root position</b>: root note is the lowest note</li>
+                      <li><b>1st inversion</b>: third is the lowest note</li>
+                      <li><b>2nd inversion</b>: fifth is the lowest note</li>
+                    </ul>
+                    <li>Inversions make chord transitions smoother.</li>
+                    <li>Example: C major</li>
+                    <ul>
+                      <li>Root: C–E–G</li>
+                      <li>1st inversion: E–G–C</li>
+                      <li>2nd inversion: G–C–E</li>
+                    </ul>
                   </ul>
-                  <li>Creates a darker, emotional, or sad sound.</li>
-                  <li>Example: C–E♭–G (C minor).</li>
-                </ul>
                 <span style={{fontWeight:"bold"}}>💡Try clicking the note on the key circle and play chords!!</span>
               </div>
             </div>
@@ -175,22 +187,31 @@ const ChordInversions: React.FC = () => {
           <div className="card-container elimtop" style={{margin:0, padding:"2rem 5rem"}}>
             <div style={{display:"flex"}}>
               <div>
-                <div style={{display:"flex", alignItems: "center"}}>
-                  <div className="card-title">Natural Minor Scales</div>
-                </div>
-                <ul style={{margin:0}}>
-                  <li>A set of 7 notes following the pattern: W–H–W–W–H–W–W.</li>
-                  <ul>
-                    <li>W = Whole Step (2 keys apart) Ex: C → D (skips C♯)</li>
-                    <li>H = Half Step (1 key apart) Ex: E♭ → F (no key in between)</li>
+                <div className="card-title">Intermediate Scales</div>
+                  <ul style={{ margin: 0 }}>
+                    <li>Scales beyond basic major and natural minor.</li>
+                    <ul>
+                      <li>Harmonic minor</li>
+                      <li>Melodic minor</li>
+                      <li>Modes (Dorian, Mixolydian)</li>
+                    </ul>
+                    <li>Introduce new note colors and tension.</li>
+                    <li>Often used to create different moods in music.</li>
+                    <li>Example: A harmonic minor</li>
+                    <ul>
+                      <li>A–B–C–D–E–F–G♯–A</li>
+                    </ul>
                   </ul>
-                  <li>Forms the foundation for minor-key melodies and harmony.</li>
-                  <li>Example: C natural minor scale = C–D–E♭–F–G–A♭–B♭.</li>
-                </ul>
                 <span style={{fontWeight:"bold"}}>🎹 Try clicking the note and listen!!</span>
               </div>
             </div>
-            <div >              
+            <div className="line"/>
+            <div>
+              <div style={{display:"flex", justifyContent:"flex-end"}}>
+                <button className="patternBtn" onClick={() => toggleScaleMode()} style={{width:"15rem"}}>
+                    Pattern : {selectedScaleMode}
+                </button>
+                </div>           
               <div style={{display:"flex", justifyContent:"center"}}>
                 <div style={{width:"840px", backgroundColor:"#16488D", borderRadius:"1rem", padding:"1rem 0", margin:"1rem 0"}}>
                 {keys.map((Note, i) => (
@@ -213,7 +234,7 @@ const ChordInversions: React.FC = () => {
             </div>
             <div className="line"/>
             <div style={{ display:"flex",textAlign: "center" , justifyContent: "space-between"}}>
-              <button onClick={() => {setActiveTab("Triads")}} className="playbtn" style={{width:"10rem", borderRadius:"5rem"}}>Triads</button>
+              <button onClick={() => {setActiveTab("Inversions")}} className="playbtn" style={{width:"10rem", borderRadius:"5rem"}}>Inversions</button>
               <button onClick={() => {setActiveTab("Progressions")}} className="playbtn" style={{width:"10rem", borderRadius:"5rem"}}>Progressions</button>
             </div>
           </div>}
@@ -222,18 +243,20 @@ const ChordInversions: React.FC = () => {
           <div className="card-container elimtop" style={{margin:0, padding:"2rem 5rem"}}>
             <div style={{display:"flex"}}>
               <div style={{marginRight:"15%"}}>
-                <div style={{display:"flex", alignItems: "center"}}>
-                  <div className="card-title">I–vi–IV–V Progressions</div>
-                </div>
-                <ul style={{margin:0}}>
-                  <li>A very common chord pattern using the 1st and 5th chords in a minor key.</li>
-                  <li>Widely used in pop ballads, classical, film music, and emotional songs.</li>
-                  <li>Creates strong emotional movement (home → tension → home).</li>
+                <div className="card-title">I–vi–IV–V Progression</div>
+                <ul style={{ margin: 0 }}>
+                  <li>A common chord progression used in pop music.</li>
                   <ul>
-                    <li><span style={{fontWeight:"bold"}}>i → V :</span> Feels like tension is building, asking a musical question.</li>
-                    <li><span style={{fontWeight:"bold"}}>V → i :</span> Feels like release and emotional resolution.</li>
+                    <li>I = Major tonic chord</li>
+                    <li>vi = Relative minor chord</li>
+                    <li>IV = Subdominant chord</li>
+                    <li>V = Dominant chord</li>
                   </ul>
-                  <li>Example in C minor: Cm (i) → G (V) → Cm (i).</li>
+                  <li>Creates a strong sense of movement and resolution.</li>
+                  <li>Example in C major:</li>
+                  <ul>
+                    <li>C → Am → F → G</li>
+                  </ul>
                 </ul>
               </div>
             </div>

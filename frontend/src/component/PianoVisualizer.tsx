@@ -11,19 +11,31 @@ interface PianoVisualizerProps {
   width?: number;
   showKeyname?: boolean;
   externalKey?: { key: string; duration: number }[];
-  chordArrays?: string[][];
+  chordArrays?: string[];
 }
 interface ActiveNote {
   key: string;
   endTime: number;
 }
 
-const PianoVisualizer: React.FC<PianoVisualizerProps> = ({isPlayable = true, scaleLength=3, startOctave=3, height=150, width=40, showKeyname = true, externalKey= [],chordArrays= [[],[]] }) => {
+const PianoVisualizer: React.FC<PianoVisualizerProps> = ({isPlayable = true, scaleLength=3, startOctave=3, height=150, width=40, showKeyname = true, externalKey= [],chordArrays= [] }) => {
   // const [selectedKey, setSelectedKey] = useState<string>("C");
   const sampler = useContext(SamplerContext);
   const [selectedKey, setSelectedKey] = useState<string[]>([]);
   const [activeNotes, setActiveNotes] = useState<ActiveNote[]>([]);
   const playingRef = useRef<{ abort: boolean }>({ abort: false });
+
+  useEffect(()=>{
+    chordArrays.forEach(note => {
+      try {
+        if (sampler?.samplerRef.current) {
+          sampler.samplerRef.current.triggerAttackRelease(note, "1n");
+        }
+      } catch (error) {
+        console.warn(`Sampler can't play note ${note}`, error);
+      }
+    });
+  })
 
   useEffect(() => {
     if (externalKey && externalKey.length > 0) {
@@ -49,56 +61,6 @@ const PianoVisualizer: React.FC<PianoVisualizerProps> = ({isPlayable = true, sca
       play();
     }
   }, [externalKey]);
-
-  //Progression = play sequences of chords [][]
-  // useEffect(() => {
-  //   if (!chordArrays || chordArrays.length === 0) return;
-
-  //   // console.log(chordArrays);
-  //   const playChordsSequentially = async (chordArrays: string[][]) => {
-  //     await Tone.start();
-  //     if (!sampler?.samplerRef.current || playingRef.current.abort) return;
-
-  //     // Abort any previous sequence
-  //     if (playingRef.current.abort === false) {
-  //       playingRef.current.abort = true; // signal old sequence to stop
-  //     }
-  //     playingRef.current = { abort: false };
-
-  //     const chordDuration = 1000; // ms
-  //     const delayBetweenChords = 500; // ms
-
-  //     for (let i = 0; i < chordArrays.length; i++) {
-  //       if (playingRef.current.abort) break;
-  //       const chord = chordArrays[i];
-
-  //       // Highlight notes
-  //       setActiveNotes(chord.map(key => ({ key, endTime: Date.now() + chordDuration })));
-
-  //       // Play all notes in the chord
-  //       chord.forEach(note => {
-  //         sampler.samplerRef.current!.triggerAttackRelease(
-  //           note,
-  //           chordDuration / 1000 + "n"
-  //         );
-  //       });
-
-  //       // Wait chord duration
-  //       await new Promise(resolve => setTimeout(resolve, chordDuration));
-
-  //       // Remove highlight
-  //       setActiveNotes([]);
-
-  //       // Wait delay before next chord
-  //       await new Promise(resolve => setTimeout(resolve, delayBetweenChords));
-  //     }
-
-  //     // Clear highlights at the end
-  //     setActiveNotes([]);
-  //   };
-  //   playChordsSequentially(chordArrays);
-
-  // }, [chordArrays, sampler]);
 
   const handleKeyClick = async (key: string) => {
     // setSelectedKey([key]);samplerRef.
@@ -130,32 +92,6 @@ const PianoVisualizer: React.FC<PianoVisualizerProps> = ({isPlayable = true, sca
     blackKeys.map(note => ({ note: note + octave, base: note, octave }))
   );
 
-  //for progression chord highlight
-  // useEffect(() => {
-  //   if (!chordArrays || chordArrays.length === 0) return;
-
-  //   let isCancelled = false;
-
-  //   const playChords = async () => {
-  //     for (let i = 0; i < chordArrays.length; i++) {
-  //       if (isCancelled) break;
-
-  //       setSelectedKey(chordArrays[i]);          // set current chord
-  //       await new Promise(res => setTimeout(res, 1000)); // 1s duration
-
-  //       setSelectedKey([]);                 // clear chord
-  //       await new Promise(res => setTimeout(res, 500));  // 0.5s interval
-  //     }
-  //   };
-
-  //   playChords();
-
-  //   return () => {
-  //     isCancelled = true; // cleanup if component unmounts or chords change
-  //     setSelectedKey([]); // reset state
-  //   };
-  // }, [chordArrays]);
-
   return (
     <div
       style={{
@@ -171,7 +107,7 @@ const PianoVisualizer: React.FC<PianoVisualizerProps> = ({isPlayable = true, sca
         {allWhiteKeys.map(({note}) => {
           // const isSelected = note === selectedKey;
           // const isSelected = selectedKey.includes(note);
-          const isSelected = activeNotes.some(n => n.key === note && n.endTime > Tone.now()) || selectedKey.includes(note);
+          const isSelected = activeNotes.some(n => n.key === note && n.endTime > Tone.now()) || selectedKey.includes(note) || chordArrays.includes(note);
           const whiteKeyIndex = allWhiteKeys.findIndex(k => k.note.startsWith(note.charAt(0)) && k.octave === parseInt(note.slice(-1)));
           const left = whiteKeyIndex * width - (width*((scaleLength*7)/2));
           return (
@@ -214,7 +150,7 @@ const PianoVisualizer: React.FC<PianoVisualizerProps> = ({isPlayable = true, sca
         {allBlackKeys.map(({ note }) => {
           // const isSelected = note === selectedKey;
           // const isSelected = selectedKey.includes(note);
-          const isSelected = activeNotes.some(n => n.key === note && n.endTime > Tone.now()) || selectedKey.includes(note);
+          const isSelected = activeNotes.some(n => n.key === note && n.endTime > Tone.now()) || selectedKey.includes(note) || chordArrays.includes(note);
 
           // Calculate left offset based on white keys
           const whiteKeyIndex = allWhiteKeys.findIndex(k => k.note.startsWith(note.charAt(0)) && k.octave === parseInt(note.slice(-1)));
