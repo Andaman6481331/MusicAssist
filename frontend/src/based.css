@@ -1084,6 +1084,10 @@ body.modal-open {
   p{
     color: black;
   }
+li{
+    color: black;
+    text-align: left;
+  }
 }
 
 .popup-box input {
@@ -1380,6 +1384,12 @@ body.modal-open {
   }
 }
 .notebtn.selected {
+  background: #007bff74; /* highlight color */
+  color: white;
+  border-color: #007bff18;
+  font-weight: bold;
+}
+.selectedChord{
   background: #007bff74; /* highlight color */
   color: white;
   border-color: #007bff18;

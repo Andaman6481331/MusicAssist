@@ -1,0 +1,154 @@
+{
+  "C": [
+    { "chord": "C", "notes": ["C","E","G"], "type": "major", "feeling": "Bright / Stable" },
+    { "chord": "Am", "notes": ["A","C","E"], "type": "minor", "feeling": "Emotional / Sad" },
+    { "chord": "F", "notes": ["F","A","C"], "type": "major", "feeling": "Warm / Open" },
+    { "chord": "Dm", "notes": ["D","F","A"], "type": "minor", "feeling": "Gentle / Moving" },
+    { "chord": "Cmaj7", "notes": ["C","E","G","B"], "type": "major7", "feeling": "Warm / Dreamy" },
+    { "chord": "Am7", "notes": ["A","C","E","G"], "type": "minor7", "feeling": "Smooth / Relaxed" }
+  ],
+
+  "C#": [
+    { "chord": "C#", "notes": ["C#","F","G#"], "type": "major", "feeling": "Bright / Stable" },
+    { "chord": "A#m", "notes": ["A#","C#","F"], "type": "minor", "feeling": "Emotional / Sad" },
+    { "chord": "F#", "notes": ["F#","A#","C#"], "type": "major", "feeling": "Warm / Open" },
+    { "chord": "D#m", "notes": ["D#","F#","A#"], "type": "minor", "feeling": "Gentle / Moving" },
+    { "chord": "C#maj7", "notes": ["C#","F","G#","C"], "type": "major7", "feeling": "Warm / Dreamy" },
+    { "chord": "A#m7", "notes": ["A#","C#","F","G#"], "type": "minor7", "feeling": "Smooth / Relaxed" }
+  ],
+
+  "D": [
+    { "chord": "D", "notes": ["D","F#","A"], "type": "major", "feeling": "Bright / Stable" },
+    { "chord": "Bm", "notes": ["B","D","F#"], "type": "minor", "feeling": "Emotional / Sad" },
+    { "chord": "G", "notes": ["G","B","D"], "type": "major", "feeling": "Warm / Open" },
+    { "chord": "Em", "notes": ["E","G","B"], "type": "minor", "feeling": "Gentle / Moving" },
+    { "chord": "Dmaj7", "notes": ["D","F#","A","C#"], "type": "major7", "feeling": "Warm / Dreamy" },
+    { "chord": "Bm7", "notes": ["B","D","F#","A"], "type": "minor7", "feeling": "Smooth / Relaxed" }
+  ],
+
+  "D#": [
+    { "chord": "D#", "notes": ["D#","G","A#"], "type": "major", "feeling": "Bright / Stable" },
+    { "chord": "Cm", "notes": ["C","D#","G"], "type": "minor", "feeling": "Emotional / Sad" },
+    { "chord": "G#", "notes": ["G#","C","D#"], "type": "major", "feeling": "Warm / Open" },
+    { "chord": "Fm", "notes": ["F","G#","C"], "type": "minor", "feeling": "Gentle / Moving" },
+    { "chord": "D#maj7", "notes": ["D#","G","A#","D"], "type": "major7", "feeling": "Warm / Dreamy" },
+    { "chord": "Cm7", "notes": ["C","D#","G","A#"], "type": "minor7", "feeling": "Smooth / Relaxed" }
+  ],
+
+  "E": [
+    { "chord": "E", "notes": ["E","G#","B"], "type": "major", "feeling": "Bright / Stable" },
+    { "chord": "Am", "notes": ["A","C","E"], "type": "minor", "feeling": "Emotional / Sad" },
+    { "chord": "C", "notes": ["C","E","G"], "type": "major", "feeling": "Warm / Open" },
+    { "chord": "Em", "notes": ["E","G","B"], "type": "minor", "feeling": "Gentle / Moving" },
+    { "chord": "Cmaj7", "notes": ["C","E","G","B"], "type": "major7", "feeling": "Warm / Dreamy" },
+    { "chord": "Em7", "notes": ["E","G","B","D"], "type": "minor7", "feeling": "Smooth / Relaxed" }
+  ],
+
+  "F": [
+    { "chord": "F", "notes": ["F","A","C"], "type": "major", "feeling": "Bright / Stable" },
+    { "chord": "Dm", "notes": ["D","F","A"], "type": "minor", "feeling": "Emotional / Sad" },
+    { "chord": "Bb", "notes": ["A#","D","F"], "type": "major", "feeling": "Warm / Open" },
+    { "chord": "Fm", "notes": ["F","G#","C"], "type": "minor", "feeling": "Gentle / Moving" },
+    { "chord": "Fmaj7", "notes": ["F","A","C","E"], "type": "major7", "feeling": "Warm / Dreamy" },
+    { "chord": "Dm7", "notes": ["D","F","A","C"], "type": "minor7", "feeling": "Smooth / Relaxed" }
+  ],
+
+  "F#": [
+    { "chord": "F#", "notes": ["F#","A#","C#"], "type": "major", "feeling": "Bright / Stable" },
+    { "chord": "D#m", "notes": ["D#","F#","A#"], "type": "minor", "feeling": "Emotional / Sad" },
+    { "chord": "B", "notes": ["B","D#","F#"], "type": "major", "feeling": "Warm / Open" },
+    { "chord": "F#m", "notes": ["F#","A","C#"], "type": "minor", "feeling": "Gentle / Moving" },
+    { "chord": "F#maj7", "notes": ["F#","A#","C#","F"], "type": "major7", "feeling": "Warm / Dreamy" },
+    { "chord": "D#m7", "notes": ["D#","F#","A#","C#"], "type": "minor7", "feeling": "Smooth / Relaxed" }
+  ],
+
+  "G": [
+    { "chord": "G", "notes": ["G","B","D"], "type": "major", "feeling": "Bright / Stable" },
+    { "chord": "Em", "notes": ["E","G","B"], "type": "minor", "feeling": "Emotional / Sad" },
+    { "chord": "C", "notes": ["C","E","G"], "type": "major", "feeling": "Warm / Open" },
+    { "chord": "Am", "notes": ["A","C","E"], "type": "minor", "feeling": "Gentle / Moving" },
+    { "chord": "Gmaj7", "notes": ["G","B","D","F#"], "type": "major7", "feeling": "Warm / Dreamy" },
+    { "chord": "Em7", "notes": ["E","G","B","D"], "type": "minor7", "feeling": "Smooth / Relaxed" }
+  ],
+  "G#": [
+    {
+      "chord": "G#",
+      "type": "major",
+      "notes": ["G#", "C", "D#"],
+      "feeling": "bright, strong, slightly tense"
+    },
+    {
+      "chord": "G#m",
+      "type": "minor",
+      "notes": ["G#", "B", "D#"],
+      "feeling": "dark, emotional, serious"
+    },
+    {
+      "chord": "E",
+      "type": "major",
+      "notes": ["E", "G#", "B"],
+      "feeling": "stable, warm support"
+    },
+    {
+      "chord": "C#m",
+      "type": "minor",
+      "notes": ["C#", "E", "G#"],
+      "feeling": "sad but connected"
+    },
+    {
+      "chord": "F#",
+      "type": "major",
+      "notes": ["F#", "A#", "C#"],
+      "feeling": "forward motion, hopeful tension"
+    }
+  ],
+
+  "A#": [
+    {"chord": "A#",
+      "type": "major",
+      "notes": ["A#", "D", "F"],
+      "feeling": "bright, bold, lifted"
+    },
+    {
+      "chord": "A#m",
+      "type": "minor",
+      "notes": ["A#", "C#", "F"],
+      "feeling": "dark, emotional weight"
+    },
+    {
+      "chord": "F",
+      "type": "major",
+      "notes": ["F", "A", "C"],
+      "feeling": "soft, warm contrast"
+    },
+    {
+      "chord": "D#m",
+      "type": "minor",
+      "notes": ["D#", "F#", "A#"],
+      "feeling": "mysterious, inward tension"
+    },
+    {
+      "chord": "G#",
+      "type": "major",
+      "notes": ["G#", "C", "D#"],
+      "feeling": "colorful lift, unresolved"
+    }],
+
+  "A": [
+    { "chord": "A", "notes": ["A","C#","E"], "type": "major", "feeling": "Bright / Stable" },
+    { "chord": "F#m", "notes": ["F#","A","C#"], "type": "minor", "feeling": "Emotional / Sad" },
+    { "chord": "D", "notes": ["D","F#","A"], "type": "major", "feeling": "Warm / Open" },
+    { "chord": "Am", "notes": ["A","C","E"], "type": "minor", "feeling": "Gentle / Moving" },
+    { "chord": "Amaj7", "notes": ["A","C#","E","G#"], "type": "major7", "feeling": "Warm / Dreamy" },
+    { "chord": "F#m7", "notes": ["F#","A","C#","E"], "type": "minor7", "feeling": "Smooth / Relaxed" }
+  ],
+
+  "B": [
+    { "chord": "B", "notes": ["B","D#","F#"], "type": "major", "feeling": "Bright / Stable" },
+    { "chord": "G#m", "notes": ["G#","B","D#"], "type": "minor", "feeling": "Emotional / Sad" },
+    { "chord": "E", "notes": ["E","G#","B"], "type": "major", "feeling": "Warm / Open" },
+    { "chord": "Bm", "notes": ["B","D","F#"], "type": "minor", "feeling": "Gentle / Moving" },
+    { "chord": "Bmaj7", "notes": ["B","D#","F#","A#"], "type": "major7", "feeling": "Warm / Dreamy" },
+    { "chord": "G#m7", "notes": ["G#","B","D#","F#"], "type": "minor7", "feeling": "Smooth / Relaxed" }
+  ]
+}

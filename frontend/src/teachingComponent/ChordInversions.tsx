@@ -321,8 +321,7 @@ const ChordInversions: React.FC = () => {
             <div className="popup-box">
               <h1>Guide</h1>
               <p >
-                Here we expand into the minor sound world. Students practice minor triads, the natural minor scale, and basic i–V–i progressions that define minor-key harmony. This level helps learners hear emotional contrast between major and minor and strengthens left-hand chord control.
-              </p>
+                Students now explore inversions, a core technique for smooth transitions between chords. This level covers root position, first inversion, and second inversion, along with intermediate-level scales and the popular I–vi–IV–V progression. The focus is on improving hand movement and making chords flow naturally.</p>
               <div className="popup-buttons">
                 <button onClick={() => setGuidePopUp(false)}>Got it!</button>
               </div>

@@ -34,10 +34,9 @@ import { SamplerContext } from "../App";
 import {Link, useNavigate } from "react-router-dom";
 
 import ProgressLine from "./subComponent/ProgressLine";
-import CircleOfFifths from "../component/CircleofFifth";
-import ChordPiano from "../component/ChordPiano";
-import ScalePiano from "../component/ScalePiano";
 import ProgressionDisplay from "./subComponent/ProgressionDisplay";
+import HarmonizingDisplay from "./subComponent/HarmonizingDisplay";
+import ExtensionDisplay from "./subComponent/ExtensionDisplay";
 
 const keys = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
 const majorScale: Record<string, string[]> = {
@@ -58,8 +57,8 @@ const majorScale: Record<string, string[]> = {
 const ExtendHamony: React.FC = () => {
   const [activeTab, setActiveTab] = useState("Extension");
   const [selectedChord, setSelectedChord] = useState<string>("");
-  const [selectedScale, setSelectedScale] = useState<string>("C");
-  const [playingKey, setPlayingKey] = useState<string>("");
+  // const [selectedScale, setSelectedScale] = useState<string>("C");
+  // const [playingKey, setPlayingKey] = useState<string>("");
   const [guidePopup, setGuidePopUp]= useState(false);
 
   const [navCheckPopUp, setNavCheckPopUp] = useState(false);
@@ -67,49 +66,49 @@ const ExtendHamony: React.FC = () => {
 
   const sampler = useContext(SamplerContext);
 
-  const handleClick = async (key: string) => {
-      await Tone.start();
-      const scaleKeys = majorScale[key];
-      if (!sampler) {
-        console.error("Sampler not loaded");
-        return;
-      }
+  // const handleClick = async (key: string) => {
+  //     await Tone.start();
+  //     const scaleKeys = majorScale[key];
+  //     if (!sampler) {
+  //       console.error("Sampler not loaded");
+  //       return;
+  //     }
   
-      setSelectedScale(key);
+  //     setSelectedScale(key);
       
-      for (let i = 0; i < scaleKeys.length; i++) {
-        const note = scaleKeys[i];
-        if (sampler?.samplerRef.current) {
-          sampler.samplerRef.current.triggerAttackRelease(note, "1n");
-        }
-        setPlayingKey(note);
-        await new Promise((resolve) => setTimeout(resolve, 250)); // wait 250ms before next note
-      }
-      for (let i = scaleKeys.length-2; i >= 0; i--) {
-        const note = scaleKeys[i];
-        if (sampler?.samplerRef.current) {
-          sampler.samplerRef.current.triggerAttackRelease(note, "1n");
-        }
-        setPlayingKey(note);
-        await new Promise((resolve) => setTimeout(resolve, 250)); // wait 250ms before next note
-      }
-    };
+  //     for (let i = 0; i < scaleKeys.length; i++) {
+  //       const note = scaleKeys[i];
+  //       if (sampler?.samplerRef.current) {
+  //         sampler.samplerRef.current.triggerAttackRelease(note, "1n");
+  //       }
+  //       setPlayingKey(note);
+  //       await new Promise((resolve) => setTimeout(resolve, 250)); // wait 250ms before next note
+  //     }
+  //     for (let i = scaleKeys.length-2; i >= 0; i--) {
+  //       const note = scaleKeys[i];
+  //       if (sampler?.samplerRef.current) {
+  //         sampler.samplerRef.current.triggerAttackRelease(note, "1n");
+  //       }
+  //       setPlayingKey(note);
+  //       await new Promise((resolve) => setTimeout(resolve, 250)); // wait 250ms before next note
+  //     }
+  //   };
   
   return(
     <div className="teaching-page-container">
       <div style={{display:"flex", width:"100%", justifyContent:"space-between", marginBottom:"1rem"}}>
         <div style={{display:"flex", alignItems: "center"}}>
           <div className="card-title" style={{alignContent:"center", backgroundColor:"rgba(243, 243, 243, 0.0625)", margin:"1rem 0"}}>
-            Level 1 - Core Basics 
+            Level 4 - Extend Harmony 
           </div>
           <div onClick={() => setGuidePopUp(true)}>
             <img src="/icon/info.svg" alt="Info" style={{ width: '1.5rem', height: '1.5rem', cursor: 'pointer', margin: '0.5rem 0 0 0.5rem'}} />
           </div>
         </div>
         <ProgressLine
-          firstLevel="Major triads"
-          secondLevel="Major scales"
-          thirdLevel="I-IV-V basics"
+          firstLevel="Extensions"
+          secondLevel="ii-IV-i progression"
+          thirdLevel="Harmonizing"
           />
       </div>
 
@@ -124,7 +123,7 @@ const ExtendHamony: React.FC = () => {
             </label>
             <label className="nbtn" htmlFor="s">
               <input type="radio" id="s" name="nav" onChange={() => setActiveTab("Scales")} checked={activeTab === "Scales"}/>
-              <span>Scales</span>
+              <span>Harmonizing</span>
             </label>
           </div>
 
@@ -132,7 +131,7 @@ const ExtendHamony: React.FC = () => {
           <div className="card-container elimtop" style={{margin:0, padding:"2rem 5rem"}}>
             <div style={{display:"flex"}}>
               <div style={{marginRight:"15%"}}>
-                <div className="card-title">Major Extension</div>
+                <div className="card-title">Extension</div>
           
                 <ul style={{margin:0}}>
                   <li>A chord made of three notes: root, major third, perfect fifth.</li>
@@ -147,57 +146,38 @@ const ExtendHamony: React.FC = () => {
                 <span style={{fontWeight:"bold"}}>💡Try clicking the note on the key circle and play chords!!</span>
               </div>
             </div>
-              
+              <ExtensionDisplay/>
               <div className="line"/>
               <div style={{ display:"flex",textAlign: "center" , justifyContent: "flex-end"}}>
-                <button onClick={() => {setActiveTab("Scales")}} className="playbtn" style={{width:"10rem", borderRadius:"5rem"}}>Scales</button>
+                <button onClick={() => {setActiveTab("Progressions")}} className="playbtn" style={{width:"10rem", borderRadius:"5rem"}}>Progressions</button>
               </div>
           </div>}
-
           {activeTab === "Scales" && 
           <div className="card-container elimtop" style={{margin:0, padding:"2rem 5rem"}}>
             <div style={{display:"flex"}}>
               <div>
                 <div style={{display:"flex", alignItems: "center"}}>
-                  <div className="card-title">Major Scales</div>
+                  <div className="card-title">Harmonizing</div>
                 </div>
+                <p>Harmonizing a Melody</p>
                 <ul style={{margin:0}}>
-                  <li>A set of 7 notes following the pattern: W–W–H–W–W–W–H.</li>
-                  <ul>
-                    <li>W = Whole Step (2 keys apart) Ex: C → D (skips C♯)</li>
-                    <li>H = Half Step (1 key apart) Ex: E → F (no key in between)</li>
-                  </ul>
-                  <li>Forms the foundation for key signatures and melodies.</li>
-                  <li>Example: C major scale = C–D–E–F–G–A–B.</li>
+                  <li>When a melody plays a note, the chord underneath usually contains that note.</li>
+                  <li>A melody note is played repeatedly.</li>
+                  <li>While it sounds, try different chords underneath it.</li>
+                  <li>Notice how the feeling changes even though the melody note stays the same.</li>
                 </ul>
-                <span style={{fontWeight:"bold"}}>🎹 Try clicking the note and listen!!</span>
+                <span style={{fontWeight:"bold"}}>🎹 Play the note, and Harmonize it!!</span>
               </div>
             </div>
             <div >              
-              <div style={{display:"flex", justifyContent:"center"}}>
-                <div style={{width:"840px", backgroundColor:"#16488D", borderRadius:"1rem", padding:"1rem 0", margin:"1rem 0"}}>
-                {keys.map((Note, i) => (
-                  <button className={`notebtn ${selectedScale === Note ? "selected" : ""}`} key={Note + i} onClick={() => {setSelectedScale(Note); handleClick(Note);}}>
-                    {Note}
-                  </button>
-                ))}
-                </div>
-              </div>
-              <div style={{marginLeft:"50%", height:"150px"}}>
-                <ScalePiano
-                  scaleLength={2}
-                  width={60}
-                  height={150}
-                  highlightNotes={majorScale[selectedScale]}
-                  playingNote={playingKey}
-                  scale={selectedScale}
-                  />
-              </div>
+              <HarmonizingDisplay/>
             </div>
             <div className="line"/>
             <div style={{ display:"flex",textAlign: "center" , justifyContent: "space-between"}}>
-              <button onClick={() => {setActiveTab("Extension")}} className="playbtn" style={{width:"10rem", borderRadius:"5rem"}}>Extension</button>
               <button onClick={() => {setActiveTab("Progressions")}} className="playbtn" style={{width:"10rem", borderRadius:"5rem"}}>Progressions</button>
+              <button className="playbtn" style={{width:"10rem", borderRadius:"5rem"}} onClick={() => {setNavCheckPopUp(true)}}>
+                Test
+              </button>  
             </div>
           </div>}
 
@@ -206,18 +186,20 @@ const ExtendHamony: React.FC = () => {
             <div style={{display:"flex"}}>
               <div style={{marginRight:"15%"}}>
                 <div style={{display:"flex", alignItems: "center"}}>
-                  <div className="card-title">I - IV - V Progressions</div>
+                  <div className="card-title">ii–V–I Progression</div>
                 </div>
+                <p style={{textIndent:"1rem", width:"100%"}}>The ii–V–I progression is one of the most important and frequently used chord progressions in Western music, especially in jazz, but also common in pop, R&B, film music, anime, and classical harmony.</p>
+                <p style={{fontWeight:"bolder",margin:0}}>What it is</p>
                 <ul style={{margin:0}}>
-                  <li>A very common chord pattern using the 1st, 4th, and 5th chords of a major scale.</li>
-                  <li>One of the most important chord progressions in all music — pop, classical, anime, gospel, rock, everything.</li>
-                  <li>Creates strong musical movement (home → away → return).</li>
+                  <li>Built from the 2nd, 5th, and 1st chords of a key</li>
+                  <li>Uses strong functional harmony to lead the listener naturally back to the tonic (home chord)</li>
+                  <li>Often considered the core sentence of tonal music</li>
                   <ul>
-                    <li><span style={{fontWeight:"bold"}}>I → IV :</span> Feels like taking a step forward.</li>
-                    <li><span style={{fontWeight:"bold"}}>IV → V :</span> Feels like tension is rising, preparing for the climax.</li>
-                    <li><span style={{fontWeight:"bold"}}>V → I :</span> Feels like coming home or resolving a question.</li>
+                    <li><span style={{fontWeight:"bold"}}>ii :</span> prepares tension</li>
+                    <li><span style={{fontWeight:"bold"}}>V :</span> creates strong tension</li>
+                    <li><span style={{fontWeight:"bold"}}>I :</span> releases tension</li>
                   </ul>
-                  <li>Example in C major: C (I) → F (IV) → G (V).</li>
+                  <li>Example in C major: Dm (ii) → F (IV) → C (I).</li>
                 </ul>
               </div>
             </div>
@@ -228,21 +210,25 @@ const ExtendHamony: React.FC = () => {
             </div>
             <div className="line"/>
             <div style={{ display:"flex",textAlign: "center" , justifyContent: "space-between"}}>
-              <button onClick={() => {setActiveTab("Scales")}} className="playbtn" style={{width:"10rem", borderRadius:"5rem"}}>Scales</button>
-              <button className="playbtn" style={{width:"10rem", borderRadius:"5rem"}} onClick={() => {setNavCheckPopUp(true)}}>
-                Test
-              </button>
+              <button onClick={() => {setActiveTab("Extension")}} className="playbtn" style={{width:"10rem", borderRadius:"5rem"}}>Extension</button>
+              <button onClick={() => {setActiveTab("Scales")}} className="playbtn" style={{width:"10rem", borderRadius:"5rem"}}>Harmonizing</button>
             </div>
           </div>}
-
 
         {guidePopup &&(
           <div className="popup-overlay">
             <div className="popup-box">
               <h1>Guide</h1>
-              <p >
-                This level introduces the essential building blocks of music. Students learn major triads, the most common major scales, and simple I–IV–V progressions that appear in almost every genre. The goal is to build basic hand coordination and help learners recognize how chords move in predictable patterns.
-              </p>
+              <p>Level 4 — Extended Harmony</p>
+              <p>At this level, students learn how scales turn into harmony. Instead of just playing scales, we build chords from each scale note and understand their musical roles.</p>
+              <p style={{textAlign:"left"}}>Students will:</p>
+              <ul>
+                <li>Build diatonic chords from scales</li>
+                <li>Learn ii–V–I progressions</li>
+                <li>Use 7th chords for richer sound</li>
+                <li>Choose chords that fit a melody</li>
+              </ul>
+              <p>This level explains how real songs are harmonized.</p>
               <div className="popup-buttons">
                 <button onClick={() => setGuidePopUp(false)}>Got it!</button>
               </div>

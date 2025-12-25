@@ -24,7 +24,7 @@ const KeyOnScale: Record<string, string[]> = {
   "G#m":  ["G#4", "A#4", "B4", "C#5", "D#5", "E5", "F#5", "G#5"],
   "Am":   ["A4", "B4", "C5", "D5", "E5", "F5", "G5", "A5"],
   "A#m":  ["A#4", "C5", "C#5", "D#5", "F5", "F#5", "G#5", "A#5"],
-  "Bm":   ["B4", "C#5", "D5", "E5", "F#5", "G5", "A5", "B5"]
+  "Bm":   ["B4", "C#5", "D5", "E5", "F#5", "G5", "A5", "B5"]  
 };
 
 interface PianoVisualizerProps {
