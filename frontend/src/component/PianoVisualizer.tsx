@@ -12,18 +12,35 @@ interface PianoVisualizerProps {
   showKeyname?: boolean;
   externalKey?: { key: string; duration: number }[];
   chordArrays?: string[];
+  mode?: Mode;
 }
 interface ActiveNote {
   key: string;
   endTime: number;
 }
 
-const PianoVisualizer: React.FC<PianoVisualizerProps> = ({isPlayable = true, scaleLength=3, startOctave=3, height=150, width=40, showKeyname = true, externalKey= [],chordArrays= [] }) => {
+type Mode = "Dorian" | "Mixolydian";
+const MODE_SCALES: Record<Mode, string[]> = {
+  Dorian: ["C", "D", "D#", "F", "G", "A", "A#"],
+  Mixolydian: ["C", "D", "E", "F", "G", "A", "A#"]
+};
+
+
+const PianoVisualizer: React.FC<PianoVisualizerProps> = ({isPlayable = true, scaleLength=3, startOctave=3, height=150, width=40, showKeyname = true, externalKey= [],chordArrays= [], mode}) => {
   // const [selectedKey, setSelectedKey] = useState<string>("C");
   const sampler = useContext(SamplerContext);
   const [selectedKey, setSelectedKey] = useState<string[]>([]);
   const [activeNotes, setActiveNotes] = useState<ActiveNote[]>([]);
   const playingRef = useRef<{ abort: boolean }>({ abort: false });
+  
+  //for ModeDisplay.tsx = check if mode = mixolydian or dorian
+  const getPitchClass = (note: string) =>
+  note.replace(/[0-9]/g, "");
+
+  const playableNotes = mode ? MODE_SCALES[mode] : null;
+
+
+
 
   useEffect(()=>{
     chordArrays.forEach(note => {
@@ -110,14 +127,22 @@ const PianoVisualizer: React.FC<PianoVisualizerProps> = ({isPlayable = true, sca
           const isSelected = activeNotes.some(n => n.key === note && n.endTime > Tone.now()) || selectedKey.includes(note) || chordArrays.includes(note);
           const whiteKeyIndex = allWhiteKeys.findIndex(k => k.note.startsWith(note.charAt(0)) && k.octave === parseInt(note.slice(-1)));
           const left = whiteKeyIndex * width - (width*((scaleLength*7)/2));
+
+          //for ModeDisplay
+          const isKeyPlayable =
+            !mode
+              ? true
+              : playableNotes!.includes(getPitchClass(note));
+
+
           return (
             <div
               key={note}
-              onClick={() => isPlayable && handleKeyClick(note)}
+              onClick={() => isPlayable && isKeyPlayable && handleKeyClick(note)}
               style={{
                 width: `${width}px`,
                 height: `${height}px`,
-                backgroundColor: isSelected ? "rgb(32, 173, 255)" : "white",
+                backgroundColor: isSelected ? "rgb(32, 173, 255)" : !isKeyPlayable ? "#ffffff70" : "white",
                 border: "1px solid black",
                 left: `${left}px`,
                 margin: "0",
@@ -126,7 +151,7 @@ const PianoVisualizer: React.FC<PianoVisualizerProps> = ({isPlayable = true, sca
                 borderRadius: (note==="C"+startOctave.toString())? "10px 0 0 10px": (note==="B"+(startOctave+scaleLength-1).toString())? "0 10px 10px 0": "0"
               }}
             >
-              {showKeyname &&
+              {isKeyPlayable && showKeyname &&
               (<div
                 style={{
                   position: "absolute",
@@ -155,21 +180,28 @@ const PianoVisualizer: React.FC<PianoVisualizerProps> = ({isPlayable = true, sca
           // Calculate left offset based on white keys
           const whiteKeyIndex = allWhiteKeys.findIndex(k => k.note.startsWith(note.charAt(0)) && k.octave === parseInt(note.slice(-1)));
           const left = (whiteKeyIndex*width) + (width*0.7) - (width*(scaleLength*7)/2); // 420 = half pianoroll size = make absolute position centered , 28 = margin btw white and black key
+          
+          //for ModeDisplay
+          const isKeyPlayable =
+            !mode
+              ? true
+              : playableNotes!.includes(getPitchClass(note));
+
           return (
             <div
               key={note}
-              onClick={() => isPlayable && handleKeyClick(note)}
+              onClick={() => isPlayable && isKeyPlayable && handleKeyClick(note)}
               style={{
                 width: `${width*0.625}px`,
                 height: `${height*0.6}px`,
-                backgroundColor: isSelected ? "rgba(22, 19, 169, 1)" : "rgb(7, 5, 106)",
+                backgroundColor: isSelected ? "rgba(22, 19, 169, 1)" : !isKeyPlayable ? "#07056a70": "rgb(7, 5, 106)",
                 left: `${left}px`,
                 zIndex: 2,
                 position: "absolute",
                 borderRadius: "0 0 5px 5px"
               }}
             >
-              {showKeyname && 
+              {isKeyPlayable && showKeyname && 
               (<div
                 style={{
                   position: "absolute",

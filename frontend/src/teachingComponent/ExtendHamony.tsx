@@ -242,7 +242,7 @@ const ExtendHamony: React.FC = () => {
               <p>Once you move you will not be able to return to the lesson, are you ready?</p>
               <div className="popup-buttons">
                 <button onClick={() => setNavCheckPopUp(false)}>Study a bit more</button>
-                <button onClick={() => navigate("/test/1")}>Lets start the test!</button>
+                <button onClick={() => navigate("/test/4")}>Lets start the test!</button>
               </div>
             </div>
           </div>
