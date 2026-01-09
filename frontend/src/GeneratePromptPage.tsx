@@ -1,16 +1,11 @@
 import React, { useEffect, useState } from "react";
-// import { Outlet } from 'react-router-dom';
 import { useNavigate } from "react-router-dom";
 import "./based.css";
-
 import { useLoading } from "./LoadingContext";
 import { addGenerationRecord } from "./data/generations";
 import { subscribeAuth } from "./auth";
 
-
 const PracticePage: React.FC = () => {
-  // const [loading, setLoading] = useState(false);
-  // const [loadingPercent, setLoadingPercent] = useState(0);
   const navigate = useNavigate();
   const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>({});
   const [showPopup, setShowPopup] = useState(false);
@@ -68,9 +63,9 @@ const PracticePage: React.FC = () => {
       {
         name: "Duration(s)",
         options: [
-          { value: "5", label: "5" },
-          { value: "10", label: "10" },
-          { value: "20", label: "20" },
+          { value: "5", label: "5s" },
+          { value: "10", label: "10s" },
+          { value: "20", label: "20s" },
         ],
       },
   ];
@@ -81,7 +76,6 @@ const PracticePage: React.FC = () => {
       return;
     }
 
-    // Replace this with your actual backend check
     try {
       const res = await fetch(`http://localhost:8000/check-filename?name=${filename}`);
       const data = await res.json();
@@ -95,7 +89,6 @@ const PracticePage: React.FC = () => {
       return;
     }
 
-    // Validate selected options
     const values = Object.values(selectedOptions);
     if (values.length < 3) {
       alert("Please select all options before generating!");
@@ -105,16 +98,11 @@ const PracticePage: React.FC = () => {
     setError('');
     setShowPopup(false);
     setLoading(true);
-    //dif, genre, key
-    // const textprompt = `A solo piano performance featuring ${values[2]} chords style. The chords are played in ${values[1]} style providing a strong harmonic foundation. The piece is minimalistic and structured, suitable for ${values[0]} scale piano accompaniment. No melody, only ${values[2]} comping.`;
-    // const textprompt = `Create a piano track built on ${values[0]} chords, performed in ${values[1]} style. The music should stay within the ${values[2]} scale and focus purely on chord comping, without any melody lines.`;
-    // const textprompt = `Soft piano ballad in G major, slow tempo, clear melody line, and gentle arpeggios. Beginner-friendly and playable with two hands.`;
-    const textprompt = `Simple classical-style piano solo in C major, clear phrasing, steady left-hand accompaniment, and an easy melody suitable for beginners.`;
 
+    const textprompt = `Simple classical-style piano solo in C major, clear phrasing, steady left-hand accompaniment, and an easy melody suitable for beginners.`;
     const mididuration = values[3];
 
     console.log("Prompt:", textprompt);
-    // save for LoadingBar speed mapping
     localStorage.setItem("mididuration", String(mididuration));
       try {
         const response = await fetch(
@@ -134,7 +122,6 @@ const PracticePage: React.FC = () => {
 
         console.log("Generation result:", data);
 
-        // Save record after successful generation
         if (userId) {
           try {
             await addGenerationRecord(userId, {
@@ -150,7 +137,6 @@ const PracticePage: React.FC = () => {
             console.error("Failed saving record:", e);
           }
         }
-      // Reset percent & navigate
       setMessage("Finishing your masterpiece...");
       setPercent(0);
       setNavPopup(true);
@@ -163,107 +149,130 @@ const PracticePage: React.FC = () => {
   };
 
   return (
-    <div className="page-container2" style={{flexDirection:"column"}}>
-      <div className="practice-selector">
-        <div style={{display:"flex", alignItems:"center", justifyContent:"center"}}>
-          <h1 className="card-title" style={{margin:"0"}}>Generate Piano Piece</h1>
-          <div onClick={() => setGuidePopUp(true)}>
-            <img src="/icon/info.svg" alt="Info" style={{ width: '1.5rem', height: '1.5rem', cursor: 'pointer', margin: '0.5rem 0 0 0.5rem'}} />
+    <div className="generate-page">
+      {/* Page Header */}
+      <div className="generate-header">
+        <h1>Generate Piano Piece</h1>
+        <p>Create custom AI-generated piano accompaniments tailored to your preferences</p>
+        <button 
+          className="guide-btn"
+          onClick={() => setGuidePopUp(true)}
+          title="How to generate music"
+        >
+          📖 How It Works
+        </button>
+      </div>
+
+      {/* Main Content */}
+      <div className="generate-container">
+        <div className="generate-form">
+          <div className="form-groups">
+            {groups.map((group, groupIdx) => (
+              <div className="form-group" key={groupIdx}>
+                <h3>{group.name}</h3>
+                <div className="radio-inputs">
+                  {group.options.map((option, optionIdx) => (
+                    <label className="radio" key={optionIdx}>
+                      <input
+                        value={option.value}
+                        name={group.name}
+                        type="radio"
+                        checked={selectedOptions[group.name] === option.value}
+                        onChange={(e) => {
+                          setSelectedOptions(prev => ({
+                            ...prev,
+                            [group.name]: e.target.value,
+                          }));
+                        }}
+                      />
+                      <span className="name">{option.label}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="form-actions">
+            <button 
+              onClick={() => {
+                const missing = groups
+                  .filter(group => !selectedOptions[group.name])
+                  .map(group => group.name);
+
+                if (missing.length > 0) {
+                  setInputMiss(missing.join(", "));
+                  setErrorPopup(true);
+                  return;
+                }
+                setShowPopup(true);
+              }} 
+              className="btn-generate"
+            >
+              ✨ Generate Music
+            </button>
           </div>
         </div>
-        {groups.map((group, groupIdx) => (
-          <div key={groupIdx}>
-            <h2 style={{margin:"0.5rem 0"}}>{group.name}</h2>
-            <div className="radio-inputs">
-              {group.options.map((option, optionIdx) => (
-                <label className="radio" key={optionIdx}>
-                  <input
-                    value={option.value}
-                    name={group.name}
-                    type="radio"
-                    checked={selectedOptions[group.name] === option.value}
-                    onChange={(e) => {
-                      setSelectedOptions(prev => ({
-                        ...prev,
-                        [group.name]: e.target.value,
-                      }));
-                    }}
-                  />
-                  <span className="name">{option.label}</span>
-                </label>
-              ))}
-            </div>
-          </div>
-        ))}
-        
-          <hr style={{height:"4px", margin:"2rem 0 1rem", backgroundColor:"#1b65b5", border:"none"}}/>
-        <button onClick={() => {
-            //check the missed input value
-            const missing = groups
-              .filter(group => !selectedOptions[group.name])
-              .map(group => group.name);
-
-            if (missing.length > 0) {
-              setInputMiss(missing.join(", ")); //store missed
-              setErrorPopup(true);
-              return;
-            }
-            setShowPopup(true);
-          }} className="playbtn" style={{width:"100%", margin:"0"}}>Generate</button>
       </div>
-      {/*-----------------------------------------------------------------------------------------------*/}
-        {showPopup && (
-          <div className="popup-overlay">
-            <div className="popup-box">
-              <h1 style={{color:"#1967d2"}}>Enter Filename</h1>
-              <input
-                type="text"
-                value={filename}
-                onChange={(e) => setFilename(e.target.value)}
-                placeholder="e.g., my_song"
-              />
-              {error && <p className="error">{error}</p>}
-              <div className="popup-buttons">
-                <button onClick={handleFinalGenerate}>Generate</button>
-                <button onClick={() => setShowPopup(false)}>Cancel</button>
-              </div>
+
+      {/* Popups */}
+      {showPopup && (
+        <div className="popup-overlay">
+          <div className="popup-box">
+            <h2>Save Your Piece</h2>
+            <p>Give your generated piece a name:</p>
+            <input
+              type="text"
+              value={filename}
+              onChange={(e) => setFilename(e.target.value)}
+              placeholder="e.g., my_song"
+              className="filename-input"
+            />
+            {error && <p className="error-message">{error}</p>}
+            <div className="popup-buttons">
+              <button className="btn-primary" onClick={handleFinalGenerate}>Generate</button>
+              <button className="btn-secondary" onClick={() => setShowPopup(false)}>Cancel</button>
             </div>
           </div>
-        )}
-        {errorPopup &&(
-          <div className="popup-overlay">
-            <div className="popup-box">
-              <h1 style={{color:"red"}}>Please select all options!</h1>
-              <p style={{color:"black"}}>missing {inputMiss}</p>
-              <div className="popup-buttons">
-                <button onClick={() => setErrorPopup(false)}>Cancel</button>
-              </div>
+        </div>
+      )}
+
+      {errorPopup && (
+        <div className="popup-overlay">
+          <div className="popup-box">
+            <h2 style={{color: "#ff6b6b"}}>Missing Options</h2>
+            <p>Please select: <strong>{inputMiss}</strong></p>
+            <div className="popup-buttons">
+              <button className="btn-primary" onClick={() => setErrorPopup(false)}>OK</button>
             </div>
           </div>
-        )}
-        {navPopup &&(
-          <div className="popup-overlay">
-            <div className="popup-box">
-              <h1 style={{color:"#1967d2"}}>Generating Done</h1>
-              <p>Go play {filename}</p>
-              <div className="popup-buttons">
-                <button onClick={() => navigate(`/output/${filename}`)}>Go</button>
-                <button onClick={() => setNavPopup(false)}>Cancel</button>
-              </div>
+        </div>
+      )}
+
+      {navPopup && (
+        <div className="popup-overlay">
+          <div className="popup-box">
+            <h2 style={{color: "#4489f9"}}>✨ Generation Complete!</h2>
+            <p>Your piece "{filename}" is ready to explore.</p>
+            <div className="popup-buttons">
+              <button className="btn-primary" onClick={() => navigate(`/output/${filename}`)}>Go to Piano</button>
+              <button className="btn-secondary" onClick={() => setNavPopup(false)}>Not Now</button>
             </div>
           </div>
-        )}
-        {guidePopup &&(
-          <div className="popup-overlay">
-            <div className="popup-box">
-              <h1>How to Generate?</h1>
-              <p>Choose <span style={{fontWeight:"bold"}}>difficulty, genre, key, and duration,</span> then click Generate. A loading bar will appear at the bottom — once it’s done, you’ll be taken automatically to your new piano piece to play and practice.</p>
-              <div className="popup-buttons">
-                <button onClick={() => setGuidePopUp(false)}>Got it!</button>
-              </div>
+        </div>
+      )}
+
+      {guidePopup && (
+        <div className="popup-overlay">
+          <div className="popup-box">
+            <h2>How to Generate Music</h2>
+            <p>Select your preferences for <strong>difficulty, genre, key, and duration</strong>, then click "Generate Music". A loading bar will appear while our AI creates your piece. Once complete, you'll be taken to the piano practice view.</p>
+            <div className="popup-buttons">
+              <button className="btn-primary" onClick={() => setGuidePopUp(false)}>Got it!</button>
             </div>
           </div>
-        )}
+        </div>
+      )}
     </div>
   );
 };

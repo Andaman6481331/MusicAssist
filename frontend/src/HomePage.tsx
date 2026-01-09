@@ -1,8 +1,8 @@
 import React, { useState, useRef } from "react";
 import "./based.css";
 import PianoRollApp from "./component/PianoRollApp";
-import { useSearchParams, Link } from "react-router-dom";
-import { useGlobalBoolean} from "./GlobalBooleanContext";
+import { Link } from "react-router-dom";
+import { useGlobalBoolean } from "./GlobalBooleanContext";
 
 const formatFileName = (title: string | undefined): string => {
   if (!title || !title.includes(" - ")) return "";
@@ -21,188 +21,213 @@ const profiles = [
 ];
 
 const Home: React.FC = () => {
-  // const [selectedChord, setSelectedChord] = useState<string>("");
-  // const [searchParams] = useSearchParams();
   const { isGlobalEnabled } = useGlobalBoolean();
   const [selectedSong, setSelectedSong] = useState<string>(
     "Ed Sheeran - unrival"
   );
-  // const [selectedSong, setSelectedSong] = useState<string>("Yiruma - River Flow In You");
-  // const [isMuted, setIsMuted] = useState<boolean>(false);
-  // const selectedChord = searchParams.get("chord") || "C";
   const fileName = selectedSong ? formatFileName(selectedSong) : "";
 
-  const targetRef = useRef<HTMLDivElement>(null);
-  const scrollToSection = () => {
-    targetRef.current?.scrollIntoView({ behavior: "smooth" });
+  const demoRef = useRef<HTMLDivElement>(null);
+  const featuresRef = useRef<HTMLDivElement>(null);
+  const membersRef = useRef<HTMLDivElement>(null);
+
+  const scrollToSection = (ref: React.RefObject<HTMLDivElement>) => {
+    ref.current?.scrollIntoView({ behavior: "smooth" });
   };
 
+  // Hero banner slides
+  const heroSlides = [
+    {
+      title: "Master Piano Accompaniment",
+      subtitle: "Learn music theory and piano skills through AI-powered guidance, interactive visualizations, and personalized practice sessions.",
+    },
+    {
+      title: "AI-Powered Learning",
+      subtitle: "Generate unlimited chord progressions and get personalized guidance tailored to your learning level.",
+    },
+    {
+      title: "Interactive Music Theory",
+      subtitle: "Master chords, progressions, and harmony with visual tools and real-time feedback.",
+    },
+  ];
+
+  const [bannerIndex, setBannerIndex] = useState(0);
+
+  const nextBanner = () => {
+    setBannerIndex((prev) => (prev + 1) % heroSlides.length);
+  };
+
+  const prevBanner = () => {
+    setBannerIndex((prev) =>
+      prev === 0 ? heroSlides.length - 1 : prev - 1
+    );
+  };
+
+  const features = [
+    {
+      icon: "🎼",
+      title: "AI-Powered Progressions",
+      description: "Generate unlimited chord progressions using advanced AI algorithms tailored to your learning level.",
+    },
+    {
+      icon: "🎹",
+      title: "Interactive Piano Tools",
+      description: "Visual piano visualizers, scale explorers, and chord diagrams to master music theory.",
+    },
+    {
+      icon: "📊",
+      title: "Smart Analysis",
+      description: "Automatically parse MIDI files and extract note timing, pitch, and duration with precision.",
+    },
+    {
+      icon: "🎯",
+      title: "Personalized Learning",
+      description: "Get fill-in guides and adaptive exercises based on your progress and skill level.",
+    },
+  ];
+
   return (
-    <div>
-      <div className="page-container1">
-        <div
-          className="container"
-          style={{ padding: "2rem", marginRight: "3rem" }}
-        >
-          <h1 className="hero-title">Learn to play, the smart way!</h1>
-          <p className="hero-subtitle">
-            An interactive music platform that helps you learn and practice
-            piano accompaniment through AI-generated chord progressions, visual
-            theory tools, and personalized fill-in guides.
-          </p>
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            { ! isGlobalEnabled ?
-              (<Link
-                className="playbtn"
-                style={{
-                  width: "10rem",
-                  textAlign: "center",
-                  marginRight: "2rem",
-                }}
-                to="/login"
-              >
-                Go to Login
-              </Link>):
-              (<Link
-                className="playbtn"
-                style={{
-                  width: "10rem",
-                  textAlign: "center",
-                  marginRight: "2rem",
-                }}
-                to="/generate-prompt"
-              >
-                Start Now
-              </Link>)
-            }
-
-            <a
-              className="linebtn"
-              onClick={scrollToSection}
-              style={{ marginRight: "2rem" }}
-            >
-              Learn More...
-            </a>
-          </div>
-        </div>
-      </div>
-      {/* <img src="./img/pianoBG.webp" alt="bg" style={{width:"100vw"}}/> */}
-      <div className="page-container2">
-        {/* <div className="card-container" style={{ width: "25%", display: "flex", justifyContent: "center", minWidth:"300px"}}> */}
-        <div style={{ margin: "1rem 0 1rem 3rem"}}>
-          <h1 style={{ fontSize: "2rem", margin: "0" }}>Try Harmonic!</h1>
-          <div className="package-container">
-            <div className="package-heading">Please Choose a Song...</div>
-            <div className="package-tab-wrapper">
-              {[
-                "Yiruma - River Flow In You",
-                "Ed Sheeran - Perfect",
-                "Radwimps - Sparkle",
-              ].map((song) => {
-                const [artist, title] = song.split(" - ");
-                return (
-                  <React.Fragment key={song}>
-                    <label htmlFor={song} className="package-tab">
-                      <input
-                        type="radio"
-                        name="plan"
-                        id={song}
-                        className="input"
-                        checked={selectedSong === song}
-                        onChange={() => setSelectedSong(song)}
-                      />
-                      <span>
-                        {artist} - {title}
-                      </span>
-                    </label>
-                  </React.Fragment>
-                );
-              })}
-            </div>
-          </div>
-          <PianoRollApp
-            width={12}
-            height={48}
-            showNote={false}
-            fileName={fileName}
-          />
-        </div>
-        <div>
-          <div
-            ref={targetRef}
-            style={{ padding: "2rem"}}
-          >
-            <h1>How to Use Harmonic</h1>
-            <h2>📁 Step 1: Load Your Music</h2>
-            <ul>
-              <li>You can import a .midi file (drag & drop or file upload).</li>
-              <li>
-                Alternatively, generate music using AI (e.g., MusicGen
-                integration).
-              </li>
-              <li>
-                The app will automatically parse the MIDI and extract each
-                note’s pitch, timing, and duration.
-              </li>
-            </ul>
-            <h2>🧩 Step 2: See the Notes</h2>
-            <li>You can import a .midi file (drag & drop or file upload).</li>
-            <li>
-              Alternatively, generate music using AI (e.g., MusicGen
-              integration).
-            </li>
-            <li>
-              The app will automatically parse the MIDI and extract each note’s
-              pitch, timing, and duration.
-            </li>
-            <h2>▶️ Step 3: Play the Music</h2>
-            <li>You can import a .midi file (drag & drop or file upload).</li>
-            <li>
-              Alternatively, generate music using AI (e.g., MusicGen
-              integration).
-            </li>
-            <li>
-              The app will automatically parse the MIDI and extract each note’s
-              pitch, timing, and duration.
-            </li>
-            {/* <h2>⏸ Step 4: Pause and Resume</h2>
-              <li>You can import a .midi file (drag & drop or file upload).</li>
-              <li>Alternatively, generate music using AI (e.g., MusicGen integration).</li>
-              <li>The app will automatically parse the MIDI and extract each note’s pitch, timing, and duration.</li>
-            <h2>🖱️ Step 5: Click on Notes</h2>
-              <li>You can import a .midi file (drag & drop or file upload).</li>
-              <li>Alternatively, generate music using AI (e.g., MusicGen integration).</li>
-              <li>The app will automatically parse the MIDI and extract each note’s pitch, timing, and duration.</li> */}
-          </div>
-        </div>
-      </div>
-      <div className="page-container3">
-        <h1 className="hero-title2">members</h1>
-        <div className="image-wrapper">{/* <!-- From Uiverse.io by MikeAndrewDesigner -->  */}
-          {profiles.map((profile, index) => (
-            <div className="e-card3 playing3" key={index}>
-              <div className="wave"></div>
-              <div className="wave"></div>
-              <div className="wave"></div>
-
-              <div className="infotop">
-                <img className="dev-image" src={profile.img} alt={profile.name} />
-                <br />
-                {profile.role}
-                <br />
-                <p className="name3">{profile.name}</p>
+    <div className="landing-page">
+      {/* Hero Section */}
+      <section className="hero-section">
+        <div className="hero-carousel">
+          <div className="hero-slides-container" style={{ transform: `translateX(-${bannerIndex * 100}%)` }}>
+            {heroSlides.map((slide, idx) => (
+              <div className="hero-slide" key={idx}>
+                <div className="hero-content">
+                  <h1 className="landing-title">{slide.title}</h1>
+                  <p className="landing-subtitle">{slide.subtitle}</p>
+                  <div className="hero-buttons">
+                    {!isGlobalEnabled ? (
+                      <Link className="btn-primary" to="/login">
+                        Get Started
+                      </Link>
+                    ) : (
+                      <Link className="btn-primary" to="/generate-prompt">
+                        Start Learning
+                      </Link>
+                    )}
+                    <button className="btn-secondary" onClick={() => scrollToSection(featuresRef)}>
+                      Learn More
+                    </button>
+                  </div>
+                </div>
               </div>
+            ))}
+          </div>
+
+          <button className="hero-nav-btn hero-nav-prev" onClick={prevBanner}>
+            ❮
+          </button>
+          <button className="hero-nav-btn hero-nav-next" onClick={nextBanner}>
+            ❯
+          </button>
+
+          <div className="hero-dots">
+            {heroSlides.map((_, idx) => (
+              <button
+                key={idx}
+                className={`hero-dot ${idx === bannerIndex ? "active" : ""}`}
+                onClick={() => setBannerIndex(idx)}
+              />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Features Section */}
+      <section className="features-section" ref={featuresRef}>
+        <div className="section-header">
+          <h2>Why Choose Harmonic?</h2>
+          <p>Everything you need to become a proficient piano accompanist</p>
+        </div>
+        <div className="features-grid">
+          {features.map((feature, idx) => (
+            <div className="feature-card" key={idx}>
+              <div className="feature-icon">{feature.icon}</div>
+              <h3>{feature.title}</h3>
+              <p>{feature.description}</p>
             </div>
           ))}
         </div>
-      </div>
+      </section>
+
+      {/* Demo Section */}
+      <section className="demo-section" ref={demoRef}>
+        <div className="demo-container">
+          <div className="demo-content">
+            <h2>See It In Action</h2>
+            <p>Explore our interactive piano roll with pre-loaded songs and visualize how chord progressions work in real music.</p>
+            <div className="song-selector">
+              <label>Select a Song:</label>
+              <div className="song-buttons">
+                {[
+                  "Yiruma - River Flow In You",
+                  "Ed Sheeran - Perfect",
+                  "Radwimps - Sparkle",
+                ].map((song) => (
+                  <button
+                    key={song}
+                    className={`song-btn ${selectedSong === song ? "active" : ""}`}
+                    onClick={() => setSelectedSong(song)}
+                  >
+                    {song}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+          <div className="pianoroll-container">
+            <PianoRollApp
+              width={12}
+              height={48}
+              showNote={false}
+              fileName={fileName}
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="cta-section">
+        <div className="cta-content">
+          <h2>Ready to Transform Your Musical Journey?</h2>
+          <p>Join thousands of musicians learning smarter with Harmonic</p>
+          {!isGlobalEnabled ? (
+            <Link className="btn-primary btn-large" to="/login">
+              Sign Up Now
+            </Link>
+          ) : (
+            <Link className="btn-primary btn-large" to="/generate-prompt">
+              Start Practicing
+            </Link>
+          )}
+        </div>
+      </section>
+
+      {/* Team Section */}
+      <section className="team-section" ref={membersRef}>
+        <div className="section-header">
+          <h2>Meet Our Team</h2>
+          <p>Passionate developers building the future of music education</p>
+        </div>
+        <div className="team-grid">
+          {profiles.map((profile, index) => (
+            <div className="team-card" key={index}>
+              <div className="team-image-wrapper">
+                <img src={profile.img} alt={profile.name} className="team-image" />
+              </div>
+              <h3>{profile.name}</h3>
+              <p className="team-role">{profile.role}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="landing-footer">
+        <p>&copy; 2025 Harmonic. Learn Music, The Smart Way.</p>
+      </footer>
     </div>
   );
 };
