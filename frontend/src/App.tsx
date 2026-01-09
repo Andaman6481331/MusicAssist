@@ -5,6 +5,8 @@ import { Outlet, useLocation, Link } from "react-router-dom";
 import LoadingBar from "./LoadingBar";
 import AuthControls from "./auth/AuthControls";
 import { useGlobalBoolean, GlobalBooleanProvider } from './GlobalBooleanContext.tsx';
+import { ThemeProvider } from './ThemeContext';
+import ThemeToggle from './component/ThemeToggle';
 
 const sampleUrls: Record<string, string> = {
   "A0": "samples/A0vH.mp3",
@@ -113,44 +115,47 @@ const App = () => {
     }, []);
 
   return (
-    <div>
-      <SamplerContext.Provider value={{samplerRef,gainRef}}>
-        {!isSamplerLoaded ? (
-          <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
-            <h2>Loading samples...</h2>
-          </div>
-        ) : (<div style={{display: "flex", flexDirection: "column"}}>
-          <header className="navbar">
-            <Link to="/" style={{outline:"0", display:"flex"}}>
-              <div style={{height:"40px", margin:"50px 20px 0 20px"}}>
-                  <img src="/harmonic_logo(1).svg" alt="logo" style={{
-                      height: "100%",
-                      width: "100%",
-                      objectFit: "contain",
-                      display: "block"
-                      }}/>
-              </div>
-              <h1 className="title">Harmonic</h1>
-            </Link>
-            <div className="right-nav">
-              {
-                !isGlobalEnabled ?(<div></div>):
-                (<Link className="title" to="/generate-prompt">Practicing</Link>)
-              }
-              <Link className="title" to="/tools">Tools</Link>
-              <Link className="title" to="/theory">Self-Study</Link>
-              <Link className="title" to="/lessons">Lessons</Link>
-              <AuthControls />
+    <ThemeProvider>
+      <div>
+        <SamplerContext.Provider value={{samplerRef,gainRef}}>
+          {!isSamplerLoaded ? (
+            <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
+              <h2>Loading samples...</h2>
             </div>
-          </header>
-          <main style={{flex: 1}}>
-            <Outlet key={location.pathname}/>
-            <LoadingBar />
-          </main>
-        </div>
-        )}
-      </SamplerContext.Provider>
-  </div>
+          ) : (<div style={{display: "flex", flexDirection: "column"}}>
+            <header className="navbar">
+              <Link to="/" style={{outline:"0", display:"flex"}}>
+                <div style={{height:"40px", margin:"50px 20px 0 20px"}}>
+                    <img src="/harmonic_logo(1).svg" alt="logo" style={{
+                        height: "100%",
+                        width: "100%",
+                        objectFit: "contain",
+                        display: "block"
+                        }}/>
+                </div>
+                <h1 className="title">Harmonic</h1>
+              </Link>
+              <div className="right-nav">
+                {
+                  !isGlobalEnabled ?(<div></div>):
+                  (<Link className="title" to="/generate-prompt">Practicing</Link>)
+                }
+                <Link className="title" to="/tools">Tools</Link>
+                <Link className="title" to="/theory">Self-Study</Link>
+                <Link className="title" to="/lessons">Lessons</Link>
+                <ThemeToggle />
+                <AuthControls />
+              </div>
+            </header>
+            <main style={{flex: 1}}>
+              <Outlet key={location.pathname}/>
+              <LoadingBar />
+            </main>
+          </div>
+          )}
+        </SamplerContext.Provider>
+    </div>
+    </ThemeProvider>
   );
 };
 

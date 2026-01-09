@@ -1,6 +1,7 @@
 .navbar {
   position: relative;
-  background: linear-gradient(rgb(1, 64, 109),rgb(11, 103, 169));
+  background: linear-gradient(rgb(1, 64, 109), rgb(11, 103, 169));
+  background: linear-gradient(135deg, var(--gradient-1), var(--primary-color));
   display: flex;
   flex-direction: row;
   align-items: center;
