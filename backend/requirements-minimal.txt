@@ -1,0 +1,19 @@
+# Python 3.12 Compatibility
+numpy>=1.26.0
+setuptools>=68.0.0
+wheel
+
+fastapi
+uvicorn
+pydantic
+python-multipart
+
+# Audio processing for DamRsn function
+onnxruntime
+librosa
+soundfile
+
+# MIDI processing
+pretty_midi
+mido
+basic-pitch>=0.4.0

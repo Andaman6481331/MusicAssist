@@ -1,33 +1,110 @@
-import {useState, useRef} from "react";
+import { useState, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import "./based.css";
 import PianoRollApp from "./component/PianoRollApp";
-import WavToJson from "./component/WavToJson";
 
-const ToolsPage: React.FC = () =>{
-    const [selectedSong, setSelectedSong] = useState<string>("");
-    type UploadState = "idle" | "uploading" | "done";
-    const [uploadState, setUploadState] = useState<UploadState>("idle");
-    const [guidePopup1, setGuidePopUp1] = useState(false);
-    const [guidePopup2, setGuidePopUp2] = useState(false);
+const ToolsPage: React.FC = () => {
+  const [selectedSong, setSelectedSong] = useState<string>("");
+  type UploadState = "idle" | "uploading" | "done";
+  const [uploadState, setUploadState] = useState<UploadState>("idle");
+  const [guidePopup1, setGuidePopUp1] = useState(false);
+  const [guidePopup2, setGuidePopUp2] = useState(false);
 
-    const fileInputRef = useRef<HTMLInputElement>(null);
+  // --- Converter Tool State ---
+  const [convertState, setConvertState] = useState<"idle" | "uploading" | "done">("idle");
+  const [convertFile, setConvertFile] = useState<File | null>(null);
+  const [convertPopup, setConvertPopup] = useState(false); // For duplicate file warning
+  const [convertError, setConvertError] = useState("");
+  const navigate = useNavigate();
 
-    const handleButtonClick = () => {
-        if (fileInputRef.current) {
-            fileInputRef.current.click();
-        }
-    };
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const convertInputRef = useRef<HTMLInputElement>(null);
 
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (file) {
-        const nameWithoutExt = file.name.replace(/\.[^/.]+$/, "");
-        setUploadState("done");
-        setSelectedSong(`${nameWithoutExt}`);
-        }
-    };
+  const handleButtonClick = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
 
-  return(
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const nameWithoutExt = file.name.replace(/\.[^/.]+$/, "");
+      setUploadState("done");
+      setSelectedSong(`${nameWithoutExt}`);
+    }
+  };
+
+  // --- Converter Logic ---
+  const handleConvertClick = () => {
+    if (convertInputRef.current) {
+      convertInputRef.current.click();
+    }
+  };
+
+  const handleConvertFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setConvertFile(file);
+      checkFileAndConvert(file);
+    }
+  };
+
+  const checkFileAndConvert = async (file: File) => {
+    if (!file) return;
+    setConvertState("uploading");
+    try {
+      // Step 1: Check if file exists
+      const checkRes = await fetch(`http://localhost:8000/check-filename?name=${file.name}`);
+      const checkData = await checkRes.json();
+
+      if (checkData.exists) {
+        setConvertPopup(true); // Show duplicate warning
+        setConvertState("idle"); // Pause uploading state while user decides
+      } else {
+        await uploadFile(file, "add_anyway");
+      }
+    } catch (err) {
+      console.error("Error checking filename:", err);
+      setConvertError("Error checking filename.");
+      setConvertState("idle");
+    }
+  };
+
+  const uploadFile = async (file: File, choice: "add_anyway" | "cancel") => {
+    const ext = file.name.split('.').pop()?.toLowerCase();
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("action", choice);
+
+    try {
+      let res;
+      if (ext === "wav") {
+        res = await fetch("http://localhost:8000/wavtojson", {
+          method: "POST",
+          body: formData,
+        });
+      } else {
+        res = await fetch("http://localhost:8000/miditojson", {
+          method: "POST",
+          body: formData,
+        });
+      }
+
+      if (!res.ok) throw new Error("Upload failed");
+
+      // Success
+      setConvertState("done");
+      setConvertPopup(false);
+
+    } catch (err) {
+      console.error(err);
+      setConvertError("Upload failed");
+      setConvertState("idle");
+    }
+  };
+
+  return (
     <div className="tools-page">
       {/* Page Header */}
       <div className="tools-header">
@@ -42,7 +119,7 @@ const ToolsPage: React.FC = () =>{
           <div className="tool-header">
             <div className="tool-title-wrapper">
               <h2>🎹 Piano Visualizer</h2>
-              <button 
+              <button
                 className="info-btn"
                 onClick={() => setGuidePopUp1(true)}
                 title="Learn more about Piano Visualizer"
@@ -50,51 +127,51 @@ const ToolsPage: React.FC = () =>{
                 ℹ️
               </button>
             </div>
-            {uploadState === "done" &&(
-                <button onClick={() => setUploadState("idle")} className="btn-exit">
-                    Exit    
-                </button>
+            {uploadState === "done" && (
+              <button onClick={() => setUploadState("idle")} className="btn-exit">
+                Exit
+              </button>
             )}
           </div>
 
           <div className="tool-content">
             {uploadState === "idle" && (
-                <div className="upload-section">
-                    <div className="upload-box">
-                        <div className="circle-wrapper">
-                            <img src="icon/music.svg" alt="music-icon" className="music-logo" />
-                        </div>
-                        <h3>Load Your Music File</h3>
-                        <p>Upload JSON, MIDI, or WAV files to visualize in the interactive piano roll</p>
-                        <button onClick={handleButtonClick} className="btn-upload">
-                            <span>📤</span>
-                            Upload File
-                        </button>
-                        <input 
-                            type="file" 
-                            accept=".json,.wav,.mid,.midi"
-                            ref={fileInputRef}
-                            onChange={handleFileChange}
-                            style={{display: 'none'}}
-                        />
-                        <p className="file-support">Supported: .json, .wav, .mid, .midi</p>
-                    </div>
+              <div className="upload-section">
+                <div className="upload-box">
+                  <div className="circle-wrapper">
+                    <img src="icon/music.svg" alt="music-icon" className="music-logo" />
+                  </div>
+                  <h3>Load Your Music File</h3>
+                  <p>Upload JSON, MIDI, or WAV files to visualize in the interactive piano roll</p>
+                  <button onClick={handleButtonClick} className="btn-upload">
+                    <span>📤</span>
+                    Upload File
+                  </button>
+                  <input
+                    type="file"
+                    accept=".json,.wav,.mid,.midi"
+                    ref={fileInputRef}
+                    onChange={handleFileChange}
+                    style={{ display: 'none' }}
+                  />
+                  <p className="file-support">Supported: .json, .wav, .mid, .midi</p>
                 </div>
+              </div>
             )}
             {uploadState === "uploading" && (
-                <div className="uploading-state">
-                    <div className="spinner"></div>
-                    <p>Uploading...</p>
-                </div>
+              <div className="uploading-state">
+                <div className="spinner"></div>
+                <p>Uploading...</p>
+              </div>
             )}
             {uploadState === "done" && (
-                <div className="pianoroll-view">
-                    <PianoRollApp
-                    width={20}
-                    height={80}
-                    fileName={selectedSong}
-                    />
-                </div>
+              <div className="pianoroll-view">
+                <PianoRollApp
+                  width={20}
+                  height={80}
+                  fileName={selectedSong}
+                />
+              </div>
             )}
           </div>
         </div>
@@ -104,7 +181,7 @@ const ToolsPage: React.FC = () =>{
           <div className="tool-header">
             <div className="tool-title-wrapper">
               <h2>🔄 File Converter</h2>
-              <button 
+              <button
                 className="info-btn"
                 onClick={() => setGuidePopUp2(true)}
                 title="Learn more about File Converter"
@@ -115,34 +192,118 @@ const ToolsPage: React.FC = () =>{
           </div>
 
           <div className="tool-content">
-            <WavToJson/>
+            {convertState === "idle" && (
+              <div className="upload-section">
+                <div className="upload-box">
+                  <div className="circle-wrapper">
+                    <img src="icon/music.svg" alt="music-icon" className="music-logo" />
+                  </div>
+                  <h3>Convert Music Files</h3>
+                  <p>Convert WAV or MIDI files to JSON format for the interactive viewer</p>
+                  <button onClick={handleConvertClick} className="btn-upload">
+                    <span>🔄</span>
+                    Convert File
+                  </button>
+                  <input
+                    type="file"
+                    accept=".wav,.mid,.midi"
+                    ref={convertInputRef}
+                    onChange={handleConvertFileChange}
+                    style={{ display: 'none' }}
+                  />
+                  <p className="file-support">Supported: .wav, .mid, .midi</p>
+                </div>
+              </div>
+            )}
+            {convertState === "uploading" && (
+              <div className="uploading-state">
+                <div className="spinner"></div>
+                <p>Converting...</p>
+              </div>
+            )}
+            {convertState === "done" && (
+              <div className="upload-box">
+                <h3>Conversion Successful!</h3>
+                <p>"{convertFile?.name}" has been converted.</p>
+                <div className="action-buttons" style={{ display: 'flex', gap: '10px', justifyContent: 'center', marginTop: '20px' }}>
+                  <button
+                    className="btn-upload"
+                    onClick={() => navigate(`/output/${convertFile?.name.replace(/\.[^/.]+$/, "")}`)}
+                  >
+                    Go to Viewer
+                  </button>
+                  <button
+                    className="btn-exit"
+                    onClick={() => { setConvertState("idle"); setConvertFile(null); }}
+                  >
+                    Convert Another
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
 
       {/* Popups */}
-      {guidePopup1 &&(
-          <div className="popup-overlay">
-            <div className="popup-box">
-              <h2>Piano Visualizer Guide</h2>
-              <p>Upload your <strong>MIDI or Music file</strong> to view it in an <strong>interactive piano roll</strong>. You can play, pause, and practice directly with the visual notes once loaded.</p>
-              <div className="popup-buttons">
-                <button className="btn-primary" onClick={() => setGuidePopUp1(false)}>Got it!</button>
-              </div>
+      {guidePopup1 && (
+        <div className="popup-overlay">
+          <div className="popup-box">
+            <h2>Piano Visualizer Guide</h2>
+            <p>Upload your <strong>MIDI or Music file</strong> to view it in an <strong>interactive piano roll</strong>. You can play, pause, and practice directly with the visual notes once loaded.</p>
+            <div className="popup-buttons">
+              <button className="btn-primary" onClick={() => setGuidePopUp1(false)}>Got it!</button>
             </div>
           </div>
+        </div>
       )}
-      {guidePopup2 &&(
-          <div className="popup-overlay">
-            <div className="popup-box">
-              <h2>File Converter Guide</h2>
-              <p>Convert your <strong>.wav</strong> or <strong>.midi</strong> files into <strong>.json format</strong> that Harmonic can use. After conversion, you'll automatically move to the practice view to explore your music.</p>
-              <p className="tip-text">💡 Tip: Toggle between MIDI and WAV modes easily</p>
-              <div className="popup-buttons">
-                <button className="btn-primary" onClick={() => setGuidePopUp2(false)}>Got it!</button>
-              </div>
+      {guidePopup2 && (
+        <div className="popup-overlay">
+          <div className="popup-box">
+            <h2>File Converter Guide</h2>
+            <p>Convert your <strong>.wav</strong> or <strong>.midi</strong> files into <strong>.json format</strong> that Harmonic can use. After conversion, you'll automatically move to the practice view to explore your music.</p>
+            <p className="tip-text">💡 Tip: Toggle between MIDI and WAV modes easily</p>
+            <div className="popup-buttons">
+              <button className="btn-primary" onClick={() => setGuidePopUp2(false)}>Got it!</button>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Duplicate File Warning Popup */}
+      {convertPopup && (
+        <div className="popup-overlay">
+          <div className="popup-box">
+            <h3 style={{ color: "black" }}>{convertFile?.name} already exists!</h3>
+            <p style={{ color: "black" }}>What would you like to do?</p>
+            <div className="popup-buttons">
+              <button
+                className="btn-primary"
+                onClick={() => { if (convertFile) uploadFile(convertFile, "add_anyway"); }}
+              >
+                Add Anyway
+              </button>
+              <button
+                className="btn-exit"
+                onClick={() => { setConvertPopup(false); setConvertState("idle"); }}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {convertError && (
+        <div className="popup-overlay">
+          <div className="popup-box">
+            <h3 style={{ color: "red" }}>Error</h3>
+            <p>{convertError}</p>
+            <div className="popup-buttons">
+              <button className="btn-exit" onClick={() => setConvertError("")}>Close</button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
