@@ -9,6 +9,8 @@ export interface Theme {
   gradient1: string;
   gradient2: string;
   dark: string;
+  light: string;
+  lighter: string;
 }
 
 export const themes: Record<string, Theme> = {
@@ -21,6 +23,8 @@ export const themes: Record<string, Theme> = {
     gradient1: '#0a2f5c',
     gradient2: '#144387',
     dark: '#0a2f5c',
+    light: '#a8cdfd',
+    lighter: '#b2d3fe',
   },
   sunsetOrange: {
     name: 'Sunset Orange',
@@ -31,6 +35,8 @@ export const themes: Record<string, Theme> = {
     gradient1: '#7c2d12',
     gradient2: '#b45309',
     dark: '#5a1f0b',
+    light: '#fed7aa',
+    lighter: '#fff1e0',
   },
   midnightPurple: {
     name: 'Midnight Purple',
@@ -41,6 +47,8 @@ export const themes: Record<string, Theme> = {
     gradient1: '#2e1065',
     gradient2: '#5b21b6',
     dark: '#1e1b4b',
+    light: '#ede9fe',
+    lighter: '#f3e8ff',
   },
   forestGreen: {
     name: 'Forest Green',
@@ -51,6 +59,8 @@ export const themes: Record<string, Theme> = {
     gradient1: '#064e3b',
     gradient2: '#047857',
     dark: '#064e3b',
+    light: '#bbf7d0',
+    lighter: '#e6fffa',
   },
   rosePink: {
     name: 'Rose Pink',
@@ -61,6 +71,8 @@ export const themes: Record<string, Theme> = {
     gradient1: '#500724',
     gradient2: '#a3072a',
     dark: '#3f0a17',
+    light: '#ffdde1',
+    lighter: '#fff1f2',
   },
   deepTeal: {
     name: 'Deep Teal',
@@ -71,6 +83,8 @@ export const themes: Record<string, Theme> = {
     gradient1: '#0f172a',
     gradient2: '#134e4a',
     dark: '#0f172a',
+    light: '#78f4e1',
+    lighter: '#e6fffa', 
   },
 };
 
@@ -103,6 +117,9 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       root.style.setProperty('--gradient-1', selectedTheme.gradient1);
       root.style.setProperty('--gradient-2', selectedTheme.gradient2);
       root.style.setProperty('--dark-color', selectedTheme.dark);
+      root.style.setProperty('--dark-color', selectedTheme.dark);
+      root.style.setProperty('--light-color', selectedTheme.light);
+      root.style.setProperty('--lighter-color', selectedTheme.lighter);
       localStorage.setItem('selectedTheme', name);
     }
   };

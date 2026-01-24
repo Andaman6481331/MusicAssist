@@ -18,11 +18,11 @@
   overflow-x: hidden;
   --sz: 4px; /*** size ***/
   --sp: 5s; /*** speed ***/
-  --b1: #1a58b0; /*** color ***/
-  --b2: #1a58b0; /*** color ***/
-  --b3: #1a58b0; /*** color ***/
-  --b4: #1a58b0; /*** color ***/
-  --c1: #346ec0; /*** color ***/
+ --b1: var(--accent-color); /*** color ***/
+  --b2: var(--accent-color); /*** color ***/
+  --b3: var(--accent-color); /*** color ***/
+  --b4: var(--accent-color); /*** color ***/
+  --c1: var(--glow-color); /*** color ***/
   --ts: 50% / calc(var(--sz) * 17.5) calc(var(--sz) * 29.5);
   background:
 		/* black shadows */ radial-gradient(
@@ -203,11 +203,11 @@ button {
 .pattern{
   --sz: 4px; /*** size ***/
   --sp: 5s; /*** speed ***/
-  --b1: rgb(39, 126, 188); /*** color ***/
-  --b2: rgb(28, 105, 160); /*** color ***/
-  --b3: rgb(39, 126, 188); /*** color ***/
-  --b4: rgb(45, 127, 186);
-  --c1: rgb(81, 160, 215); /*** color ***/
+  --b1: var(--lighter); /*** color ***/
+  --b2: var(--light); /*** color ***/
+  --b3: var(--light); /*** color ***/
+  --b4: var(--light);
+  --c1: var(--lighter); /*** color ***/
   --ts: 50% / calc(var(--sz) * 17.5) calc(var(--sz) * 29.5);
   background:
 		/* black shadows */ radial-gradient(

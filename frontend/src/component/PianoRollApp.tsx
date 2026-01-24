@@ -511,7 +511,7 @@ const PianoRollApp: React.FC<PianoRollAppProps> = ({onNotePlayed, width = 25, he
                     width: `${width * 0.625}px`,
                     height: `${height * 0.6}px`,
                     backgroundColor: isSelected
-                      ? "rgb(8, 117, 201)"
+                      ? "var(--accent-color)"
                       : "black",
                     left: `${left}px`,
                     zIndex: 2,

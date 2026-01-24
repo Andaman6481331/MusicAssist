@@ -7,6 +7,7 @@ import AuthControls from "./auth/AuthControls";
 import { useGlobalBoolean, GlobalBooleanProvider } from './GlobalBooleanContext.tsx';
 import { ThemeProvider } from './ThemeContext';
 import ThemeToggle from './component/ThemeToggle';
+import RippleEffect from './RippleEffect';
 
 const sampleUrls: Record<string, string> = {
   "A0": "samples/A0vH.mp3",
@@ -117,6 +118,7 @@ const App = () => {
   return (
     <ThemeProvider>
       <div>
+        {/* <RippleEffect /> */}
         <SamplerContext.Provider value={{samplerRef,gainRef}}>
           {!isSamplerLoaded ? (
             <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>

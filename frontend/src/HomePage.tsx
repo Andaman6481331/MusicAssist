@@ -15,8 +15,8 @@ const formatFileName = (title: string | undefined): string => {
 };
 
 const profiles = [
-  { img: "./img/herbPic.jpg", name: "Andaman", role: "UI / UX Designer" },
-  { img: "./img/nazPic.jpg", name: "Nazneen", role: "Full Stack Developer" },
+  { img: "./img/nazPic.jpg", name: "Nazneen", role: " / UX Designer" },
+  { img: "./img/herbPic.jpg", name: "Andaman", role: "Full Stack DeveloperUI" },
   { img: "./img/gracePic.jpg", name: "Thitirat", role: "Music AI Engineer" },
 ];
 

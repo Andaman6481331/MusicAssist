@@ -228,7 +228,11 @@
 }
 
 .feature-card {
-  background: rgba(255, 255, 255, 0.08);
+  background-color: color-mix(
+  in srgb,
+  var(--primary-color) 40%,
+  transparent
+);
   border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 1.5rem;
   padding: 2.5rem;
@@ -237,7 +241,11 @@
 }
 
 .feature-card:hover {
-  background: rgba(255, 255, 255, 0.12);
+    background-color: color-mix(
+      in srgb,
+      var(--primary-color) 20%,
+      transparent
+    );
   border-color: rgba(255, 255, 255, 0.3);
   transform: translateY(-8px);
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
@@ -991,7 +999,7 @@
   width: 100%;
   cursor: pointer;
   padding: 0.5rem 0 0.5rem 0;
-  border-bottom: 4px solid #3b98fa;
+  border-bottom: 4px solid var(--accent-color);
   font-size: 1.2rem;
   font-family: inherit;
   font-weight: 700;
@@ -1004,9 +1012,9 @@
 }
 .nbtn input:checked + span {
   color: white;
-  background-color: #0d75e4;
+  background-color: var(--secondary-color);
   border-radius: 2rem 2rem 0 0;
-  border: 4px solid #3b98fa;
+  border: 4px solid var(--accent-color);
   border-bottom: 0;
 }
 .card-title{
@@ -1099,7 +1107,7 @@ box-shadow: -20px -20px 60px #083565, 20px 20px 60px #0e4d91;
   }
 }
 .pianorollbtn {
-  background: linear-gradient(145deg, #4489f9, #1da1f2);
+  background: linear-gradient(145deg, var(--secondary-color), var(--accent-color));
   margin: 0.2rem;
   padding: 0.5rem;
   /* border-radius: 50%; */
@@ -1108,7 +1116,7 @@ box-shadow: -20px -20px 60px #083565, 20px 20px 60px #0e4d91;
   transition: background-color 0.3s ease;
   transition: background 0.4s ease, transform 0.3s ease;
   &:hover {
-    background-color: #4aa0fc;
+    background-color: var(--glow-color);
     cursor: pointer;
   }
 }
@@ -1350,10 +1358,14 @@ backdrop-filter: blur(50px);
 }
 
 .PianoRoll-Bg{
-  background: rgba(16, 67, 168, 0.52);
+  background-color: color-mix(
+    in srgb,
+    var(--dark-color) 30%,
+    transparent
+  );
   display: block;
   margin: 0 auto;
-  border: 1px solid rgb(0, 0, 106);
+  border: 1px solid var(--dark-color);
   background-image: 
     repeating-linear-gradient(
       to right,
@@ -1932,36 +1944,7 @@ li{
   }
 }
 
-/* --- Upload Box --- */
-.upload-box {
-  border: 2px dashed #aaa;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-  padding: 2rem 5rem 1rem 5rem;
-  text-align: center;
-  transition: border-color 0.3s, background 0.3s;
-  margin: 20px auto;
-  background: #fafafae3;
-  &:hover {
-    border-color: #777;
-    background: #f0f0f0;
-  }
-  h1{
-    color: #11539a;
-    margin: 0;
-  }
-  h2{
-    color: #346ec0;
-    margin: 0;
-    font-weight: 200;
-  }
-  p{
-    color: #4a90e2;
-    margin: 0;
-  }
+
   .circle-wrapper{
     width: 5rem;
     height: 5rem;
@@ -1988,7 +1971,6 @@ li{
     justify-self: center;
     align-self: center;
   }
-}
 .upload-box.dragover {
   border-color: #4a90e2;
   background: #e6f0ff;
@@ -2137,7 +2119,7 @@ li{
 .lesson-titles{
   display: flex;
   justify-content: space-between;
-  background-color: #5386CA;
+  background-color: var(--gradient-2);
   padding: 0.5rem 2rem;
   margin: 0;
   font-size: 1.5rem;
@@ -2157,7 +2139,7 @@ li{
     max-height 0.3s ease,
     /* opacity 0.5s ease, */
     transform 0.5s ease;
-  background-color: #699ad6;
+  background-color: var(--gradient-2);
   margin-bottom: 1rem;
   padding: 1rem 1rem 0 1rem;
   box-sizing: border-box;
@@ -2172,7 +2154,7 @@ li{
 /* child elements */
 .lesson-details .label {
   display: flex;
-  background-color: #29599C;
+  background-color: var(--primary-color);
   border-radius: 1rem;
   font-size: smaller;
   justify-content: center;
@@ -2325,21 +2307,6 @@ li{
   border-color: rgba(68, 137, 249, 0.7);
 }
 
-.btn-exit {
-  background: linear-gradient(145deg, #ff6b6b, #ff5252);
-  border: none;
-  color: white;
-  padding: 0.75rem 1.5rem;
-  border-radius: 0.75rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.btn-exit:hover {
-  background: linear-gradient(145deg, #ff7c7c, #ff6363);
-  transform: translateY(-2px);
-}
 
 .tool-content {
   padding: 2rem;
@@ -2360,10 +2327,20 @@ li{
   border-radius: 1.25rem;
   border: 2px dashed rgba(255, 255, 255, 0.3);
   transition: all 0.3s ease;
+  border: 2px dashed #aaa;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
 }
 
-.upload-box:hover {
-  border-color: rgba(68, 137, 249, 0.6);
+  .upload-box:hover {
+    background-color: color-mix(
+    in srgb,
+    var(--primary-color) 6%,
+    transparent
+  );
   background: rgba(68, 137, 249, 0.1);
 }
 
@@ -2397,7 +2374,7 @@ li{
 }
 
 .btn-upload {
-  background: linear-gradient(145deg, #4489f9, #1da1f2);
+  background: linear-gradient(145deg, var(--secondary-color), var(--accent-color));
   border: none;
   color: white;
   padding: 1rem 2rem;
@@ -2413,10 +2390,32 @@ li{
 }
 
 .btn-upload:hover {
-  background: linear-gradient(145deg, #5594fa, #28a7f6);
+  background-color: var(--glow-color);
   transform: translateY(-3px);
-  box-shadow: 0 8px 24px rgba(29, 161, 242, 0.3);
+  box-shadow: 0 8px 24px var(--light-color);
 }
+
+.btn-exit {
+  background: linear-gradient(145deg, #ff6b6b, #ff5252);
+  border: none;
+  color: white;
+  padding: 1rem 2rem;
+  font-size: 1.1rem;
+  font-weight: 700;
+  border-radius: 0.75rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 1.5rem 0;
+}
+
+.btn-exit:hover {
+  background: linear-gradient(145deg, #ff7c7c, #ff6363);
+  transform: translateY(-3px);
+}
+
 
 .file-support {
   font-size: 0.9rem;
@@ -2427,17 +2426,32 @@ li{
 .uploading-state {
   text-align: center;
   padding: 3rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
 }
 
-.uploading-state .spinner {
-  width: 50px;
-  height: 50px;
-  margin: 0 auto 1rem;
+.spinner {
+  width: 60px;
+  height: 60px;
+  margin: 0 auto 1.5rem;
+  border: 4px solid rgba(255, 255, 255, 0.2);
+  border-top: 4px solid #4489f9;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
 .uploading-state p {
   font-size: 1.1rem;
   font-weight: 600;
+  opacity: 0.9;
 }
 
 .pianoroll-view {
@@ -2514,55 +2528,93 @@ li{
 }
 
 .form-group h3 {
-  font-size: 1.2rem;
-  margin: 0 0 1rem 0;
+  font-size: 1.3rem;
+  margin: 0 0 1.25rem 0;
   font-weight: 700;
-  text-transform: uppercase;
   letter-spacing: 0.5px;
-  opacity: 0.95;
+  color: rgba(255, 255, 255, 0.95);
+  text-transform: none;
+  border-left: 4px solid #4489f9;
+  padding-left: 1rem;
 }
 
 .radio-inputs {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 0.875rem;
   width: 100%;
 }
 
 .radio-inputs .radio {
   position: relative;
-  display: flex;
-  align-items: center;
+  display: block;
+  width: 100%;
 }
 
 .radio-inputs .radio input {
   position: absolute;
   opacity: 0;
   cursor: pointer;
+  width: 0;
+  height: 0;
 }
 
 .radio-inputs .radio .name {
-  flex: 1;
-  padding: 0.75rem 1rem;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 0.75rem;
+  display: block;
+  padding: 1.25rem 1rem;
+  background: rgba(10, 47, 92, 0.4);
+  border: 2px solid rgba(68, 137, 249, 0.3);
+  border-radius: 1rem;
   cursor: pointer;
-  transition: all 0.3s ease;
-  font-weight: 500;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  font-weight: 600;
+  font-size: 0.95rem;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(5px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.radio-inputs .radio .name::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(68, 137, 249, 0.3);
+  transform: translate(-50%, -50%);
+  transition: width 0.4s ease, height 0.4s ease;
+}
+
+.radio-inputs .radio input:checked + .name::before {
+  width: 300px;
+  height: 300px;
 }
 
 .radio-inputs .radio input:checked + .name {
-  background: linear-gradient(145deg, #4489f9, #1da1f2);
+  background: linear-gradient(135deg, #4489f9 0%, #1da1f2 100%);
   border-color: #1da1f2;
   font-weight: 700;
-  box-shadow: 0 4px 16px rgba(29, 161, 242, 0.3);
+  box-shadow: 0 8px 24px rgba(68, 137, 249, 0.5), 
+              0 0 0 3px rgba(68, 137, 249, 0.2);
+  transform: scale(1.05);
+  color: white;
 }
 
 .radio-inputs .radio:hover .name {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(68, 137, 249, 0.2);
   border-color: rgba(68, 137, 249, 0.6);
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 6px 16px rgba(68, 137, 249, 0.3);
+}
+
+.radio-inputs .radio input:checked:hover + .name {
+  box-shadow: 0 10px 28px rgba(68, 137, 249, 0.6),
+              0 0 0 3px rgba(68, 137, 249, 0.3);
+  transform: translateY(-3px) scale(1.05);
 }
 
 .form-actions {
@@ -2727,5 +2779,22 @@ li{
   .btn-generate {
     padding: 0.875rem 1.5rem;
     font-size: 1rem;
+  }
+}
+
+/* ====== GLOBAL RIPPLE EFFECT ====== */
+@keyframes ripple-expand {
+  0% {
+    width: 0px;
+    height: 0px;
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+  100% {
+    width: 300px;
+    height: 300px;
+    opacity: 0;
   }
 }

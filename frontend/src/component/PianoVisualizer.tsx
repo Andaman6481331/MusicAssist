@@ -142,7 +142,7 @@ const PianoVisualizer: React.FC<PianoVisualizerProps> = ({isPlayable = true, sca
               style={{
                 width: `${width}px`,
                 height: `${height}px`,
-                backgroundColor: isSelected ? "rgb(32, 173, 255)" : !isKeyPlayable ? "#ffffff70" : "white",
+                backgroundColor: isSelected ? "var(--secondary-color)" : !isKeyPlayable ? "#ffffff70" : "white",
                 border: "1px solid black",
                 left: `${left}px`,
                 margin: "0",
@@ -194,7 +194,7 @@ const PianoVisualizer: React.FC<PianoVisualizerProps> = ({isPlayable = true, sca
               style={{
                 width: `${width*0.625}px`,
                 height: `${height*0.6}px`,
-                backgroundColor: isSelected ? "rgba(22, 19, 169, 1)" : !isKeyPlayable ? "#07056a70": "rgb(7, 5, 106)",
+                backgroundColor: isSelected ? "var(--gradient-2)" : !isKeyPlayable ? "#00000040": "var(--dark-color)",
                 left: `${left}px`,
                 zIndex: 2,
                 position: "absolute",

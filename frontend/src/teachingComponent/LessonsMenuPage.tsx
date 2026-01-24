@@ -105,7 +105,7 @@ const LessonMenuPage: React.FC = () =>{
                                 onClick={() => {
                                     if (!isUnlocked) return;
                                     handleClick(index)}}
-                                style={!isUnlocked?{backgroundColor:"#5387ca4e", color:"#ffffff6a", cursor:"default"}:{backgroundColor:"#5386CA"}}
+                                style={!isUnlocked?{backgroundColor:"var(--primary-color)", color:"#ffffff40", cursor:"default"}:{backgroundColor:"var(--primary-color)", cursor:"pointer"}}
                             >
                                 {title}
                             </div>

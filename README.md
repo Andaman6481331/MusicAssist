@@ -1,23 +1,50 @@
-# MusicAssist
- Interactive Web Application for Musician-Assisted Chord Progression and Tension Exploration Using Music Theory
 
 
-To-Do List
-1. Change homepage guide to simplier ui
-(DONE)2. Move the guide to each page: generator/fileupload/learn&explore
-(DONE)3. finish FileCoverter Section UI
-(DONE)4. Loadingbar fix
-(DONE)5. Chord Progression Tools
-6.generate part add filename check (rn it simply skip)
-(DONE)7.pianoroll app restart, movable, mute,  
-(DONE)8.finish WavToJson - check inside handlefilechange for no similar json file
-7.format all piano json file and pianorollapp tgt
-    
+NEED Python3.9.13 !!!!!!!!!!
+(check using "python --version" in backend folder)
 
-Server Relate work
-(DONE)1.login/signin system
-2.Database
+installation
+<!-- 0) cmd
+1) get into backend folder (cd backend)
+2) once in the backend directory, type-> .\.venv\Scripts\activate
+3) then install these commands: 
 
-Bug Fix
-1.When reload the Output page, the sample cant load => browser might block first loading when refresh path 
-2.
+	pip install -r requirements.txt --extra-index-url https://download.pytorch.org/whl/cu121 -->
+
+use another terminal to install frontend library
+0) cmd
+1) get into frontend folder (cd frontend)
+2) npm init -y
+3) npm install react react-dom tone @tonejs/midi
+
+==================================================================================================
+
+Run Backend
+0) cmd
+1) get into backend folder (cd backend)
+2) once in the backend directory, type-> .\.venv\Scripts\activate
+3) uvicorn server:app --host 0.0.0.0 --port 8000
+
+Run Frontend
+0) cmd
+1) get into frontend folder (cd frontend)
+2) npm run dev
+
+
+other...
+<Python3.9.13 dir
+C:/Users/herby/PycharmProjects/PythonProject/.venv1/Scripts/python.exe>
+
+pip install basic-pitch fastapi uvicorn	//
+
+pip install torch==2.1.0+cu121 --index-url https://download.pytorch.org/whl/cu121
+
+pip install -r pipreqRequirements.txt
+
+
+python3.9 -m venv .venv
+source .venv/bin/activate
+
+
+pip install frechet-audio-distance
+

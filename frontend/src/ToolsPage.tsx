@@ -1,7 +1,6 @@
 import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import "./based.css";
-import PianoRollApp from "./component/PianoRollApp";
 
 const ToolsPage: React.FC = () => {
   const [selectedSong, setSelectedSong] = useState<string>("");
@@ -30,8 +29,12 @@ const ToolsPage: React.FC = () => {
     const file = e.target.files?.[0];
     if (file) {
       const nameWithoutExt = file.name.replace(/\.[^/.]+$/, "");
-      setUploadState("done");
+      setUploadState("uploading");
       setSelectedSong(`${nameWithoutExt}`);
+      // Simulate a brief processing time before showing action buttons
+      setTimeout(() => {
+        setUploadState("done");
+      }, 500);
     }
   };
 
@@ -52,7 +55,6 @@ const ToolsPage: React.FC = () => {
 
   const checkFileAndConvert = async (file: File) => {
     if (!file) return;
-    setConvertState("uploading");
     try {
       // Step 1: Check if file exists
       const checkRes = await fetch(`http://localhost:8000/check-filename?name=${file.name}`);
@@ -60,7 +62,6 @@ const ToolsPage: React.FC = () => {
 
       if (checkData.exists) {
         setConvertPopup(true); // Show duplicate warning
-        setConvertState("idle"); // Pause uploading state while user decides
       } else {
         await uploadFile(file, "add_anyway");
       }
@@ -72,6 +73,10 @@ const ToolsPage: React.FC = () => {
   };
 
   const uploadFile = async (file: File, choice: "add_anyway" | "cancel") => {
+    // Set loading state and close popup immediately when starting conversion
+    setConvertState("uploading");
+    setConvertPopup(false);
+    
     const ext = file.name.split('.').pop()?.toLowerCase();
     const formData = new FormData();
     formData.append("file", file);
@@ -95,7 +100,6 @@ const ToolsPage: React.FC = () => {
 
       // Success
       setConvertState("done");
-      setConvertPopup(false);
 
     } catch (err) {
       console.error(err);
@@ -127,11 +131,6 @@ const ToolsPage: React.FC = () => {
                 ℹ️
               </button>
             </div>
-            {uploadState === "done" && (
-              <button onClick={() => setUploadState("idle")} className="btn-exit">
-                Exit
-              </button>
-            )}
           </div>
 
           <div className="tool-content">
@@ -160,17 +159,28 @@ const ToolsPage: React.FC = () => {
             )}
             {uploadState === "uploading" && (
               <div className="uploading-state">
-                <div className="spinner"></div>
+                <div className="spinner" style={{marginTop: "50%"}}></div>
                 <p>Uploading...</p>
               </div>
             )}
             {uploadState === "done" && (
-              <div className="pianoroll-view">
-                <PianoRollApp
-                  width={20}
-                  height={80}
-                  fileName={selectedSong}
-                />
+              <div className="upload-box">
+                <h3>File Uploaded Successfully!</h3>
+                <p>"{selectedSong}" is ready to view.</p>
+                <div className="action-buttons" style={{ display: 'flex', gap: '10px', justifyContent: 'center', marginTop: '20px' }}>
+                  <button
+                    className="btn-upload"
+                    onClick={() => navigate(`/output/${selectedSong}`)}
+                  >
+                    Go to View
+                  </button>
+                  <button
+                    className="btn-exit"
+                    onClick={() => { setUploadState("idle"); setSelectedSong(""); }}
+                  >
+                    Cancel
+                  </button>
+                </div>
               </div>
             )}
           </div>
@@ -217,7 +227,7 @@ const ToolsPage: React.FC = () => {
             )}
             {convertState === "uploading" && (
               <div className="uploading-state">
-                <div className="spinner"></div>
+                <div className="spinner" style={{marginTop: "50%"}}></div>
                 <p>Converting...</p>
               </div>
             )}

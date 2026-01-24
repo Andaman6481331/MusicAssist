@@ -120,8 +120,8 @@ def ConvertWavToMidi(wav_file: str, save_dir: str):
 
 #pip install onnxruntime
 def ConvertWavToMidiDamRsn(wav_file: str, save_dir: str, 
-                            note_sensitivity: float = 0.7,
-                            split_sensitivity: float = 0.5,
+                            note_sensitivity: float = 0.8,
+                            split_sensitivity: float = 0.6,
                             min_note_duration_ms: float = 120):
     """
     Convert a WAV file to MIDI using the DamRsn ONNX model.
