@@ -1,393 +1,438 @@
-import * as Tone from "tone";  
-import { useContext, useEffect, useRef, useState } from "react";
+import { useContext, useState } from "react";
 import { SamplerContext } from "../../App";
-
-const chordMap: Record<string, number[]> = {
-// I (C major tonic)
-I: [0, 4, 7], // C major
-I7: [0, 4, 7, 10], // C7
-Imaj7: [0, 4, 7, 11], // Cmaj7
-i: [0, 3, 7], // C minor
-i7: [0, 3, 7, 10], // C minor 7
-
-// II
-II: [2, 6, 9], // D major
-II7: [2, 6, 9, 12], // D7 (dominant)
-IImaj7: [2, 6, 9, 13], // Dmaj7
-ii: [2, 5, 9], // D minor
-ii7: [2, 5, 9, 12], // Dm7
-
-// III
-III: [4, 8, 11], // E major
-III7: [4, 8, 11, 14], // E7
-IIImaj7: [4, 8, 11, 15], // Emaj7
-iii: [4, 7, 11], // E minor
-iii7: [4, 7, 11, 14], // Em7
-
-// IV
-IV: [5, 9, 12], // F major
-IV7: [5, 9, 12, 15], // F7
-IVmaj7: [5, 9, 12, 16], // Fmaj7
-iv: [5, 8, 12], // F minor
-iv7: [5, 8, 12, 15], // Fm7
-
-// V
-V: [7, 11, 14], // G major
-V7: [7, 11, 14, 17], // G7
-Vmaj7: [7, 11, 14, 18], // Gmaj7
-v: [7, 10, 14], // G minor
-v7: [7, 10, 14, 17], // Gm7
-
-// VI
-VI: [9, 13, 16], // A major
-VI7: [9, 13, 16, 19], // A7
-VImaj7: [9, 13, 16, 20], // Amaj7
-vi: [9, 12, 16], // A minor
-vi7: [9, 12, 16, 19], // Am7
-
-// VII
-VII: [11, 15, 18], // B major
-VII7: [11, 15, 18, 21], // B7
-VIImaj7: [11, 15, 18, 22], // Bmaj7
-vii: [11, 14, 18], // B minor
-vii7: [11, 14, 18, 21], // Bm7
-
-VIIb:[10, 14, 17]
-};
-
-const keys = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
-const allKey = [
-    "C3","C#3","D3","D#3","E3","F3","F#3","G3","G#3","A3","A#3","B3",
-    "C4","C#4","D4","D#4","E4","F4","F#4","G4","G#4","A4","A#4","B4",
-    "C5","C#5","D5","D#5","E5","F5","F#5","G5","G#5","A5","A#5","B5",
-];
-
-
+import PianoVisualizer from "../../component/PianoVisualizer.tsx";
+import { useTheme, themes } from "../../ThemeContext.tsx";
+import "./book.css";
 
 interface ProgressionDisplayProps {
   progType?: string;
-}
-
-interface ActiveNote {
-  key: string;
-  endTime: number;
-}
-
-const ProgressionDisplay: React.FC<ProgressionDisplayProps> = ({progType="I-IV-V"}) => {
-    const sampler = useContext(SamplerContext);
-    const playingRef = useRef<{ abort: boolean }>({ abort: false });
-
-    const [activeNotes, setActiveNotes] = useState<ActiveNote[]>([]);
-    const [selectedScale, setSelectedScale] = useState<string>("");
-    const [selectedPattern, setSelectedPattern] = useState<string>("Block Chord");
-
-    //Define Visual Keys
-    const whiteKeys = ["C", "D", "E", "F", "G", "A", "B"];
-    const blackKeys = ["C#", "D#", "F#", "G#", "A#"];
-    // const octaves = [3, 4, 5]; // You can adjust this range as needed
-      const progression = [
-        { name: "I-IV-V", sequence: ["I", "IV", "V"] },
-        { name: "i-V-i", sequence: ["i", "V", "i"] },
-        { name: "I-vi-IV-V", sequence: ["I", "vi", "IV", "V"] },
-        { name: "ii-V-I", sequence: ["ii", "V", "I"] },
-        { name: "Common Dorian", sequence: ["i", "IV"] },
-        { name: "ModernPop Dorian", sequence: ["i", "VII", "IV"] },
-        { name: "ClassRock Mixolydian", sequence: ["I", "VIIb", "IV"] },
-        { name: "Flavor Mixolydian", sequence: ["I", "v", "IV"] },
-        { name: "Simple Mixolydian", sequence: ["I", "VIIb"] },
-    ];
-
-    const octaves = Array.from({ length: 3 }, (_, i) => 3 + i);
-
-    // Get full list of white/black keys with octave
-    const allWhiteKeys = octaves.flatMap((octave) =>
-        whiteKeys.map((note) => ({ note: note + octave, base: note, octave }))
-    );
-
-    const allBlackKeys = octaves.flatMap((octave) =>
-        blackKeys.map((note) => ({ note: note + octave, base: note, octave }))
-    );
-
-    const togglePattern = () => {
-        if (selectedPattern == "Block Chord"){
-        setSelectedPattern("Arpreggio");
-        }else if (selectedPattern == "Arpreggio"){
-        setSelectedPattern("Pop Ballad");
-        } else if (selectedPattern == "Pop Ballad"){
-        setSelectedPattern("Block Chord");
-        }
-    } 
-    //Compute the progression from chordmap to all key
-    function getChordNotes(selectedScale: string, progression: string[]) {
-        // find the first index of the selected scale in allKey
-        const rootIndex = allKey.findIndex(
-        (k) => k.startsWith(selectedScale) && k.endsWith("3")
-        );
-        if (rootIndex === -1) return [];
-
-        const result: string[][] = [];
-
-        progression.forEach((chordName) => {
-            const intervals = chordMap[chordName];
-            if (!intervals) return;
-            const chordNotes = intervals.map((i) => allKey[rootIndex + i]);
-            result.push(chordNotes);
-        });
-
-        return result;
-    }
-
-    function getArpreggioNotes(selectedScale: string, progression: string[], mode: string) {
-        const rootIndex = allKey.findIndex(
-            (k) => k.startsWith(selectedScale) && k.endsWith("3")
-        );
-        if (rootIndex === -1) return [];
-
-        const degreeToSemitone: Record<string, number> = {
-            I: 0,
-            i:0,
-            II: 2,
-            iii: 3,
-            III: 4,
-            IV: 5,
-            V: 7,
-            vi: 8,
-            VI: 9,
-            VIIb: 10,
-            VII: 11,
-        };
-
-        // const arpregPattern = seqPattern; // 1 → 5 → 8
-
-        const result: string[] = [];
-
-        progression.forEach((deg) => {
-            const semitoneOffset = degreeToSemitone[deg];
-            if (semitoneOffset === undefined) return;
-
-            //[0, 7, 12] [0, 7, 4, 7, 4]
-            let arpregPattern = [0, 7, 12];
-            if (mode === "A"){
-                if (deg === deg.toLowerCase()) arpregPattern = [0,3,7,12]
-                else arpregPattern = [0, 4, 7, 12];
-            }else if (mode === "P"){
-                if (deg === deg.toLowerCase()) arpregPattern = [0, 7, 3, 7, 3]
-                else arpregPattern = [0, 7, 4, 7, 4];
-            }
-
-            const chordRootIndex = rootIndex + semitoneOffset;
-
-            const notes = arpregPattern
-            .map((n) => allKey[chordRootIndex + n])
-            .filter(Boolean);
-
-            result.push(...notes);
-        });
-
-        return result; // flat array
-    }
-
-      const sleep = (ms: number, abortRef: { abort: boolean }) => {
-        return new Promise<void>((resolve) => {
-        const interval = 10; // check every 10ms
-        let elapsed = 0;
-        const id = setInterval(() => {
-            if (abortRef.abort) {
-            clearInterval(id);
-            resolve();
-            return;
-            }
-            elapsed += interval;
-            if (elapsed >= ms) {
-            clearInterval(id);
-            resolve();
-            }
-        }, interval);
-        });
-    };    
-
-    const playBlockProgression = async () => {
-    if (!sampler?.samplerRef.current) return;
-    const progSequence = progression.find((p) => p.name === progType)?.sequence ?? [];
-
-    // Abort previous sequence
-    if (!playingRef.current.abort) {
-      playingRef.current.abort = true;
-      await sleep(0, playingRef.current); // let previous sequence notice abort
-    }
-
-    // Compute chord notes for the clicked progression
-    const chordNotes = getChordNotes(selectedScale, progSequence);
-
-    // Reset abort flag for the new sequence
-    playingRef.current = { abort: false };
-
-    const chordDuration = 1000;
-    const delayBetweenChords = 500;
-
-    for (let i = 0; i < chordNotes.length; i++) {
-      if (playingRef.current.abort) break;
-
-      const chord = chordNotes[i];
-
-      // Highlight notes
-      setActiveNotes(
-        chord.map((key) => ({ key, endTime: Date.now() + chordDuration }))
-      );
-
-      // Play all notes
-      chord.forEach((note) => {
-        sampler.samplerRef.current!.triggerAttackRelease(
-          note,
-          chordDuration / 1000 + "n"
-        );
-      });
-
-      await new Promise((res) => setTimeout(res, chordDuration));
-      setActiveNotes([]); // remove highlight
-      await new Promise((res) => setTimeout(res, delayBetweenChords));
-    }
-
-    setActiveNotes([]);
+  progDefinition?: {
+    title: string;
+    description: string[];
+    movement?: {
+      label: string;
+      description: string;
+    }[];
+    example?: string;
   };
+  themeKey?: string;
+}
 
-  const playArpregProgression = async(Mode: string) => {
-    if (!sampler?.samplerRef.current) return;
-    const progSequence = progression.find((p) => p.name === progType)?.sequence ?? [];
+const chordMap: Record<string, number[]> = {
+  I: [0, 4, 7], I7: [0, 4, 7, 10], Imaj7: [0, 4, 7, 11], i: [0, 3, 7], i7: [0, 3, 7, 10],
+  II: [2, 6, 9], II7: [2, 6, 9, 12], IImaj7: [2, 6, 9, 13], ii: [2, 5, 9], ii7: [2, 5, 9, 12],
+  III: [4, 8, 11], III7: [4, 8, 11, 14], IIImaj7: [4, 8, 11, 15], iii: [4, 7, 11], iii7: [4, 7, 11, 14],
+  IV: [5, 9, 12], IV7: [5, 9, 12, 15], IVmaj7: [5, 9, 12, 16], iv: [5, 8, 12], iv7: [5, 8, 12, 15],
+  V: [7, 11, 14], V7: [7, 11, 14, 17], Vmaj7: [7, 11, 14, 18], v: [7, 10, 14], v7: [7, 10, 14, 17],
+  VI: [9, 13, 16], VI7: [9, 13, 16, 19], VImaj7: [9, 13, 16, 20], vi: [9, 12, 16], vi7: [9, 12, 16, 19],
+  VII: [11, 15, 18], VII7: [11, 15, 18, 21], VIImaj7: [11, 15, 18, 22], vii: [11, 14, 18], vii7: [11, 14, 18, 21],
+  VIIb:[10, 14, 17]
+};
 
+const allKey = [
+  "C3","C#3","D3","D#3","E3","F3","F#3","G3","G#3","A3","A#3","B3",
+  "C4","C#4","D4","D#4","E4","F4","F#4","G4","G#4","A4","A#4","B4",
+  "C5","C#5","D5","D#5","E5","F5","F#5","G5","G#5","A5","A#5","B5",
+];
 
-    const arpregNotes = getArpreggioNotes(selectedScale,progSequence,Mode);
+const availableKeys = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+
+// Helper function to get the actual chord name based on key and Roman numeral
+const getChordName = (key: string, romanNumeral: string): string => {
+  const keyIndex = availableKeys.indexOf(key);
+  if (keyIndex === -1) return "";
+  
+  // Map Roman numerals to scale degrees (semitones from root)
+  const degreeMap: Record<string, number> = {
+    'I': 0, 'i': 0,
+    'II': 2, 'ii': 2,
+    'III': 4, 'iii': 4,
+    'IV': 5, 'iv': 5,
+    'V': 7, 'v': 7,
+    'VI': 9, 'vi': 9,
+    'VII': 11, 'vii': 11,
+    'VIIb': 10
+  };
+  
+  // Extract base Roman numeral (without extensions like 7, maj7)
+  let baseNumeral = romanNumeral;
+  let extension = '';
+  
+  if (romanNumeral.includes('maj7')) {
+    baseNumeral = romanNumeral.replace('maj7', '');
+    extension = 'maj7';
+  } else if (romanNumeral.includes('7')) {
+    baseNumeral = romanNumeral.replace('7', '');
+    extension = '7';
+  }
+  
+  const degree = degreeMap[baseNumeral];
+  if (degree === undefined) return romanNumeral;
+  
+  const chordRootIndex = (keyIndex + degree) % 12;
+  const chordRoot = availableKeys[chordRootIndex];
+  
+  // Determine if it's major or minor based on case
+  const isMinor = baseNumeral === baseNumeral.toLowerCase() && baseNumeral !== 'VIIb';
+  const quality = isMinor ? 'm' : '';
+  
+  return `${chordRoot}${quality}${extension}`;
+};
+
+const ProgressionDisplay: React.FC<ProgressionDisplayProps> = ({
+  progType = "I-IV-V",
+  progDefinition,
+  themeKey,
+}) => {
+  const sampler = useContext(SamplerContext);
+  const [selectedKey, setSelectedKey] = useState<string>("C");
+  const [isPlaying, setIsPlaying] = useState<boolean>(false);
+  const [playingNotes, setPlayingNotes] = useState<string[]>([]);
+  const [currentChord, setCurrentChord] = useState<string>("");
+  const [showManual, setShowManual] = useState<boolean>(false);
+  const { theme: globalTheme } = useTheme();
+
+  // Use the provided themeKey if available, otherwise use the global theme
+  const activeTheme = themeKey ? themes[themeKey] || globalTheme : globalTheme;
+
+  const themeStyles = {
+    "--comp-bg-1": activeTheme.gradient1,
+    "--comp-bg-2": activeTheme.gradient2,
+    "--comp-accent-1": activeTheme.accent,
+    "--comp-accent-2": activeTheme.secondary,
+  } as React.CSSProperties;
+
+  const progression = [
+    { name: "I-IV-V", sequence: ["I", "IV", "V"] },
+    { name: "i-V-i", sequence: ["i", "V", "i"] },
+    { name: "I-vi-IV-V", sequence: ["I", "vi", "IV", "V"] },
+    { name: "ii-V-I", sequence: ["ii", "V", "I"] },
+    { name: "Common Dorian", sequence: ["i", "IV"] },
+    { name: "ModernPop Dorian", sequence: ["i", "VII", "IV"] },
+    { name: "ClassRock Mixolydian", sequence: ["I", "VIIb", "IV"] },
+    { name: "Flavor Mixolydian", sequence: ["I", "v", "IV"] },
+    { name: "Simple Mixolydian", sequence: ["I", "VIIb"] },
+  ];
+
+  // Find the current progression based on progType
+  const currentProgression = progression.find(p => p.name === progType);
+
+  const playProgression = async () => {
+    if (!sampler?.samplerRef.current || isPlaying || !currentProgression) return;
+    setIsPlaying(true);
     
-    for (let i = 0; i < arpregNotes.length; i++) {
-        const note = arpregNotes[i];
-         setActiveNotes([
-            {
-            key: note,
-            endTime: Date.now() + 300, // expires after 250ms
-            },
-        ]);
-        if (sampler?.samplerRef.current) {
-            sampler.samplerRef.current.triggerAttackRelease(note, "2n");
-        }
+    const chordSequence = getChordNotes(selectedKey, currentProgression.sequence);
 
-        const seqLength = Mode === "A"? 4: Mode === "P"? 5: 4;
-        if(i%seqLength==(seqLength-1)){
-            await new Promise((resolve) => setTimeout(resolve, 400)); // wait before next chord
-        }else{
-            await new Promise((resolve) => setTimeout(resolve, 250)); // wait before next note
-        }
-        setActiveNotes([]);
+    const chordDuration = 1500; 
+    const delayBetweenChords = 300; 
+
+    for (let i = 0; i < chordSequence.length; i++) {
+      const chord = chordSequence[i];
+      const chordName = currentProgression.sequence[i];
+      
+      setCurrentChord(chordName);
+      setPlayingNotes(chord);
+      
+      chord.forEach(note => {
+        sampler.samplerRef.current?.triggerAttackRelease(note, "2n");
+      });
+      
+      await new Promise(resolve => setTimeout(resolve, chordDuration));
+      
+      if (i < chordSequence.length - 1) {
+        setPlayingNotes([]);
+        setCurrentChord("");
+        await new Promise(resolve => setTimeout(resolve, delayBetweenChords));
+      }
     }
+    
+    setPlayingNotes([]);
+    setCurrentChord("");
+    setIsPlaying(false);
   };
 
-    useEffect(() => {
-        if (!selectedScale) return;
-        if (selectedPattern == "Block Chord"){
-            playBlockProgression();
-        }else  if(selectedPattern == "Arpreggio"){
-            playArpregProgression("A");
-        }else  if(selectedPattern == "Pop Ballad"){
-            playArpregProgression("P");
-        }
-    }, [selectedScale]);
+  function getChordNotes(selectedScale: string, sequence: string[]) {
+    const rootIndex = allKey.findIndex(k => k.startsWith(selectedScale) && k.endsWith("3"));
+    if (rootIndex === -1) return [];
+    return sequence.map(chordName => {
+      const intervals = chordMap[chordName];
+      return intervals ? intervals.map(i => allKey[rootIndex + i]) : [];
+    }).filter(chord => chord.length > 0);
+  }
 
-    return (
-        <div>
-            <div style={{display:"flex", justifyContent:"flex-end"}}>
-                <button className="patternBtn" onClick={() => togglePattern()}>
-                    Pattern : {selectedPattern}
-                </button>
-                </div>           
-                <div style={{display:"flex", justifyContent:"center", alignItems:"center"}}>
-                <div style={{display:"flex",width:"1000px", backgroundColor:"#16488D", borderRadius:"1rem", padding:"1rem", margin:"1rem 0"}}>
-                    <div style={{fontSize:"5rem", fontWeight:"bold", width:"10rem", textAlign:"center"}}>
-                    {!selectedScale? "C":selectedScale}
-                    </div>
-                {keys.map((Note, i) => (
-                    <button className={`notebtn ${selectedScale === Note ? "selected" : ""}`} key={Note + i} onClick={() => {setSelectedScale(Note)}}>
-                    {Note}
-                    </button>
-                ))}
+  return (
+    <div className="display-container" style={themeStyles}>
+      {/* Manual Popup */}
+      {showManual && (
+        <div className="modal-overlay" onClick={() => setShowManual(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <button className="close-button" onClick={() => setShowManual(false)}>
+              ✕
+            </button>
+
+            <h2 className="modal-title">📖 How to Use Progression Display</h2>
+
+            <div style={{ fontSize: "0.95rem", lineHeight: "1.8" }}>
+              <div className="instruction-box">
+                <div className="instruction-step">
+                  <span className="circle-number">1</span>
+                  <div>
+                    <strong className="step-label">Select a Key</strong>
+                    <p className="step-desc">
+                      Choose the musical key you want to hear the progression in.
+                      All 12 keys are available!
+                    </p>
+                  </div>
                 </div>
+
+                <div className="instruction-step">
+                  <span className="circle-number">2</span>
+                  <div>
+                    <strong className="step-label">Press Play</strong>
+                    <p className="step-desc">
+                      Click the play button to hear the progression. Watch the current
+                      chord displayed above the piano visualization!
+                    </p>
+                  </div>
+                </div>
+
+                <div className="instruction-step">
+                  <span className="circle-number">3</span>
+                  <div>
+                    <strong className="step-label">Observe the Patterns</strong>
+                    <p className="step-desc">
+                      The piano visualization highlights each chord as it plays.
+                      Roman numerals show the chord function in the selected key!
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="pro-tip">
+                <strong className="pro-tip-label">💡 Pro Tip:</strong>
+                <p className="step-desc">
+                  Try playing the same progression in different keys to hear how
+                  the same pattern sounds at different pitches!
+                </p>
+              </div>
             </div>
-        <div id="progressionPiano" style={{ marginLeft: "50%", height: "150px" }}>
+          </div>
+        </div>
+      )}
+
+      {/* Header with Info Button */}
+      <div className="header-container">
+        <h2 className="display-title">Progression Explorer</h2>
+        <button
+          className="info-button"
+          onClick={() => setShowManual(true)}
+          title="How to use"
+        >
+          ℹ️
+        </button>
+      </div>
+
+      {/* Definition Section */}
+      {progDefinition && (
+        <div className="definition-box" style={{ background: "rgba(255, 255, 255, 0.1)", border: "1px solid rgba(255, 255, 255, 0.2)" }}>
+          <h3 className="definition-title" style={{ color: "var(--comp-accent-1)" }}>
+            <span style={{ fontSize: "1.75rem" }}>🎶</span>
+            {progDefinition.title}
+          </h3>
+
+          {progDefinition.description && progDefinition.description.length > 0 && (
+            <ul className="definition-list">
+              {progDefinition.description.map((desc, idx) => (
+                <li key={idx}>
+                  {desc}
+                </li>
+              ))}
+            </ul>
+          )}
+
+          {progDefinition.movement && progDefinition.movement.length > 0 && (
+            <ul className="definition-sublist">
+              {progDefinition.movement.map((move, idx) => (
+                <li key={idx}>
+                  <span style={{ fontWeight: "bold", color: "var(--comp-accent-1)" }}>
+                    {move.label}:
+                  </span>{" "}
+                  {move.description}
+                </li>
+              ))}
+            </ul>
+          )}
+
+          {progDefinition.example && (
             <div
-            style={{
-                position: "relative",
-                display: "flex",
-                justifyContent: "center",
-            }}
+              className="pro-tip"
+              style={{
+                marginTop: "1.25rem",
+                background: "rgba(255, 255, 255, 0.05)",
+                border: "1px solid rgba(255, 255, 255, 0.1)",
+              }}
             >
-            {/* White keys */}
-            <div style={{ display: "flex", zIndex: 0 }}>
-                {allWhiteKeys.map(({ note }) => {
-                const isSelected = activeNotes.some(
-                    (n) => n.key === note && n.endTime > Tone.now()
-                );
-                const whiteKeyIndex = allWhiteKeys.findIndex(
-                    (k) =>
-                    k.note.startsWith(note.charAt(0)) &&
-                    k.octave === parseInt(note.slice(-1))
-                );
-                const left = whiteKeyIndex * 50 - 50 * (21 / 2);
-                return (
-                    <div
-                    key={note}
-                    style={{
-                        width: `${50}px`,
-                        height: `${150}px`,
-                        backgroundColor: isSelected ? "rgb(32, 173, 255)" : "white",
-                        border: "1px solid black",
-                        left: `${left}px`,
-                        margin: "0",
-                        position: "absolute",
-                        boxSizing: "border-box",
-                        borderRadius:
-                        note === "C3"
-                            ? "10px 0 0 10px"
-                            : note === "B5"
-                            ? "0 10px 10px 0"
-                            : "0",
-                    }}
-                    ></div>
-                );
-                })}
+              <strong style={{ color: "var(--comp-accent-1)" }}>Example in C Major:</strong>
+              <p
+                style={{
+                  margin: "0.5rem 0 0 0",
+                  fontStyle: "italic",
+                  fontSize: "1rem",
+                }}
+              >
+                {progDefinition.example}
+              </p>
             </div>
-            {/* Black keys */}
-            <div style={{ display: "flex", height: "90px", zIndex: 1 }}>
-                {allBlackKeys.map(({ note }) => {
-                const isSelected = activeNotes.some(
-                    (n) => n.key === note && n.endTime > Tone.now()
-                );
-                // Calculate left offset based on white keys
-                const whiteKeyIndex = allWhiteKeys.findIndex(
-                    (k) =>
-                    k.note.startsWith(note.charAt(0)) &&
-                    k.octave === parseInt(note.slice(-1))
-                );
-                const left = whiteKeyIndex * 50 + 50 * 0.7 - (50 * 21) / 2; // 420 = half pianoroll size = make absolute position centered , 28 = margin btw white and black key
-                return (
-                    <div
-                    key={note}
-                    style={{
-                        width: `${50 * 0.625}px`,
-                        height: `${150 * 0.6}px`,
-                        backgroundColor: isSelected
-                        ? "rgba(22, 19, 169, 1)"
-                        : "rgb(7, 5, 106)",
-                        left: `${left}px`,
-                        zIndex: 2,
-                        position: "absolute",
-                        borderRadius: "0 0 5px 5px",
-                    }}
-                    ></div>
-                );
-                })}
-            </div>
-            </div>
+          )}
         </div>
+      )}
+
+      {/* Key Selection and Play Controls */}
+      <div style={{ marginBottom: "2rem" }}>
+        <label className="section-label">Select Key</label>
+        <div style={{ display: "flex", justifyContent: "center", gap: "1rem", alignItems: "center", flexWrap: "wrap" }}>
+          <div
+            className="selection-grid"
+            style={{ maxWidth: "800px", padding: "1rem 1.5rem" }}
+          >
+            {availableKeys.map((key) => (
+              <button
+                className={`notebtn ${selectedKey === key ? "selected" : ""}`}
+                key={key}
+                onClick={() => setSelectedKey(key)}
+                disabled={isPlaying}
+                style={{
+                  width: "60px",
+                  height: "60px",
+                  borderRadius: "50%",
+                  fontSize: "1.1rem",
+                  fontWeight: "bold",
+                  opacity: isPlaying ? 0.6 : 1,
+                  cursor: isPlaying ? "not-allowed" : "pointer",
+                }}
+              >
+                {key}
+              </button>
+            ))}
+          </div>
         </div>
-    );
+      </div>
+
+      {/* Play Button */}
+      <div style={{ marginBottom: "2rem", textAlign: "center" }}>
+        <button
+          onClick={playProgression}
+          disabled={isPlaying}
+          style={{
+            padding: "1rem 3rem",
+            fontSize: "1.3rem",
+            fontWeight: "bold",
+            borderRadius: "50px",
+            border: "none",
+            background: isPlaying 
+              ? "linear-gradient(135deg, #ccc 0%, #999 100%)" 
+              : "linear-gradient(135deg, var(--comp-accent-1) 0%, var(--comp-accent-2) 100%)",
+            color: "white",
+            cursor: isPlaying ? "not-allowed" : "pointer",
+            boxShadow: "0 4px 15px rgba(0, 0, 0, 0.2)",
+            transition: "all 0.3s ease",
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "0.5rem",
+          }}
+        >
+          {isPlaying ? (
+            <>
+              <span style={{ fontSize: "1.5rem" }}>⏸</span>
+              Playing...
+            </>
+          ) : (
+            <>
+              <span style={{ fontSize: "1.5rem" }}>▶</span>
+              Play Progression
+            </>
+          )}
+        </button>
+      </div>
+
+      {/* Current Progression Display */}
+      {currentProgression && (
+        <div style={{ marginBottom: "1.5rem", textAlign: "center" }}>
+          <label className="section-label">
+            Current Progression: {currentProgression.name}
+          </label>
+          <div style={{ 
+            display: "flex", 
+            justifyContent: "center", 
+            gap: "1rem", 
+            marginTop: "1rem",
+            flexWrap: "wrap"
+          }}>
+            {currentProgression.sequence.map((chord, idx) => {
+              const actualChordName = getChordName(selectedKey, chord);
+              return (
+                <div
+                  key={idx}
+                  style={{
+                    padding: "1rem 1.5rem",
+                    borderRadius: "12px",
+                    background: currentChord === chord 
+                      ? "linear-gradient(135deg, var(--comp-accent-1) 0%, var(--comp-accent-2) 100%)"
+                      : "rgba(255, 255, 255, 0.1)",
+                    border: currentChord === chord 
+                      ? "3px solid white"
+                      : "2px solid rgba(255, 255, 255, 0.2)",
+                    fontSize: "1.5rem",
+                    fontWeight: "bold",
+                    color: "white",
+                    minWidth: "100px",
+                    textAlign: "center",
+                    transition: "all 0.3s ease",
+                    transform: currentChord === chord ? "scale(1.1)" : "scale(1)",
+                    boxShadow: currentChord === chord 
+                      ? "0 8px 20px rgba(0, 0, 0, 0.3)"
+                      : "none",
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "0.25rem"
+                  }}
+                >
+                  <div style={{ fontSize: "1.2rem", opacity: 0.9 }}>
+                    {chord}
+                  </div>
+                  <div style={{ 
+                    fontSize: "1rem", 
+                    fontWeight: "normal",
+                    opacity: 0.85,
+                    letterSpacing: "0.5px"
+                  }}>
+                    {actualChordName}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Piano Visualization */}
+      <div>
+        <label className="section-label">Live Visualization</label>
+        <div
+          className="visualization-box"
+          style={{ position: "relative", minHeight: "180px", overflow: "hidden" }}
+        >
+          <PianoVisualizer 
+            chordArrays={playingNotes} 
+            isPlayable={false}
+            scaleLength={3}
+            startOctave={3}
+            showKeyname={false}
+          />
+        </div>
+      </div>
+    </div>
+  );
 };
 
 export default ProgressionDisplay;

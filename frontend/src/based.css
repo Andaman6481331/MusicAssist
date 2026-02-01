@@ -55,11 +55,33 @@
   z-index: 1;
 }
 
+/* Hero Section */
+.hero-section {
+  min-height: 70vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  background: #f8f9fa;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-carousel {
+  position: relative;
+  width: 100%;
+  height: 70vh;
+  min-height: 500px;
+  max-height: 800px;
+  overflow: hidden;
+  background: #ffffff;
+}
+
 .hero-slides-container {
   display: flex;
   width: 100%;
   height: 100%;
-  transition: transform 0.6s ease-in-out;
+  transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .hero-slide {
@@ -68,62 +90,125 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
 
-.hero-slide .hero-content {
-  text-align: center;
+/* Add different gradient for each slide if needed */
+.hero-slide:nth-child(2) {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.hero-slide:nth-child(3) {
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+
+.hero-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.3);
+  z-index: 1;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 1400px;
+  padding: 0 5%;
+  margin: 0 auto;
+}
+
+.hero-text-content {
   max-width: 700px;
+  color: white;
 }
 
 .hero-slide .landing-title {
-  font-size: clamp(2rem, 6vw, 4rem);
-  font-weight: 900;
+  font-size: clamp(2.5rem, 5vw, 4.5rem);
+  font-weight: 700;
   margin: 0 0 1.5rem 0;
-  line-height: 1.2;
-  letter-spacing: -1px;
-  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: white;
+  animation: fadeInUp 0.8s ease-out;
 }
 
 .hero-slide .landing-subtitle {
-  font-size: clamp(0.9rem, 2vw, 1.3rem);
-  font-weight: 300;
+  font-size: clamp(1.1rem, 2vw, 1.4rem);
+  font-weight: 400;
   margin: 0 0 2.5rem 0;
   opacity: 0.95;
-  line-height: 1.8;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.95);
+  animation: fadeInUp 0.8s ease-out 0.2s both;
 }
 
+.hero-buttons {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  animation: fadeInUp 0.8s ease-out 0.4s both;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Navigation Buttons */
 .hero-nav-btn {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.95);
   border: none;
-  color: white;
-  font-size: 2.5rem;
-  padding: 0.5rem 1.25rem;
+  color: #333;
+  font-size: 1.5rem;
+  padding: 1rem;
   cursor: pointer;
-  border-radius: 0.75rem;
+  border-radius: 50%;
   transition: all 0.3s ease;
   z-index: 10;
-  width: auto;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .hero-nav-prev {
-  left: 1.5rem;
+  left: 2rem;
 }
 
 .hero-nav-next {
-  right: 1.5rem;
+  right: 2rem;
 }
 
 .hero-nav-btn:hover {
-  background: rgba(255, 255, 255, 0.35);
+  background: white;
   transform: translateY(-50%) scale(1.1);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
 }
 
+.hero-nav-btn:active {
+  transform: translateY(-50%) scale(0.95);
+}
+
+/* Dots Navigation */
 .hero-dots {
   position: absolute;
-  bottom: 1.5rem;
+  bottom: 2rem;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
@@ -132,65 +217,116 @@
 }
 
 .hero-dot {
-  width: 12px;
-  height: 12px;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
-  border: none;
-  background: rgba(255, 255, 255, 0.3);
+  border: 2px solid white;
+  background: transparent;
   cursor: pointer;
   transition: all 0.3s ease;
+  padding: 0;
 }
 
 .hero-dot:hover {
   background: rgba(255, 255, 255, 0.5);
+  transform: scale(1.2);
 }
 
 .hero-dot.active {
   background: white;
-  transform: scale(1.3);
+  width: 32px;
+  border-radius: 5px;
 }
 
+/* Buttons */
 .btn-primary,
 .btn-secondary {
-  padding: 1rem 2.5rem;
-  font-size: 1.1rem;
-  font-weight: 700;
+  padding: 1rem 2rem;
+  font-size: 1rem;
+  font-weight: 600;
   border: none;
-  border-radius: 0.75rem;
+  border-radius: 8px;
   cursor: pointer;
   transition: all 0.3s ease;
   text-decoration: none;
   display: inline-block;
   text-align: center;
+  letter-spacing: 0.3px;
 }
 
 .btn-primary {
-  background: linear-gradient(145deg, var(--accent-color), var(--secondary-color));
-  color: white;
-  box-shadow: 0 8px 24px rgba(29, 161, 242, 0.3);
+  background: white;
+  color: #667eea;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
 }
 
 .btn-primary:hover {
-  background-color: var(--glow-color);
-  transform: translateY(-3px);
-  box-shadow: 0 12px 32px rgba(29, 161, 242, 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
 }
 
 .btn-secondary {
-  background: rgba(255, 255, 255, 0.15);
+  background: transparent;
   color: white;
-  border: 2px solid rgba(255, 255, 255, 0.3);
+  border: 2px solid white;
 }
 
 .btn-secondary:hover {
-  background: rgba(255, 255, 255, 0.25);
-  border-color: rgba(255, 255, 255, 0.5);
-  transform: translateY(-3px);
+  background: white;
+  color: #667eea;
+  transform: translateY(-2px);
 }
 
-.btn-large {
-  padding: 1.25rem 3rem;
-  font-size: 1.2rem;
+.btn-primary:active,
+.btn-secondary:active {
+  transform: translateY(0);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .hero-carousel {
+    height: 60vh;
+    min-height: 450px;
+  }
+
+  .hero-nav-btn {
+    width: 40px;
+    height: 40px;
+    padding: 0.75rem;
+  }
+
+  .hero-nav-prev {
+    left: 1rem;
+  }
+
+  .hero-nav-next {
+    right: 1rem;
+  }
+
+  .hero-buttons {
+    flex-direction: column;
+  }
+
+  .btn-primary,
+  .btn-secondary {
+    width: 100%;
+    max-width: 300px;
+  }
+
+  .hero-dots {
+    bottom: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-carousel {
+    height: 55vh;
+    min-height: 400px;
+  }
+
+  .hero-content {
+    padding: 0 1.5rem;
+  }
 }
 
 /* Features Section */
@@ -2693,17 +2829,27 @@ li{
   font-weight: 700;
   color: #ffffff;
 }
+.popup-box h3 {
+  font-size: 1.2rem;
+  margin: 0.5rem 0;
+  font-weight: 700;
+  color: #a78bfa;
+}
 
 .popup-box p {
   font-size: 1rem;
   line-height: 1.6;
   margin: 0.5rem 0;
   opacity: 0.9;
+  color: black;
 }
 
 .popup-box strong {
   color: #4489f9;
   font-weight: 700;
+}
+.popup-box span {
+  color: black;
 }
 
 /* ====== RESPONSIVE DESIGN ====== */

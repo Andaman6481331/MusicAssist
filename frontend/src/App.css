@@ -135,3 +135,18 @@ a {
 .user-item:hover { background: rgba(255,255,255,0.08); }
 .user-item.danger { color: #ffd5d5; }
 .user-item.danger:hover { background: rgba(255, 77, 77, 0.15); }
+
+.circle-number {
+  background: #667eea; 
+  border-radius: 50%; 
+  width: 24px; 
+  height: 24px; 
+  display: inline-flex; 
+  align-items: center; 
+  justify-content: center;
+  margin-right: 0.75rem;
+  flex-shrink: 0;
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: #ffffff;
+}

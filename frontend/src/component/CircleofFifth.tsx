@@ -1,4 +1,4 @@
-type Mode = "major" | "minor";
+type Mode = "major" | "minor" | "diminished" | "augmented";
 interface Props {
   selectedChord: string | null;
   setSelectedChord: (chord: string) => void;
@@ -8,36 +8,66 @@ interface Props {
 //Feature: Two Octave, Receive input from homepage 
 const keys = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
 
-// Define chord structures (basic major chords for this example)
+// Define chord structures
 const chordNotes: Record<string, string[]> = {
-  C: ["C", "E", "G"], // C major
-  "C#": ["C#", "F", "G#"], // C# major
-  D: ["D", "F#", "A"], // D major
-  "D#": ["D#", "G", "A#"], // D# major
-  E: ["E", "G#", "B"], // E major
-  F: ["F", "A", "C"], // F major
-  "F#": ["F#", "A#", "C#"], // F# major
-  G: ["G", "B", "D"], // G major
-  "G#": ["G#", "C", "D#"], // G# major
-  A: ["A", "C#", "E"], // A major
-  "A#": ["A#", "D", "F"], // A# major
-  B: ["B", "D#", "F#"], // B major
-  Cm:  ["C", "D#", "G"],   // C minor
-  "C#m": ["C#", "E", "G#"], // C# minor
-  Dm:  ["D", "F", "A"],    // D minor
-  "D#m": ["D#", "F#", "A#"], // D# minor
-  Em:  ["E", "G", "B"],    // E minor
-  Fm:  ["F", "G#", "C"],   // F minor
-  "F#m": ["F#", "A", "C#"], // F# minor
-  Gm:  ["G", "A#", "D"],   // G minor
-  "G#m": ["G#", "B", "D#"], // G# minor
-  Am:  ["A", "C", "E"],    // A minor
-  "A#m": ["A#", "C#", "F"], // A# minor
-  Bm:  ["B", "D", "F#"],   // B minor
+  // Major chords
+  C: ["C", "E", "G"],
+  "C#": ["C#", "F", "G#"],
+  D: ["D", "F#", "A"],
+  "D#": ["D#", "G", "A#"],
+  E: ["E", "G#", "B"],
+  F: ["F", "A", "C"],
+  "F#": ["F#", "A#", "C#"],
+  G: ["G", "B", "D"],
+  "G#": ["G#", "C", "D#"],
+  A: ["A", "C#", "E"],
+  "A#": ["A#", "D", "F"],
+  B: ["B", "D#", "F#"],
+  
+  // Minor chords
+  Cm: ["C", "D#", "G"],
+  "C#m": ["C#", "E", "G#"],
+  Dm: ["D", "F", "A"],
+  "D#m": ["D#", "F#", "A#"],
+  Em: ["E", "G", "B"],
+  Fm: ["F", "G#", "C"],
+  "F#m": ["F#", "A", "C#"],
+  Gm: ["G", "A#", "D"],
+  "G#m": ["G#", "B", "D#"],
+  Am: ["A", "C", "E"],
+  "A#m": ["A#", "C#", "F"],
+  Bm: ["B", "D", "F#"],
+  
+  // Diminished chords
+  Cdim: ["C", "D#", "F#"],
+  "C#dim": ["C#", "E", "G"],
+  Ddim: ["D", "F", "G#"],
+  "D#dim": ["D#", "F#", "A"],
+  Edim: ["E", "G", "A#"],
+  Fdim: ["F", "G#", "B"],
+  "F#dim": ["F#", "A", "C"],
+  Gdim: ["G", "A#", "C#"],
+  "G#dim": ["G#", "B", "D"],
+  Adim: ["A", "C", "D#"],
+  "A#dim": ["A#", "C#", "E"],
+  Bdim: ["B", "D", "F"],
+  
+  // Augmented chords
+  Caug: ["C", "E", "G#"],
+  "C#aug": ["C#", "F", "A"],
+  Daug: ["D", "F#", "A#"],
+  "D#aug": ["D#", "G", "B"],
+  Eaug: ["E", "G#", "C"],
+  Faug: ["F", "A", "C#"],
+  "F#aug": ["F#", "A#", "D"],
+  Gaug: ["G", "B", "D#"],
+  "G#aug": ["G#", "C", "E"],
+  Aaug: ["A", "C#", "F"],
+  "A#aug": ["A#", "D", "F#"],
+  Baug: ["B", "D#", "G"],
 };
 
-
-export default function CircleOfFifths({selectedChord, setSelectedChord, mmtype="major",}: Props) {
+export default function CircleOfFifths({selectedChord, setSelectedChord, mmtype="major"}: Props) {
   const radius = 125;
   const center = radius * 1.25;
 
@@ -46,18 +76,8 @@ export default function CircleOfFifths({selectedChord, setSelectedChord, mmtype=
   const highlightedIndices = selectedChordNotes.map((note) =>
     keys.indexOf(note)
   );
-  // const selectedChordNotesMinor = selectedChord ? chordNotesMinor[selectedChord] : [];
-  const highlightedIndicesMinor = selectedChordNotes.map((note) =>
-    keys.indexOf(note)
-  );
 
-  const finalHighLight =
-  mmtype === "major"
-    ? highlightedIndices
-    : highlightedIndicesMinor;
-
-
-  const selectedPoints = finalHighLight.map((i) => {
+  const selectedPoints = highlightedIndices.map((i) => {
     const angle = (i / 12) * 2 * Math.PI;
     const x = radius * Math.sin(angle);
     const y = -radius * Math.cos(angle);
@@ -68,6 +88,22 @@ export default function CircleOfFifths({selectedChord, setSelectedChord, mmtype=
   const pointsForPolyline = selectedPoints
     .map((point) => `${point.x},${point.y}`)
     .join(" ");
+
+  // Get the chord suffix based on mode
+  const getChordSuffix = () => {
+    switch (mmtype) {
+      case "major":
+        return "";
+      case "minor":
+        return "m";
+      case "diminished":
+        return "dim";
+      case "augmented":
+        return "aug";
+      default:
+        return "";
+    }
+  };
 
   return (
     <div style={{ display: "flex", justifyContent: "center", paddingTop: '20px'}}>
@@ -84,7 +120,7 @@ export default function CircleOfFifths({selectedChord, setSelectedChord, mmtype=
                   return `${x},${y}`;
                 })
                 .join(" ")}
-              fill="rgb(45, 82, 167)"
+              fill={`var(--comp-accent-2)`}
             />
           </g>
 
@@ -93,7 +129,7 @@ export default function CircleOfFifths({selectedChord, setSelectedChord, mmtype=
               return (
                 <polyline
                   points={pointsForPolyline}
-                  fill="rgb(67, 99, 173)"
+                  fill={`var(--primary-color)`}
                   strokeLinecap="round"
                 />
               );
@@ -107,30 +143,42 @@ export default function CircleOfFifths({selectedChord, setSelectedChord, mmtype=
             const isSelected = highlightedIndices.includes(i);
 
             return (
-              <text
-                key={key}
-                x={x}
-                y={y}
-                textAnchor="middle"
-                fontSize={isSelected ? "40" : "24"}
-                fill={isSelected ? "rgb(98, 208, 220)" : "black"}
-                fontWeight={isSelected ? "bold" : "normal"}
-                cursor="pointer"
-                style={{
-                  userSelect: "none",
-                  transition: "all 0.3s ease-in-out",
-                }}
-                
-                onClick={() => {
-                  if (mmtype === "major"){
-                    setSelectedChord(key)
-                  } else {
-                    setSelectedChord(key+"m")
-                  }
-                }}
-              >
-                {key}
-              </text>
+<g 
+  key={key} 
+  onClick={() => {
+    const suffix = getChordSuffix();
+    setSelectedChord(key + suffix);
+  }}
+  style={{ cursor: "pointer" }}
+>
+  {/* The Background Circle */}
+  {isSelected && (
+    <circle
+      cx={x}
+      cy={y - 15} // Adjust offset to center vertically with text
+      r="25"    // Adjust radius based on your font size
+      fill="var(--bg-color-light)" // Or any color
+      style={{ transition: "all 0.3s ease" }}
+    />
+  )}
+
+  {/* Your Existing Text */}
+  <text
+    x={x}
+    y={y}
+    textAnchor="middle"
+    fontSize={isSelected ? "40" : "24"}
+    fill={isSelected ? `var(--gradient-2)` : "black"}
+    fontWeight={isSelected ? "bold" : "normal"}
+    style={{
+      userSelect: "none",
+      transition: "all 0.3s ease-in-out"
+    }}
+  >
+    {key}
+  </text>
+</g>
+
             );
           })}
         </g>

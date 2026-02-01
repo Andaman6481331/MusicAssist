@@ -1,15 +1,15 @@
 import {useContext, useState} from "react";
 import * as Tone from "tone";
 import { SamplerContext } from "../App";
-import {Link, useNavigate } from "react-router-dom";
+import {useNavigate } from "react-router-dom";
 
 import ProgressLine from "./subComponent/ProgressLine";
 import CircleOfFifths from "../component/CircleofFifth";
 import ChordPiano from "../component/ChordPiano";
-import ScalePiano from "../component/ScalePiano";
+import ScaleDisplay from "./subComponent/ScaleDisplay";
 import ProgressionDisplay from "./subComponent/ProgressionDisplay";
+import ChordDisplay from "./subComponent/ChordDisplay";
 
-const keys = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
 const majorScale: Record<string, string[]> = {
   C:   ["C4", "D4", "E4", "F4", "G4", "A4", "B4", "C5"],
   "C#": ["C#4", "D#4", "F4", "F#4", "G#4", "A#4", "C5", "C#5"],
@@ -24,6 +24,128 @@ const majorScale: Record<string, string[]> = {
   "A#": ["A#4", "C5", "D5", "D#5", "F5", "G5", "A5", "A#5"],
   B:   ["B4", "C#5", "D#5", "E5", "F#5", "G#5", "A#5", "B5"]
 };
+
+// Example 1: Major Scale Definition
+const majorScaleDefinition = {
+  title: "Major Scales",
+  description: [
+    "A set of 7 notes following the pattern: W–W–H–W–W–W–H.",
+    "Forms the foundation for key signatures and melodies."
+  ],
+  pattern: [
+    {
+      label: "W",
+      description: "Whole Step (2 keys apart) Ex: C → D (skips C♯)"
+    },
+    {
+      label: "H",
+      description: "Half Step (1 key apart) Ex: E → F (no key in between)"
+    }
+  ],
+  example: "Example: C major scale = C–D–E–F–G–A–B.",
+  callToAction: "🎹 Try clicking the note and listen!!"
+};
+
+const IIVVDefinition = {
+  title: "I - IV - V Progressions",
+  description: [
+    "A very common chord pattern using the 1st, 4th, and 5th chords of a major scale.",
+    "One of the most important chord progressions in all music — pop, classical, anime, gospel, rock, everything.",
+    "Creates strong musical movement (home → away → return)."
+  ],
+  movement: [
+    {
+      label: "I → IV",
+      description: "Feels like taking a step forward."
+    },
+    {
+      label: "IV → V",
+      description: "Feels like tension is rising, preparing for the climax."
+    },
+    {
+      label: "V → I",
+      description: "Feels like coming home or resolving a question."
+    }
+  ],
+  example: "Example in C major: C (I) → F (IV) → G (V)."
+};
+
+const majorTriadDefinition = {
+  title: "Major Triads",
+  description: [
+    "A chord made of three notes: root, major third, perfect fifth.",
+    "Creates a bright, stable sound."
+  ],
+  structure: [
+    {
+      label: "Root",
+      description: ""
+    },
+    {
+      label: "Major third",
+      description: "(4 notes above root)"
+    },
+    {
+      label: "Perfect fifth",
+      description: "(7 notes above root)"
+    }
+  ],
+  example: "Example: C–E–G (C major).",
+  callToAction: "💡Try clicking the note on the key circle and play chords!!"
+};
+
+// Example 3: Diminished Chords Definition
+const diminishedChordDefinition = {
+  title: "Diminished Triads",
+  description: [
+    "A chord made of three notes with two minor thirds stacked.",
+    "Creates tension and an unstable, mysterious sound.",
+    "Often used as a passing chord or for dramatic effect."
+  ],
+  structure: [
+    {
+      label: "Root",
+      description: ""
+    },
+    {
+      label: "Minor third",
+      description: "(3 notes above root)"
+    },
+    {
+      label: "Diminished fifth",
+      description: "(6 notes above root)"
+    }
+  ],
+  example: "Example: B–D–F (B diminished).",
+  callToAction: "🌀 Feel the tension in these chords!"
+};
+
+// Example 4: Augmented Chords Definition
+const augmentedChordDefinition = {
+  title: "Augmented Triads",
+  description: [
+    "A chord made of three notes with two major thirds stacked.",
+    "Creates a bright, tense, and unresolved sound.",
+    "Often used to create suspense or transition between chords."
+  ],
+  structure: [
+    {
+      label: "Root",
+      description: ""
+    },
+    {
+      label: "Major third",
+      description: "(4 notes above root)"
+    },
+    {
+      label: "Augmented fifth",
+      description: "(8 notes above root)"
+    }
+  ],
+  example: "Example: C–E–G# (C augmented).",
+  callToAction: "✨ Discover the dreamy quality!"
+};
+
 
 const CoreBasic: React.FC = () => {
   const [activeTab, setActiveTab] = useState("Triads");
@@ -64,7 +186,7 @@ const CoreBasic: React.FC = () => {
         await new Promise((resolve) => setTimeout(resolve, 250)); // wait 250ms before next note
       }
     };
-  
+
   return(
     <div className="teaching-page-container">
       <div style={{display:"flex", width:"100%", justifyContent:"space-between", marginBottom:"1rem"}}>
@@ -100,117 +222,39 @@ const CoreBasic: React.FC = () => {
 
           {activeTab === "Triads" && 
           <div className="card-container elimtop" style={{margin:0, padding:"2rem 5rem"}}>
-            <div style={{display:"flex"}}>
-              <div style={{marginRight:"15%"}}>
-                <div className="card-title">Major Triads</div>
-          
-                <ul style={{margin:0}}>
-                  <li>A chord made of three notes: root, major third, perfect fifth.</li>
-                  <ul>
-                    <li>Root</li>
-                    <li>Major third (4 notes above root)</li>
-                    <li>Perfect fifth (7 notes above root)</li>
-                  </ul>
-                  <li>Creates a bright, stable sound.</li>
-                  <li>Example: C–E–G (C major).</li>
-                </ul>
-                <span style={{fontWeight:"bold"}}>💡Try clicking the note on the key circle and play chords!!</span>
-              </div>
-              <CircleOfFifths
-                selectedChord={selectedChord}
-                setSelectedChord={setSelectedChord}
-              />
+            <ChordDisplay 
+              chordType="major"
+              chordDefinition={majorTriadDefinition}
+            />
+            <div className="line"/>
+            <div style={{ display:"flex",textAlign: "center" , justifyContent: "flex-end"}}>
+              <button onClick={() => {setActiveTab("Scales")}} className="playbtn" style={{width:"10rem", borderRadius:"5rem"}}>Next {">"}</button>
             </div>
-              <div style={{ display: 'flex', justifyContent: 'center'}}>
-                <ChordPiano
-                  width={60}
-                  height={150}
-                  finalChord={selectedChord}
-                  isMuted={false}
-                />
-              </div>
-              <div className="line"/>
-              <div style={{ display:"flex",textAlign: "center" , justifyContent: "flex-end"}}>
-                <button onClick={() => {setActiveTab("Scales")}} className="playbtn" style={{width:"10rem", borderRadius:"5rem"}}>Scales</button>
-              </div>
           </div>}
 
           {activeTab === "Scales" && 
           <div className="card-container elimtop" style={{margin:0, padding:"2rem 5rem"}}>
-            <div style={{display:"flex"}}>
-              <div>
-                <div style={{display:"flex", alignItems: "center"}}>
-                  <div className="card-title">Major Scales</div>
-                </div>
-                <ul style={{margin:0}}>
-                  <li>A set of 7 notes following the pattern: W–W–H–W–W–W–H.</li>
-                  <ul>
-                    <li>W = Whole Step (2 keys apart) Ex: C → D (skips C♯)</li>
-                    <li>H = Half Step (1 key apart) Ex: E → F (no key in between)</li>
-                  </ul>
-                  <li>Forms the foundation for key signatures and melodies.</li>
-                  <li>Example: C major scale = C–D–E–F–G–A–B.</li>
-                </ul>
-                <span style={{fontWeight:"bold"}}>🎹 Try clicking the note and listen!!</span>
-              </div>
-            </div>
-            <div >              
-              <div style={{display:"flex", justifyContent:"center"}}>
-                <div style={{width:"840px", backgroundColor:"#16488D", borderRadius:"1rem", padding:"1rem 0", margin:"1rem 0"}}>
-                {keys.map((Note, i) => (
-                  <button className={`notebtn ${selectedScale === Note ? "selected" : ""}`} key={Note + i} onClick={() => {setSelectedScale(Note); handleClick(Note);}}>
-                    {Note}
-                  </button>
-                ))}
-                </div>
-              </div>
-              <div style={{marginLeft:"50%", height:"150px"}}>
-                <ScalePiano
-                  scaleLength={2}
-                  width={60}
-                  height={150}
-                  highlightNotes={majorScale[selectedScale]}
-                  playingNote={playingKey}
-                  scale={selectedScale}
-                  />
-              </div>
-            </div>
+            <ScaleDisplay 
+              scaleType="major"
+              scaleDefinition={majorScaleDefinition}
+            />
             <div className="line"/>
             <div style={{ display:"flex",textAlign: "center" , justifyContent: "space-between"}}>
-              <button onClick={() => {setActiveTab("Triads")}} className="playbtn" style={{width:"10rem", borderRadius:"5rem"}}>Triads</button>
-              <button onClick={() => {setActiveTab("Progressions")}} className="playbtn" style={{width:"10rem", borderRadius:"5rem"}}>Progressions</button>
+              <button onClick={() => {setActiveTab("Triads")}} className="playbtn" style={{width:"10rem", borderRadius:"5rem"}}>{"<"} Back</button>
+              <button onClick={() => {setActiveTab("Progressions")}} className="playbtn" style={{width:"10rem", borderRadius:"5rem"}}>Next {">"}</button>
             </div>
           </div>}
 
           {activeTab === "Progressions" && 
           <div className="card-container elimtop" style={{margin:0, padding:"2rem 5rem"}}>
-            <div style={{display:"flex"}}>
-              <div style={{marginRight:"15%"}}>
-                <div style={{display:"flex", alignItems: "center"}}>
-                  <div className="card-title">I - IV - V Progressions</div>
-                </div>
-                <ul style={{margin:0}}>
-                  <li>A very common chord pattern using the 1st, 4th, and 5th chords of a major scale.</li>
-                  <li>One of the most important chord progressions in all music — pop, classical, anime, gospel, rock, everything.</li>
-                  <li>Creates strong musical movement (home → away → return).</li>
-                  <ul>
-                    <li><span style={{fontWeight:"bold"}}>I → IV :</span> Feels like taking a step forward.</li>
-                    <li><span style={{fontWeight:"bold"}}>IV → V :</span> Feels like tension is rising, preparing for the climax.</li>
-                    <li><span style={{fontWeight:"bold"}}>V → I :</span> Feels like coming home or resolving a question.</li>
-                  </ul>
-                  <li>Example in C major: C (I) → F (IV) → G (V).</li>
-                </ul>
-              </div>
-            </div>
-            <div>
-              <ProgressionDisplay/>
-            </div>
+            <ProgressionDisplay 
+              progType="I-IV-V"
+              progDefinition={IIVVDefinition}
+            />
             <div className="line"/>
             <div style={{ display:"flex",textAlign: "center" , justifyContent: "space-between"}}>
-              <button onClick={() => {setActiveTab("Scales")}} className="playbtn" style={{width:"10rem", borderRadius:"5rem"}}>Scales</button>
-              <button className="playbtn" style={{width:"10rem", borderRadius:"5rem"}} onClick={() => {setNavCheckPopUp(true)}}>
-                Test
-              </button>
+              <button onClick={() => {setActiveTab("Scales")}} className="playbtn" style={{width:"10rem", borderRadius:"5rem"}}>{"<"} Back</button>
+              <button className="playbtn" style={{width:"10rem", borderRadius:"5rem"}} onClick={() => {setNavCheckPopUp(true)}}>Test {">"}</button>
             </div>
           </div>}
 

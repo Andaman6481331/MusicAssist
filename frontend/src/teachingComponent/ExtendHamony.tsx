@@ -38,61 +38,107 @@ import ProgressionDisplay from "./subComponent/ProgressionDisplay";
 import HarmonizingDisplay from "./subComponent/HarmonizingDisplay";
 import ExtensionDisplay from "./subComponent/ExtensionDisplay";
 
-const keys = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
-const majorScale: Record<string, string[]> = {
-  C:   ["C4", "D4", "E4", "F4", "G4", "A4", "B4", "C5"],
-  "C#": ["C#4", "D#4", "F4", "F#4", "G#4", "A#4", "C5", "C#5"],
-  D:   ["D4", "E4", "F#4", "G4", "A4", "B4", "C#5", "D5"],
-  "D#": ["D#4", "F4", "G4", "G#4", "A#4", "C5", "D5", "D#5"],
-  E:   ["E4", "F#4", "G#4", "A4", "B4", "C#5", "D#5", "E5"],
-  F:   ["F4", "G4", "A4", "A#4", "C5", "D5", "E5", "F5"],
-  "F#": ["F#4", "G#4", "A#4", "B4", "C#5", "D#5", "F5", "F#5"],
-  G:   ["G4", "A4", "B4", "C5", "D5", "E5", "F#5", "G5"],
-  "G#": ["G#4", "A#4", "C5", "C#5", "D#5", "F5", "G5", "G#5"],
-  A:   ["A4", "B4", "C#5", "D5", "E5", "F#5", "G#5", "A5"],
-  "A#": ["A#4", "C5", "D5", "D#5", "F5", "G5", "A5", "A#5"],
-  B:   ["B4", "C#5", "D#5", "E5", "F#5", "G#5", "A#5", "B5"]
+const advancedExtensionDefinition = {
+  title: "Advanced Chord Extensions",
+  description: [
+    "Extended chords use notes beyond the octave of the root.",
+    "The numbering continues: 7th, 9th (2nd + octave), 11th (4th + octave), 13th (6th + octave).",
+    "These extensions can be altered (raised or lowered) for even more colors."
+  ],
+  categories: [
+    {
+      name: "Voicing Principles",
+      items: [
+        {
+          label: "Shell voicings",
+          description: "Root, 3rd, 7th only - clean and functional"
+        },
+        {
+          label: "Upper structures",
+          description: "9th, 11th, 13th highlighted for modern sound"
+        },
+        {
+          label: "Omissions",
+          description: "Leaving out 3rd or 5th for different textures"
+        }
+      ]
+    },
+    {
+      name: "Altered Extensions",
+      items: [
+        {
+          label: "♭9 / ♯9",
+          description: "Lowered or raised 9th for tension"
+        },
+        {
+          label: "♯11",
+          description: "Lydian sound, bright and modern"
+        },
+        {
+          label: "♭13",
+          description: "Blues influence, darker color"
+        }
+      ]
+    }
+  ],
+  example: "Compare C7 (basic) vs C7♯9 (Hendrix chord) vs C13♯11 (contemporary jazz).",
+  callToAction: "🎼 Master these extensions to unlock professional-level harmony!"
+};
+
+const iiVIIDefinition = {
+  title: "ii - V - I Progressions",
+  description: [
+    "A fundamental chord progression built on the 2nd, 5th, and 1st chords of a major scale.",
+    "Extremely common in jazz, R&B, gospel, pop, and film music.",
+    "Creates strong forward motion and a very satisfying sense of resolution."
+  ],
+  movement: [
+    {
+      label: "ii → V",
+      description: "Creates tension and momentum, naturally pulling toward resolution."
+    },
+    {
+      label: "V → I",
+      description: "Resolves the tension clearly and strongly back to the home chord."
+    }
+  ],
+  example: "Example in C major: Dm (ii) → G (V) → C (I)."
+};
+
+const advancedHarmonizingDefinition = {
+  title: "Advanced Melody Harmonization",
+  description: [
+    "Harmonization is the art of choosing chords to support a melody line.",
+    "The same melodic phrase can be harmonized in countless ways, each creating different emotional contexts.",
+    "Professional composers use this technique to guide listeners through an emotional journey."
+  ],
+  concept: [
+    "Stable harmony: Uses tonic chords (I, vi) for resolution and rest",
+    "Tension harmony: Uses dominant chords (V, vii°) for forward motion",
+    "Color harmony: Uses extended and altered chords for sophistication",
+    "Contrary motion: Melody moves opposite to bass for smooth voice leading"
+  ],
+  example: "The note 'E' can be harmonized with C major (happy), A minor (sad), E major (bright), or C#dim (tense) - all valid but creating very different moods.",
+  callToAction: "🎼 Master the art of emotional storytelling through harmony!"
+};
+
+// Simple beginner definition
+const simpleHarmonizingDefinition = {
+  title: "Understanding Harmony",
+  description: [
+    "Harmony is when chords play along with a melody.",
+    "The chords you choose change how the melody feels.",
+    "It's like choosing different colors to paint the same picture!"
+  ],
+  callToAction: "💡 Discover how chords change the mood of music!"
 };
 
 const ExtendHamony: React.FC = () => {
   const [activeTab, setActiveTab] = useState("Extension");
-  const [selectedChord, setSelectedChord] = useState<string>("");
-  // const [selectedScale, setSelectedScale] = useState<string>("C");
-  // const [playingKey, setPlayingKey] = useState<string>("");
   const [guidePopup, setGuidePopUp]= useState(false);
 
   const [navCheckPopUp, setNavCheckPopUp] = useState(false);
   const navigate = useNavigate();
-
-  const sampler = useContext(SamplerContext);
-
-  // const handleClick = async (key: string) => {
-  //     await Tone.start();
-  //     const scaleKeys = majorScale[key];
-  //     if (!sampler) {
-  //       console.error("Sampler not loaded");
-  //       return;
-  //     }
-  
-  //     setSelectedScale(key);
-      
-  //     for (let i = 0; i < scaleKeys.length; i++) {
-  //       const note = scaleKeys[i];
-  //       if (sampler?.samplerRef.current) {
-  //         sampler.samplerRef.current.triggerAttackRelease(note, "1n");
-  //       }
-  //       setPlayingKey(note);
-  //       await new Promise((resolve) => setTimeout(resolve, 250)); // wait 250ms before next note
-  //     }
-  //     for (let i = scaleKeys.length-2; i >= 0; i--) {
-  //       const note = scaleKeys[i];
-  //       if (sampler?.samplerRef.current) {
-  //         sampler.samplerRef.current.triggerAttackRelease(note, "1n");
-  //       }
-  //       setPlayingKey(note);
-  //       await new Promise((resolve) => setTimeout(resolve, 250)); // wait 250ms before next note
-  //     }
-  //   };
   
   return(
     <div className="teaching-page-container">
@@ -129,89 +175,35 @@ const ExtendHamony: React.FC = () => {
 
           {activeTab === "Extension" && 
           <div className="card-container elimtop" style={{margin:0, padding:"2rem 5rem"}}>
-            <div style={{display:"flex"}}>
-              <div style={{marginRight:"15%"}}>
-                <div className="card-title">Extension</div>
-          
-                <ul style={{margin:0}}>
-                  <li>A chord made of three notes: root, major third, perfect fifth.</li>
-                  <ul>
-                    <li>Root</li>
-                    <li>Major third (4 notes above root)</li>
-                    <li>Perfect fifth (7 notes above root)</li>
-                  </ul>
-                  <li>Creates a bright, stable sound.</li>
-                  <li>Example: C–E–G (C major).</li>
-                </ul>
-                <span style={{fontWeight:"bold"}}>💡Try clicking the note on the key circle and play chords!!</span>
-              </div>
-            </div>
-              <ExtensionDisplay/>
-              <div className="line"/>
-              <div style={{ display:"flex",textAlign: "center" , justifyContent: "flex-end"}}>
-                <button onClick={() => {setActiveTab("Progressions")}} className="playbtn" style={{width:"10rem", borderRadius:"5rem"}}>Progressions</button>
-              </div>
+            <ExtensionDisplay 
+              extensionDefinition={advancedExtensionDefinition}
+            />
           </div>}
-          {activeTab === "Scales" && 
-          <div className="card-container elimtop" style={{margin:0, padding:"2rem 5rem"}}>
-            <div style={{display:"flex"}}>
-              <div>
-                <div style={{display:"flex", alignItems: "center"}}>
-                  <div className="card-title">Harmonizing</div>
-                </div>
-                <p>Harmonizing a Melody</p>
-                <ul style={{margin:0}}>
-                  <li>When a melody plays a note, the chord underneath usually contains that note.</li>
-                  <li>A melody note is played repeatedly.</li>
-                  <li>While it sounds, try different chords underneath it.</li>
-                  <li>Notice how the feeling changes even though the melody note stays the same.</li>
-                </ul>
-                <span style={{fontWeight:"bold"}}>🎹 Play the note, and Harmonize it!!</span>
-              </div>
-            </div>
-            <div >              
-              <HarmonizingDisplay/>
-            </div>
-            <div className="line"/>
-            <div style={{ display:"flex",textAlign: "center" , justifyContent: "space-between"}}>
-              <button onClick={() => {setActiveTab("Progressions")}} className="playbtn" style={{width:"10rem", borderRadius:"5rem"}}>Progressions</button>
-              <button className="playbtn" style={{width:"10rem", borderRadius:"5rem"}} onClick={() => {setNavCheckPopUp(true)}}>
-                Test
-              </button>  
-            </div>
-          </div>}
-
           {activeTab === "Progressions" && 
           <div className="card-container elimtop" style={{margin:0, padding:"2rem 5rem"}}>
-            <div style={{display:"flex"}}>
-              <div style={{marginRight:"15%"}}>
-                <div style={{display:"flex", alignItems: "center"}}>
-                  <div className="card-title">ii–V–I Progression</div>
-                </div>
-                <p style={{textIndent:"1rem", width:"100%"}}>The ii–V–I progression is one of the most important and frequently used chord progressions in Western music, especially in jazz, but also common in pop, R&B, film music, anime, and classical harmony.</p>
-                <p style={{fontWeight:"bolder",margin:0}}>What it is</p>
-                <ul style={{margin:0}}>
-                  <li>Built from the 2nd, 5th, and 1st chords of a key</li>
-                  <li>Uses strong functional harmony to lead the listener naturally back to the tonic (home chord)</li>
-                  <li>Often considered the core sentence of tonal music</li>
-                  <ul>
-                    <li><span style={{fontWeight:"bold"}}>ii :</span> prepares tension</li>
-                    <li><span style={{fontWeight:"bold"}}>V :</span> creates strong tension</li>
-                    <li><span style={{fontWeight:"bold"}}>I :</span> releases tension</li>
-                  </ul>
-                  <li>Example in C major: Dm (ii) → F (IV) → C (I).</li>
-                </ul>
-              </div>
-            </div>
             <div>
               <ProgressionDisplay
                 progType="ii-V-I"
+                progDefinition={iiVIIDefinition}
               />
             </div>
             <div className="line"/>
             <div style={{ display:"flex",textAlign: "center" , justifyContent: "space-between"}}>
               <button onClick={() => {setActiveTab("Extension")}} className="playbtn" style={{width:"10rem", borderRadius:"5rem"}}>Extension</button>
               <button onClick={() => {setActiveTab("Scales")}} className="playbtn" style={{width:"10rem", borderRadius:"5rem"}}>Harmonizing</button>
+            </div>
+          </div>}
+          {activeTab === "Scales" && 
+          <div className="card-container elimtop" style={{margin:0, padding:"2rem 5rem"}}>
+            <HarmonizingDisplay 
+              harmonizingDefinition={advancedHarmonizingDefinition}
+            />
+            <div className="line"/>
+            <div style={{ display:"flex",textAlign: "center" , justifyContent: "space-between"}}>
+              <button onClick={() => {setActiveTab("Progressions")}} className="playbtn" style={{width:"10rem", borderRadius:"5rem"}}>Progressions</button>
+              <button className="playbtn" style={{width:"10rem", borderRadius:"5rem"}} onClick={() => {setNavCheckPopUp(true)}}>
+                Test
+              </button>  
             </div>
           </div>}
 

@@ -88,52 +88,60 @@ const Home: React.FC = () => {
 
   return (
     <div className="landing-page">
-      {/* Hero Section */}
-      <section className="hero-section">
-        <div className="hero-carousel">
-          <div className="hero-slides-container" style={{ transform: `translateX(-${bannerIndex * 100}%)` }}>
-            {heroSlides.map((slide, idx) => (
-              <div className="hero-slide" key={idx}>
-                <div className="hero-content">
-                  <h1 className="landing-title">{slide.title}</h1>
-                  <p className="landing-subtitle">{slide.subtitle}</p>
-                  <div className="hero-buttons">
-                    {!isGlobalEnabled ? (
-                      <Link className="btn-primary" to="/login">
-                        Get Started
-                      </Link>
-                    ) : (
-                      <Link className="btn-primary" to="/generate-prompt">
-                        Start Learning
-                      </Link>
-                    )}
-                    <button className="btn-secondary" onClick={() => scrollToSection(featuresRef)}>
-                      Learn More
-                    </button>
-                  </div>
-                </div>
+{/* Hero Section */}
+<section className="hero-section">
+  <div className="hero-carousel">
+    <div className="hero-slides-container" style={{ transform: `translateX(-${bannerIndex * 100}%)` }}>
+      {heroSlides.map((slide, idx) => (
+        <div className="hero-slide" key={idx}>
+          <div className="hero-overlay" />
+          <div className="hero-content">
+            <div className="hero-text-content">
+              <h1 className="landing-title">{slide.title}</h1>
+              <p className="landing-subtitle">{slide.subtitle}</p>
+              <div className="hero-buttons">
+                {!isGlobalEnabled ? (
+                  <Link className="btn-primary" to="/login">
+                    Get Started
+                  </Link>
+                ) : (
+                  <Link className="btn-primary" to="/generate-prompt">
+                    Start Learning
+                  </Link>
+                )}
+                <button className="btn-secondary" onClick={() => scrollToSection(featuresRef)}>
+                  Learn More
+                </button>
               </div>
-            ))}
-          </div>
-
-          <button className="hero-nav-btn hero-nav-prev" onClick={prevBanner}>
-            ❮
-          </button>
-          <button className="hero-nav-btn hero-nav-next" onClick={nextBanner}>
-            ❯
-          </button>
-
-          <div className="hero-dots">
-            {heroSlides.map((_, idx) => (
-              <button
-                key={idx}
-                className={`hero-dot ${idx === bannerIndex ? "active" : ""}`}
-                onClick={() => setBannerIndex(idx)}
-              />
-            ))}
+            </div>
           </div>
         </div>
-      </section>
+      ))}
+    </div>
+
+    <button className="hero-nav-btn hero-nav-prev" onClick={prevBanner} aria-label="Previous slide">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <path d="M15 18l-6-6 6-6" />
+      </svg>
+    </button>
+    <button className="hero-nav-btn hero-nav-next" onClick={nextBanner} aria-label="Next slide">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <path d="M9 18l6-6-6-6" />
+      </svg>
+    </button>
+
+    <div className="hero-dots">
+      {heroSlides.map((_, idx) => (
+        <button
+          key={idx}
+          className={`hero-dot ${idx === bannerIndex ? "active" : ""}`}
+          onClick={() => setBannerIndex(idx)}
+          aria-label={`Go to slide ${idx + 1}`}
+        />
+      ))}
+    </div>
+  </div>
+</section>
 
       {/* Features Section */}
       <section className="features-section" ref={featuresRef}>

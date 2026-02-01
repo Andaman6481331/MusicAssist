@@ -1,28 +1,78 @@
 import {useContext, useState} from "react";
 import * as Tone from "tone";
 import { SamplerContext } from "../App";
-import {Link, useNavigate } from "react-router-dom";
+import {useNavigate } from "react-router-dom";
 
 import ProgressLine from "./subComponent/ProgressLine";
-import CircleOfFifths from "../component/CircleofFifth";
-import ChordPiano from "../component/ChordPiano";
-import Progression from "../component/Progression";
-import ScalePiano from "../component/ScalePiano";
 import ProgressionDisplay from "./subComponent/ProgressionDisplay";
+import ChordDisplay from "./subComponent/ChordDisplay";
+import ScaleDisplay from "./subComponent/ScaleDisplay";
 
-const minorChordNotes: Record<string, string[]> = {
-  C: ["C", "Eb", "G"],        // C minor
-  "C#": ["C#", "E", "G#"],    // C# minor
-  D: ["D", "F", "A"],         // D minor
-  "D#": ["D#", "F#", "A#"],   // D# minor (Enharmonic: Eb minor)
-  E: ["E", "G", "B"],         // E minor
-  F: ["F", "Ab", "C"],        // F minor
-  "F#": ["F#", "A", "C#"],    // F# minor
-  G: ["G", "Bb", "D"],        // G minor
-  "G#": ["G#", "B", "D#"],    // G# minor (Enharmonic: Ab minor)
-  A: ["A", "C", "E"],         // A minor
-  "A#": ["A#", "C#", "F"],    // A# minor (Enharmonic: Bb minor)
-  B: ["B", "D", "F#"],        // B minor
+// Example 2: Minor Scale Definition
+const minorScaleDefinition = {
+  title: "Minor Scales",
+  description: [
+    "A set of 7 notes following the pattern: W–H–W–W–H–W–W.",
+    "Creates a darker, more melancholic sound compared to major scales.",
+    "Natural minor scale is one of the most commonly used scales in music."
+  ],
+  pattern: [
+    {
+      label: "W",
+      description: "Whole Step (2 keys apart)"
+    },
+    {
+      label: "H",
+      description: "Half Step (1 key apart)"
+    }
+  ],
+  example: "Example: A minor scale = A–B–C–D–E–F–G.",
+  callToAction: "🎹 Click a scale and hear the difference!"
+};
+
+// Example 2: Minor Triads Definition
+const minorTriadDefinition = {
+  title: "Minor Triads",
+  description: [
+    "A chord made of three notes: root, minor third, perfect fifth.",
+    "Creates a darker, more melancholic sound compared to major chords."
+  ],
+  structure: [
+    {
+      label: "Root",
+      description: ""
+    },
+    {
+      label: "Minor third",
+      description: "(3 notes above root)"
+    },
+    {
+      label: "Perfect fifth",
+      description: "(7 notes above root)"
+    }
+  ],
+  example: "Example: A–C–E (A minor).",
+  callToAction: "🎵 Click and explore the emotional difference!"
+};
+
+const iViDefinition = {
+  title: "i - V - i Progressions",
+  description: [
+    "A common minor-key chord pattern using the 1st and 5th chords of a minor scale.",
+    "Frequently used to create a dark, emotional, or dramatic sound in film scores, anime, pop, and classical music.",
+    "Strong sense of tension and release within a minor context."
+  ],
+  movement: [
+    {
+      label: "i → V",
+      description: "Creates strong tension, pulling away from the home chord."
+    },
+    {
+      label: "V → i",
+      description: "Resolves the tension back to the minor tonic, often sounding emotional or bittersweet."
+    }
+  ],
+  example: "Example in A minor: Am (i) → E (V) → Am (i)."
 };
 
 const keys = ["Cm", "C#m", "Dm", "D#m", "Em", "Fm", "F#m", "Gm", "G#m", "Am", "A#m", "Bm"];
@@ -43,42 +93,9 @@ const minorScale: Record<string, string[]> = {
 
 const MinorEssentials: React.FC = () => {
   const [activeTab, setActiveTab] = useState("Triads");
-  const [selectedChord, setSelectedChord] = useState<string>("");
-  const [selectedScale, setSelectedScale] = useState<string>("C");
-  const [playingKey, setPlayingKey] = useState<string>("");
   const [guidePopup, setGuidePopUp]= useState(false);
   const [navCheckPopUp, setNavCheckPopUp] = useState(false);
   const navigate = useNavigate();
-
-  const sampler = useContext(SamplerContext);
-
-  const handleClick = async (key: string) => {
-      await Tone.start();
-      const scaleKeys = minorScale[key];
-      if (!sampler) {
-        console.error("Sampler not loaded");
-        return;
-      }
-  
-      setSelectedScale(key);
-      
-      for (let i = 0; i < scaleKeys.length; i++) {
-        const note = scaleKeys[i];
-        if (sampler?.samplerRef.current) {
-          sampler.samplerRef.current.triggerAttackRelease(note, "1n");
-        }
-        setPlayingKey(note);
-        await new Promise((resolve) => setTimeout(resolve, 250)); // wait 250ms before next note
-      }
-      for (let i = scaleKeys.length-2; i >= 0; i--) {
-        const note = scaleKeys[i];
-        if (sampler?.samplerRef.current) {
-          sampler.samplerRef.current.triggerAttackRelease(note, "1n");
-        }
-        setPlayingKey(note);
-        await new Promise((resolve) => setTimeout(resolve, 250)); // wait 250ms before next note
-      }
-    };
   
   return(
     <div className="teaching-page-container">
@@ -115,119 +132,39 @@ const MinorEssentials: React.FC = () => {
 
           {activeTab === "Triads" && 
           <div className="card-container elimtop" style={{margin:0, padding:"2rem 5rem"}}>
-            <div style={{display:"flex"}}>
-              <div style={{marginRight:"15%"}}>
-                <div className="card-title">Minor Triads</div>
-          
-                <ul style={{margin:0}}>
-                  <li>A chord made of three notes: root, minor third, perfect fifth.</li>
-                  <ul>
-                    <li>Root</li>
-                    <li>Minor third (3 notes above root)</li>
-                    <li>Perfect fifth (7 notes above root)</li>
-                  </ul>
-                  <li>Creates a darker, emotional, or sad sound.</li>
-                  <li>Example: C–E♭–G (C minor).</li>
-                </ul>
-                <span style={{fontWeight:"bold"}}>💡Try clicking the note on the key circle and play chords!!</span>
-              </div>
-              <CircleOfFifths
-                selectedChord={selectedChord}
-                setSelectedChord={setSelectedChord}
-                mmtype={"minor"}
-              />
+            <ChordDisplay 
+              chordType="minor"
+              chordDefinition={minorTriadDefinition}
+            />
+            <div className="line"/>
+            <div style={{ display:"flex",textAlign: "center" , justifyContent: "flex-end"}}>
+              <button onClick={() => {setActiveTab("Scales")}} className="playbtn" style={{width:"10rem", borderRadius:"5rem"}}>Next {">"}</button>
             </div>
-              <div style={{ display: 'flex', justifyContent: 'center'}}>
-                <ChordPiano
-                  width={60}
-                  height={150}
-                  finalChord={selectedChord}
-                  isMuted={false}
-                />
-              </div>
-              <div className="line"/>
-              <div style={{ display:"flex",textAlign: "center" , justifyContent: "flex-end"}}>
-                <button onClick={() => {setActiveTab("Scales")}} className="playbtn" style={{width:"10rem", borderRadius:"5rem"}}>Scales</button>
-              </div>
           </div>}
 
           {activeTab === "Scales" && 
           <div className="card-container elimtop" style={{margin:0, padding:"2rem 5rem"}}>
-            <div style={{display:"flex"}}>
-              <div>
-                <div style={{display:"flex", alignItems: "center"}}>
-                  <div className="card-title">Natural Minor Scales</div>
-                </div>
-                <ul style={{margin:0}}>
-                  <li>A set of 7 notes following the pattern: W–H–W–W–H–W–W.</li>
-                  <ul>
-                    <li>W = Whole Step (2 keys apart) Ex: C → D (skips C♯)</li>
-                    <li>H = Half Step (1 key apart) Ex: E♭ → F (no key in between)</li>
-                  </ul>
-                  <li>Forms the foundation for minor-key melodies and harmony.</li>
-                  <li>Example: C natural minor scale = C–D–E♭–F–G–A♭–B♭.</li>
-                </ul>
-                <span style={{fontWeight:"bold"}}>🎹 Try clicking the note and listen!!</span>
-              </div>
-            </div>
-            <div >              
-              <div style={{display:"flex", justifyContent:"center"}}>
-                <div style={{width:"840px", backgroundColor:"#16488D", borderRadius:"1rem", padding:"1rem 0", margin:"1rem 0"}}>
-                {keys.map((Note, i) => (
-                  <button className={`notebtn ${selectedScale === Note ? "selected" : ""}`} key={Note + i} onClick={() => {setSelectedScale(Note); handleClick(Note);}}>
-                    {Note}
-                  </button>
-                ))}
-                </div>
-              </div>
-              <div style={{marginLeft:"50%", height:"150px"}}>
-                <ScalePiano
-                  scaleLength={2}
-                  width={60}
-                  height={150}
-                  highlightNotes={minorScale[selectedScale]}
-                  playingNote={playingKey}
-                  scale={selectedScale}
-                  />
-              </div>
-            </div>
+            <ScaleDisplay 
+              scaleType="minor"
+              scaleDefinition={minorScaleDefinition}
+            />
             <div className="line"/>
             <div style={{ display:"flex",textAlign: "center" , justifyContent: "space-between"}}>
-              <button onClick={() => {setActiveTab("Triads")}} className="playbtn" style={{width:"10rem", borderRadius:"5rem"}}>Triads</button>
-              <button onClick={() => {setActiveTab("Progressions")}} className="playbtn" style={{width:"10rem", borderRadius:"5rem"}}>Progressions</button>
+              <button onClick={() => {setActiveTab("Triads")}} className="playbtn" style={{width:"10rem", borderRadius:"5rem"}}>{"<"} Back</button>
+              <button onClick={() => {setActiveTab("Progressions")}} className="playbtn" style={{width:"10rem", borderRadius:"5rem"}}>Next {">"}</button>
             </div>
           </div>}
 
           {activeTab === "Progressions" && 
           <div className="card-container elimtop" style={{margin:0, padding:"2rem 5rem"}}>
-            <div style={{display:"flex"}}>
-              <div style={{marginRight:"15%"}}>
-                <div style={{display:"flex", alignItems: "center"}}>
-                  <div className="card-title">I - IV - V Progressions</div>
-                </div>
-                <ul style={{margin:0}}>
-                  <li>A very common chord pattern using the 1st and 5th chords in a minor key.</li>
-                  <li>Widely used in pop ballads, classical, film music, and emotional songs.</li>
-                  <li>Creates strong emotional movement (home → tension → home).</li>
-                  <ul>
-                    <li><span style={{fontWeight:"bold"}}>i → V :</span> Feels like tension is building, asking a musical question.</li>
-                    <li><span style={{fontWeight:"bold"}}>V → i :</span> Feels like release and emotional resolution.</li>
-                  </ul>
-                  <li>Example in C minor: Cm (i) → G (V) → Cm (i).</li>
-                </ul>
-              </div>
-            </div>
-            <div>
-              <ProgressionDisplay
-                progType="i-V-i"
-              />
-            </div>
+            <ProgressionDisplay 
+              progType="i-V-i"
+              progDefinition={iViDefinition}
+            />
             <div className="line"/>
             <div style={{ display:"flex",textAlign: "center" , justifyContent: "space-between"}}>
-              <button onClick={() => {setActiveTab("Scales")}} className="playbtn" style={{width:"10rem", borderRadius:"5rem"}}>Scales</button>
-              <button className="playbtn" style={{width:"10rem", borderRadius:"5rem"}} onClick={() => {setNavCheckPopUp(true)}}>
-                Test
-              </button>
+              <button onClick={() => {setActiveTab("Scales")}} className="playbtn" style={{width:"10rem", borderRadius:"5rem"}}>{'<'} Back</button>
+              <button className="playbtn" style={{width:"10rem", borderRadius:"5rem"}} onClick={() => {setNavCheckPopUp(true)}}>Test {'>'}</button>
             </div>
           </div>}
         {guidePopup &&(

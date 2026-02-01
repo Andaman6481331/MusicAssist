@@ -3,19 +3,21 @@
 
 
 To-Do List
-1. Change homepage guide to simplier ui
-(DONE)2. Move the guide to each page: generator/fileupload/learn&explore
-(DONE)3. finish FileCoverter Section UI
-(DONE)4. Loadingbar fix
-(DONE)5. Chord Progression Tools
-6. generate part add filename check (rn it simply skip)
-(DONE)7.pianoroll app restart, movable, mute,  
-(DONE)8.finish WavToJson - check inside handlefilechange for no similar json file
-9. fix /output page unable to play piano piece
-10. format all piano json file and pianorollapp tgt
-11. 
-12. homepage improve
-13. tools page - piano roll app go over loading section + add loading bar when loading /output page + go to viewpage and cancel btn ui fix
+- Change homepage guide to simplier ui
+- generate part add filename check (rn it simply skip)
+- fix /output page unable to play piano piece
+- format all piano json file and pianorollapp tgt
+- prgressions note btn double click
+- minor circle of fifth
+- homepage improve
+- tools page  - piano roll app go over loading section 
+                - go to viewpage and cancel btn ui fix
+                - add loading bar when loading /output page
+- add introduction level
+- fix piano note highlight color
+- progression ui fix
+- url security - dont let user simply move to other page by changing url
+
     
 
 Server Relate work
