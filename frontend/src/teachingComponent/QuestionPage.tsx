@@ -40,164 +40,139 @@ const QuestionPage: React.FC = () => {
     }
     
     const q = levelData.questions[currentQ];  
-    // const [answers, setAnswers] = useState<Record<number, number>>({});
     const totalQuestions = levelData.questions.length;
 
     const [answers, setAnswers] = useState<(number | null)[]>(
         Array(totalQuestions).fill(null)
     );
-    const [score, setScore] = useState(0);
-    const [submitted, setSubmitted] = useState<boolean>();
+    const [isFinished, setIsFinished] = useState(false);
 
-    const handleSubmit = (questionIndex: number) => {
-        const selected = answers[questionIndex];
-        if (selected === null || selected === undefined) return;
-
-        const correct = levelData.questions[questionIndex].correct;
-
-        if (selected === correct) {
-            setScore(prev => prev + 1);
-        };
-
-        setSubmitted(true);
-
-        setTimeout(() => {
-            setSubmitted(false);
-            setCurrentQ(prev => prev + 1);
-        }, 1500);
+    const handleFinish = () => {
+        setIsFinished(true);
     };
 
+    const calculateScore = () => {
+        return answers.reduce((acc: number, curr, idx) => {
+            return curr === levelData.questions[idx].correct ? acc + 1 : acc;
+        }, 0);
+    };
+
+    const score = calculateScore();
+
     const passTest = async () => {
-        // When user passes levelNumber N, highestLevelPassed should be N - 1
-        // This unlocks lesson index N (which corresponds to levelNumber N + 1)
         if (userId) {
             try {
                 const newHighestLevel = levelNumber - 1;
                 console.log(`✅ User passed levelNumber ${levelNumber}, setting highestLevelPassed to ${newHighestLevel} for userId: ${userId}`);
                 await updateUserProgress(userId, newHighestLevel);
-                console.log("✅ Progress saved to Firebase successfully!");
             } catch (error: any) {
                 console.error("❌ ERROR: Failed to save progress to Firebase:", error);
-                console.error("Error details:", {
-                    message: error?.message,
-                    code: error?.code,
-                    userId: userId,
-                    levelNumber: levelNumber
-                });
                 const errorMsg = error?.message || "Unknown error";
-                alert(`Warning: Could not save your progress.\n\nError: ${errorMsg}\n\nPlease check the browser console (F12) for more details.`);
+                alert(`Warning: Could not save your progress.\n\nError: ${errorMsg}`);
             }
-        } else {
-            console.warn("⚠️ User not logged in, cannot save progress");
-            alert("Warning: You're not logged in. Your progress won't be saved.");
         }
         navigate("/lessons");
     };
+
     const redoTest = () => {
-        setScore(0);
-        setAnswers([null]);
+        setIsFinished(false);
+        setAnswers(Array(totalQuestions).fill(null));
         setCurrentQ(0);
     };
 
-    if (currentQ >= totalQuestions) {
+    if (isFinished) {
+        const passed = score >= (totalQuestions / 2);
         return (
             <div className="popup-overlay">
-                <div className="popup-box">
-                    {score > (totalQuestions/2) ? (
-                        <div>
-                            <div style={{height:"10rem"}}>
-                                <img src="/img/rewards.png" alt="reward" style={{
-                                    height: "100%",
-                                    width: "100%",
-                                    objectFit: "contain",
-                                    display: "block"
-                                    }}/>
+                <div className="popup-box" style={{ maxWidth: "600px", width: "95%", maxHeight: "90vh", overflowY: "auto", padding: "2rem" }}>
+                    {passed ? (
+                        <div style={{ textAlign: "center" }}>
+                            <div style={{ height: "10rem" }}>
+                                <img src="/img/rewards.png" alt="reward" style={{ height: "100%", width: "100%", objectFit: "contain" }} />
                             </div>
-                            <h1>🎉Congratulation🎉</h1>
-                            <p style={{fontWeight:"bolder", margin:0}}>
-                                Final score: {score}/{totalQuestions}
-                            </p>
-                            <p style={{margin:0}}>
-                                You Passed! You’re ready for the next lesson.
-                            </p>
-                            <div className="popup-buttons">
-                                <button onClick={()=>passTest()}>Continue</button>
-                            </div>
+                            <h1>🎉 Congratulations! 🎉</h1>
+                            <p style={{ fontSize: "1.2rem", fontWeight: "bold" }}>Final score: {score}/{totalQuestions}</p>
+                            <p>You Passed! You’re ready for the next lesson.</p>
                         </div>
-                        ):(
-                        <div>
-                            <div style={{height:"10rem"}}>
-                                <img src="/img/fail.png" alt="fail" style={{
-                                    height: "100%",
-                                    width: "100%",
-                                    objectFit: "contain",
-                                    display: "block"
-                                    }}/>
+                    ) : (
+                        <div style={{ textAlign: "center" }}>
+                            <div style={{ height: "10rem" }}>
+                                <img src="/img/fail.png" alt="fail" style={{ height: "100%", width: "100%", objectFit: "contain" }} />
                             </div>
-                            <h1>👍Better Luck Next Time</h1>
-                            <p style={{fontWeight:"bolder", margin:0}}>
-                                Final score: {score}/{totalQuestions}
-                            </p>
-                            <p style={{margin:0}}>
-                                You’re improving! Give it another try... 
-                            </p>
-                            <div className="popup-buttons">
-                                <button onClick={()=>redoTest()}>Try Again</button>
-                            </div>
-                        </div>)
-                    }
+                            <h1>👍 Better Luck Next Time</h1>
+                            <p style={{ fontSize: "1.2rem", fontWeight: "bold" }}>Final score: {score}/{totalQuestions}</p>
+                            <p>You’re improving! Give it another try...</p>
+                        </div>
+                    )}
+
+                    <div style={{ marginTop: "2rem", textAlign: "left" }}>
+                        <h3 style={{ borderBottom: "1px solid rgba(255,255,255,0.2)", paddingBottom: "0.5rem" }}>Review Results</h3>
+                        {levelData.questions.map((question, idx) => {
+                            const userAnswer = answers[idx];
+                            const isCorrect = userAnswer === question.correct;
+                            return (
+                                <div key={idx} style={{ 
+                                    padding: "1rem", 
+                                    marginBottom: "1rem", 
+                                    backgroundColor: "rgba(255,255,255,0.05)", 
+                                    borderRadius: "0.5rem",
+                                    borderLeft: `5px solid ${userAnswer === null ? "#888" : isCorrect ? "#29B839" : "#D10909"}`
+                                }}>
+                                    <p style={{ margin: "0 0 0.5rem 0", fontWeight: "bold" }}>Q{idx + 1}. {question.question}</p>
+                                    <p style={{ margin: "0", fontSize: "0.9rem" }}>
+                                        Your Answer: <span style={{ color: userAnswer === null ? "#888" : isCorrect ? "#53CA61" : "#CA5353" }}>
+                                            {userAnswer !== null ? question.choices[userAnswer] : "No Answer"}
+                                        </span>
+                                    </p>
+                                    {!isCorrect && userAnswer !== null && (
+                                        <p style={{ margin: "0.2rem 0 0 0", fontSize: "0.9rem", color: "#29B839" }}>
+                                            Correct Answer: {question.choices[question.correct]}
+                                        </p>
+                                    )}
+                                </div>
+                            );
+                        })}
+                    </div>
+
+                    <div className="popup-buttons" style={{ marginTop: "2rem", justifyContent: "center", display: "flex", gap: "1rem" }}>
+                        {passed ? (
+                            <button onClick={passTest} style={{ padding: "0.8rem 2rem", backgroundColor: "#29B839", borderRadius: "0.5rem", color: "white" }}>Continue</button>
+                        ) : (
+                            <button onClick={redoTest} style={{ padding: "0.8rem 2rem", backgroundColor: "#4078C3", borderRadius: "0.5rem", color: "white" }}>Try Again</button>
+                        )}
+                        <button onClick={() => navigate("/lessons")} style={{ padding: "0.8rem 2rem", backgroundColor: "rgba(255,255,255,0.1)", borderRadius: "0.5rem", color: "white" }}>Back to Lessons</button>
+                    </div>
                 </div>
             </div>
         );
     }
-    
-    return(
-        <div style={{padding:"2rem 5rem"}}>
+
+    return (
+        <div style={{ padding: "2rem 5rem" }}>
             <div className="teach-page-header">
                 <h1>Level - {levelData.level_number} Test</h1>
                 <h3>{levelData.level_name}</h3>
-                {/* <Link style={{position:"absolute", left:"2rem", top:"2rem"}} to={"/levels"}>
-                    <img src="/icon/arrow-left.svg" alt="back" />
-                </Link> */}
-                <div style={{position:"absolute", right:"2rem", top:"2rem"}}>
-                     {score} / {totalQuestions}
+                <div style={{ position: "absolute", right: "2rem", top: "2rem" }}>
+                    Question {currentQ + 1} / {totalQuestions}
                 </div>
             </div>
-            <div className="teach-page-content">
-                    <div>
-                        
-                        <p><span style={{backgroundColor:"#144387", borderRadius:"1rem", padding:"0.5rem"}}>Q{currentQ+1}.</span> {q.question}</p>
-                        <div style={{marginLeft:"2rem"}}>
-                            <div style={{display:"grid", gridTemplateColumns:"1fr 1fr", gridTemplateRows:"auto", gap:"1rem 2rem"}}>
-                                {q.choices.map((choice, cIndex) => {
-                                    const selected = answers[currentQ] === cIndex;
-                                    const isCorrect = cIndex === q.correct; 
-                                    let bgColor, bgColor2;
+            <div className="teach-page-content" style={{ minHeight: "60vh", display: "flex", flexDirection: "column" }}>
+                <div style={{ flex: 1 }}>
+                    <p><span style={{ backgroundColor: "#144387", borderRadius: "1rem", padding: "0.5rem" }}>Q{currentQ + 1}.</span> {q.question}</p>
+                    <div style={{ marginLeft: "2rem", marginTop: "2rem" }}>
+                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gridTemplateRows: "auto", gap: "1rem 2rem" }}>
+                            {q.choices.map((choice, cIndex) => {
+                                const selected = answers[currentQ] === cIndex;
+                                let bgColor, bgColor2;
 
-                                    if (submitted) {
-                                        if (selected && isCorrect) {
-                                            bgColor = "#29B839"
-                                            bgColor2 = "#53CA61"
-                                        }
-                                        else if (selected && !isCorrect) {
-                                            bgColor = "#D10909"
-                                            bgColor2 = "#CA5353"
-                                        }
-                                        else if (isCorrect){
-                                            bgColor = "#29B839"
-                                            bgColor2 = "#53CA61"
-                                        } else {
-                                            bgColor = "#4078C3"
-                                            bgColor2 = "#5386CA"
-                                        }
-                                    } else if (selected) {
-                                        bgColor = "#0F66F3"
-                                        bgColor2 = "#4489F9"
-                                    } else {
-                                        bgColor = "#4078C3"
-                                        bgColor2 = "#5386CA"
-                                    }
-                                    return(
+                                if (selected) {
+                                    bgColor = "#0F66F3";
+                                    bgColor2 = "#4489F9";
+                                } else {
+                                    bgColor = "#4078C3";
+                                    bgColor2 = "#5386CA";
+                                }
+                                return (
                                     <label
                                         key={choice}
                                         className="choiceBtn"
@@ -208,25 +183,57 @@ const QuestionPage: React.FC = () => {
                                             name={`q-${currentQ}`}
                                             checked={selected}
                                             onChange={() =>
-                                            !submitted &&
-                                            setAnswers((prev) => ({
-                                                ...prev,
-                                                [currentQ]: cIndex,
-                                            }))
+                                                setAnswers((prev) => {
+                                                    const newAnswers = [...prev];
+                                                    newAnswers[currentQ] = cIndex;
+                                                    return newAnswers;
+                                                })
                                             }
                                             style={{ display: "none" }}
                                         />
-                                        <div style={{backgroundColor: bgColor ,borderRadius:"1rem 0 0 1rem", padding:"1rem"}}>{cIndex+1}</div>
-                                        <div style={{padding:"1rem 0.5rem 1rem 1rem"}}>{choice}</div>
+                                        <div style={{ backgroundColor: bgColor, borderRadius: "1rem 0 0 1rem", padding: "1rem" }}>{cIndex + 1}</div>
+                                        <div style={{ padding: "1rem 0.5rem 1rem 1rem" }}>{choice}</div>
                                     </label>
-                                )})}
-                            </div>
+                                );
+                            })}
                         </div>
                     </div>
-                    <div className="playbtn" style={{width:"5rem", justifySelf:"flex-end"}} onClick={()=> {handleSubmit(currentQ)}}>Submit</div>
+                </div>
+                
+                <div style={{ display: "flex", justifyContent: "space-between", marginTop: "2rem" }}>
+                    <div 
+                        className="playbtn" 
+                        style={{ 
+                            width: "8rem", 
+                            visibility: currentQ > 0 ? "visible" : "hidden",
+                            backgroundColor: "rgba(255,255,255,0.1)" 
+                        }} 
+                        onClick={() => setCurrentQ(prev => prev - 1)}
+                    >
+                        Back
+                    </div>
+                    
+                    {currentQ < totalQuestions - 1 ? (
+                        <div 
+                            className="playbtn" 
+                            style={{ width: "8rem" }} 
+                            onClick={() => setCurrentQ(prev => prev + 1)}
+                        >
+                            Next
+                        </div>
+                    ) : (
+                        <div 
+                            className="playbtn" 
+                            style={{ width: "8rem", backgroundColor: "#29B839" }} 
+                            onClick={handleFinish}
+                        >
+                            Finish
+                        </div>
+                    )}
+                </div>
             </div>
         </div>
-    )
-}
+    );
+};
 
 export default QuestionPage;

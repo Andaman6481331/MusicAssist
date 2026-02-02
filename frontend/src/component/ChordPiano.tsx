@@ -125,7 +125,7 @@ const ChordPiano: React.FC<ChordVisualizerProps> = ({width = 40, height = 150, f
                 style={{
                   width: `${width}px`,
                   height: `${height}px`,
-                  backgroundColor: isSelected ? "rgb(32, 173, 255)" : "white",
+                  backgroundColor: isSelected ? "var(--secondary-color)" : "white",
                   border: "1px solid black",
                   position: "relative",
                   boxSizing: "border-box",
@@ -162,7 +162,7 @@ const ChordPiano: React.FC<ChordVisualizerProps> = ({width = 40, height = 150, f
                 style={{
                   width: `${width*0.75}px`,
                   height: `${height*0.6}px`,
-                  backgroundColor: isSelected ? "rgb(32, 173, 255)" : "rgb(7, 5, 106)",
+                  backgroundColor: isSelected ? "var(--secondary-color)" : "var(--dark-color)",
                   marginLeft: `${width/8}px`,
                   marginRight: `${width/8}px`,
                   position: "relative",

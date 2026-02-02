@@ -109,8 +109,8 @@ const ScalePiano: React.FC<PianoVisualizerProps> = ({scaleLength=3, height=150, 
                 width: `${width}px`,
                 height: `${height}px`,
                 backgroundColor:
-                    isPlaying? "rgb(32, 173, 255)": 
-                    isSelected? "rgb(8, 117, 201)" : "white",
+                    isPlaying? "var(--secondary-color)": 
+                    isSelected? "var(--gradient-2)" : "white",
                 border: "1px solid black",
                 left: `${left}px`,
                 margin: "0",
@@ -158,10 +158,10 @@ const ScalePiano: React.FC<PianoVisualizerProps> = ({scaleLength=3, height=150, 
                 width: `${width*0.75}px`,
                 height: `${height*0.6}px`,
                 backgroundColor: isPlaying
-                ? "rgb(32, 173, 255)"
+                ? "var(--secondary-color)"
                 : isSelected
-                ? "rgb(8, 117, 201)"
-                : "rgb(7, 5, 106)",
+                ? "var(--gradient-2)"
+                : "var(--dark-color)",
                 left: `${left}px`,
                 zIndex: 2,
                 border: "2px solid black",

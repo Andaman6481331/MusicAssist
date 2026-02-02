@@ -442,7 +442,7 @@ const InversionDisplay: React.FC<InversionDisplayProps> = ({
             ◀
           </button>
 
-          <div style={{ width: "100%", height: "180px", overflow: "hidden" }}>
+          <div style={{ width: "100%", height: "180px",transform: "translateX(50%)"}}>
             <PianoVisualizer
               isPlayable={false}
               startOctave={3}
