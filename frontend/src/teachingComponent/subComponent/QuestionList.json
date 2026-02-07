@@ -5,6 +5,8 @@
     "questions": [
       {
         "question": "Which notes make up the C major triad?",
+        "type": "piano_roll",
+        "correctNotes": ["C4", "E4", "G4"],
         "choices": [
           "C–D–G",
           "C–E–G",

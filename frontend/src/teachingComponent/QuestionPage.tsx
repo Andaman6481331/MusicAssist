@@ -3,11 +3,14 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import questions from "./subComponent/QuestionList.json"
 import { subscribeAuth } from "../auth";
 import { updateUserProgress } from "../data/lessonProgression";
+import PianoRollAnswer from "./subComponent/PianoRollAnswer";
 
 export type RawQuestion = {
   question: string;
   choices: string[];
   correct: number;
+  type?: "piano_roll" | "choice";
+  correctNotes?: string[];
 };
 
 export type LevelData = {
@@ -42,8 +45,11 @@ const QuestionPage: React.FC = () => {
     const q = levelData.questions[currentQ];  
     const totalQuestions = levelData.questions.length;
 
-    const [answers, setAnswers] = useState<(number | null)[]>(
+    const [answers, setAnswers] = useState<(number | string[] | null)[]>(
         Array(totalQuestions).fill(null)
+    );
+    const [pianoRollAnswers, setPianoRollAnswers] = useState<string[][]>(
+        Array(totalQuestions).fill(null).map(() => [])
     );
     const [isFinished, setIsFinished] = useState(false);
 
@@ -53,7 +59,22 @@ const QuestionPage: React.FC = () => {
 
     const calculateScore = () => {
         return answers.reduce((acc: number, curr, idx) => {
-            return curr === levelData.questions[idx].correct ? acc + 1 : acc;
+            const question = levelData.questions[idx];
+            if (question.type === "piano_roll") {
+                // For piano roll, compare selected notes with correctNotes
+                const selectedNotes = pianoRollAnswers[idx] || [];
+                const correctNotes = question.correctNotes || [];
+                // Check if arrays have same length and contain same notes (order doesn't matter)
+                if (selectedNotes.length !== correctNotes.length) {
+                    return acc;
+                }
+                const sortedSelected = [...selectedNotes].sort();
+                const sortedCorrect = [...correctNotes].sort();
+                return sortedSelected.every((note, i) => note === sortedCorrect[i]) ? acc + 1 : acc;
+            } else {
+                // For choice questions, compare index
+                return curr === question.correct ? acc + 1 : acc;
+            }
         }, 0);
     };
 
@@ -77,6 +98,7 @@ const QuestionPage: React.FC = () => {
     const redoTest = () => {
         setIsFinished(false);
         setAnswers(Array(totalQuestions).fill(null));
+        setPianoRollAnswers(Array(totalQuestions).fill(null).map(() => []));
         setCurrentQ(0);
     };
 
@@ -109,24 +131,46 @@ const QuestionPage: React.FC = () => {
                         <h3 style={{ borderBottom: "1px solid rgba(255,255,255,0.2)", paddingBottom: "0.5rem" }}>Review Results</h3>
                         {levelData.questions.map((question, idx) => {
                             const userAnswer = answers[idx];
-                            const isCorrect = userAnswer === question.correct;
+                            let isCorrect: boolean;
+                            let userAnswerDisplay: string;
+                            let correctAnswerDisplay: string;
+
+                            if (question.type === "piano_roll") {
+                                const selectedNotes = pianoRollAnswers[idx] || [];
+                                const correctNotes = question.correctNotes || [];
+                                const sortedSelected = [...selectedNotes].sort();
+                                const sortedCorrect = [...correctNotes].sort();
+                                isCorrect = selectedNotes.length === correctNotes.length &&
+                                    sortedSelected.every((note, i) => note === sortedCorrect[i]);
+                                userAnswerDisplay = selectedNotes.length > 0 
+                                    ? selectedNotes.join("–") 
+                                    : "No Answer";
+                                correctAnswerDisplay = correctNotes.join("–");
+                            } else {
+                                isCorrect = userAnswer === question.correct;
+                                userAnswerDisplay = userAnswer !== null 
+                                    ? question.choices[userAnswer as number] 
+                                    : "No Answer";
+                                correctAnswerDisplay = question.choices[question.correct];
+                            }
+
                             return (
                                 <div key={idx} style={{ 
                                     padding: "1rem", 
                                     marginBottom: "1rem", 
                                     backgroundColor: "rgba(255,255,255,0.05)", 
                                     borderRadius: "0.5rem",
-                                    borderLeft: `5px solid ${userAnswer === null ? "#888" : isCorrect ? "#29B839" : "#D10909"}`
+                                    borderLeft: `5px solid ${userAnswer === null && (!question.type || pianoRollAnswers[idx]?.length === 0) ? "#888" : isCorrect ? "#29B839" : "#D10909"}`
                                 }}>
                                     <p style={{ margin: "0 0 0.5rem 0", fontWeight: "bold" }}>Q{idx + 1}. {question.question}</p>
                                     <p style={{ margin: "0", fontSize: "0.9rem" }}>
-                                        Your Answer: <span style={{ color: userAnswer === null ? "#888" : isCorrect ? "#53CA61" : "#CA5353" }}>
-                                            {userAnswer !== null ? question.choices[userAnswer] : "No Answer"}
+                                        Your Answer: <span style={{ color: (userAnswer === null && (!question.type || pianoRollAnswers[idx]?.length === 0)) ? "#888" : isCorrect ? "#53CA61" : "#CA5353" }}>
+                                            {userAnswerDisplay}
                                         </span>
                                     </p>
-                                    {!isCorrect && userAnswer !== null && (
+                                    {!isCorrect && (userAnswer !== null || (question.type === "piano_roll" && pianoRollAnswers[idx]?.length > 0)) && (
                                         <p style={{ margin: "0.2rem 0 0 0", fontSize: "0.9rem", color: "#29B839" }}>
-                                            Correct Answer: {question.choices[question.correct]}
+                                            Correct Answer: {correctAnswerDisplay}
                                         </p>
                                     )}
                                 </div>
@@ -159,45 +203,62 @@ const QuestionPage: React.FC = () => {
             <div className="teach-page-content" style={{ minHeight: "60vh", display: "flex", flexDirection: "column" }}>
                 <div style={{ flex: 1 }}>
                     <p><span style={{ backgroundColor: "#144387", borderRadius: "1rem", padding: "0.5rem" }}>Q{currentQ + 1}.</span> {q.question}</p>
-                    <div style={{ marginLeft: "2rem", marginTop: "2rem" }}>
-                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gridTemplateRows: "auto", gap: "1rem 2rem" }}>
-                            {q.choices.map((choice, cIndex) => {
-                                const selected = answers[currentQ] === cIndex;
-                                let bgColor, bgColor2;
-
-                                if (selected) {
-                                    bgColor = "#0F66F3";
-                                    bgColor2 = "#4489F9";
-                                } else {
-                                    bgColor = "#4078C3";
-                                    bgColor2 = "#5386CA";
-                                }
-                                return (
-                                    <label
-                                        key={choice}
-                                        className="choiceBtn"
-                                        style={{ display: "flex", cursor: "pointer", backgroundColor: bgColor2 }}
-                                    >
-                                        <input
-                                            type="radio"
-                                            name={`q-${currentQ}`}
-                                            checked={selected}
-                                            onChange={() =>
-                                                setAnswers((prev) => {
-                                                    const newAnswers = [...prev];
-                                                    newAnswers[currentQ] = cIndex;
-                                                    return newAnswers;
-                                                })
-                                            }
-                                            style={{ display: "none" }}
-                                        />
-                                        <div style={{ backgroundColor: bgColor, borderRadius: "1rem 0 0 1rem", padding: "1rem" }}>{cIndex + 1}</div>
-                                        <div style={{ padding: "1rem 0.5rem 1rem 1rem" }}>{choice}</div>
-                                    </label>
-                                );
-                            })}
+                    {q.type === "piano_roll" ? (
+                        <div style={{ marginLeft: "2rem", marginTop: "2rem", display: "flex", justifyContent: "center" }}>
+                            <PianoRollAnswer
+                                selectedNotes={pianoRollAnswers[currentQ] || []}
+                                onNotesChange={(notes) => {
+                                    const newPianoRollAnswers = [...pianoRollAnswers];
+                                    newPianoRollAnswers[currentQ] = notes;
+                                    setPianoRollAnswers(newPianoRollAnswers);
+                                    // Also update answers array for consistency
+                                    const newAnswers = [...answers];
+                                    newAnswers[currentQ] = notes.length > 0 ? notes : null;
+                                    setAnswers(newAnswers);
+                                }}
+                            />
                         </div>
-                    </div>
+                    ) : (
+                        <div style={{ marginLeft: "2rem", marginTop: "2rem" }}>
+                            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gridTemplateRows: "auto", gap: "1rem 2rem" }}>
+                                {q.choices.map((choice, cIndex) => {
+                                    const selected = answers[currentQ] === cIndex;
+                                    let bgColor, bgColor2;
+
+                                    if (selected) {
+                                        bgColor = "#0F66F3";
+                                        bgColor2 = "#4489F9";
+                                    } else {
+                                        bgColor = "#4078C3";
+                                        bgColor2 = "#5386CA";
+                                    }
+                                    return (
+                                        <label
+                                            key={choice}
+                                            className="choiceBtn"
+                                            style={{ display: "flex", cursor: "pointer", backgroundColor: bgColor2 }}
+                                        >
+                                            <input
+                                                type="radio"
+                                                name={`q-${currentQ}`}
+                                                checked={selected}
+                                                onChange={() =>
+                                                    setAnswers((prev) => {
+                                                        const newAnswers = [...prev];
+                                                        newAnswers[currentQ] = cIndex;
+                                                        return newAnswers;
+                                                    })
+                                                }
+                                                style={{ display: "none" }}
+                                            />
+                                            <div style={{ backgroundColor: bgColor, borderRadius: "1rem 0 0 1rem", padding: "1rem" }}>{cIndex + 1}</div>
+                                            <div style={{ padding: "1rem 0.5rem 1rem 1rem" }}>{choice}</div>
+                                        </label>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    )}
                 </div>
                 
                 <div style={{ display: "flex", justifyContent: "space-between", marginTop: "2rem" }}>
