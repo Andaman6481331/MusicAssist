@@ -80,7 +80,28 @@ const QuestionPage: React.FC = () => {
 
     const score = calculateScore();
 
+    //test highest score function
+    const scorePercentage = Math.round((score / totalQuestions) * 100);
+
     const passTest = async () => {
+    if (userId) {
+        try {
+            const newHighestLevel = levelNumber - 1;
+            await updateUserProgress(userId, newHighestLevel);
+        } catch (error: any) {
+            console.error("Failed to save progress:", error);
+        }
+    }
+
+    navigate("/lessons", {
+        state: {
+            lessonIndex: levelNumber - 1,
+            score: Math.round((score / totalQuestions) * 100),
+        },
+    });
+};
+
+    /*const passTest = async () => {
         if (userId) {
             try {
                 const newHighestLevel = levelNumber - 1;
@@ -93,7 +114,7 @@ const QuestionPage: React.FC = () => {
             }
         }
         navigate("/lessons");
-    };
+    };*/
 
     const redoTest = () => {
         setIsFinished(false);

@@ -140,7 +140,7 @@ const App = () => {
               <div className="right-nav">
                 {
                   !isGlobalEnabled ?(<div></div>):
-                  (<Link className="title" to="/generate-prompt">Practicing</Link>)
+                  (<Link className="title" to="/generate-prompt">Generating</Link>)
                 }
                 <Link className="title" to="/tools">Tools</Link>
                 <Link className="title" to="/theory">Self-Study</Link>

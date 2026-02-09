@@ -10,6 +10,20 @@ const LessonMenuPage: React.FC = () =>{
     const navigate = useNavigate();
     const location = useLocation();
 
+    //test highest score function
+    useEffect(() => {
+    if (location.state?.lessonIndex !== undefined) {
+        setLessonBestScores(prev => ({
+            ...prev,
+            [location.state.lessonIndex]: Math.max(
+                prev[location.state.lessonIndex] ?? 0,
+                location.state.score
+            ),
+        }));
+    }
+}, [location.state]);
+
+
     const loadProgress = async (user: any) => {
         if (user) {
             try {
@@ -60,7 +74,10 @@ const LessonMenuPage: React.FC = () =>{
         setShowDetails(prev => (prev === index ? null : index));
     };
 
-    
+    //Show highest score 
+    const [lessonBestScores, setLessonBestScores] =
+  useState<Record<number, number>>({});
+
     const levels: string[][] = [
         ["01  |  Core Basics","core-basics"],
         ["02  |  Minor Essentials","minor-essentials"],
@@ -119,6 +136,31 @@ const LessonMenuPage: React.FC = () =>{
                                 </div>
 
                                 <p>{details[index][3]}</p>
+
+                            {/* Highest score box */}
+                            <div
+                                className="lesson-score-box"
+                                style={{
+                                    marginTop: "0.75rem",
+                                    padding: "0.4rem 0.8rem",
+                                    width: "fit-content",
+                                    backgroundColor: "rgba(255,255,255,0.12)",
+                                    borderRadius: "0.5rem",
+                                    fontSize: "0.85rem",
+                                    opacity: 0.9,
+                                }}
+                            >
+                                {lessonBestScores[index] !== undefined ? (
+                                    <span>
+                                        <strong>Highest score:</strong> {lessonBestScores[index]}%
+                                    </span>
+                                ) : (
+                                    <span style={{ opacity: 0.6 }}>
+                                        Not attempted
+                                    </span>
+                                )}
+                            </div>
+
 
                                 <button 
                                     className="playbtn" 
