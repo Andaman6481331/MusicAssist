@@ -194,7 +194,7 @@ const PianoVisualizer: React.FC<PianoVisualizerProps> = ({isPlayable = true, sca
               style={{
                 width: `${width*0.625}px`,
                 height: `${height*0.6}px`,
-                backgroundColor: isSelected ? "var(--gradient-2)" : !isKeyPlayable ? "#00000040": "var(--dark-color)",
+                backgroundColor: isSelected ? "var(--secondary-color)" : !isKeyPlayable ? "#00000040": "var(--dark-color)",
                 left: `${left}px`,
                 zIndex: 2,
                 position: "absolute",

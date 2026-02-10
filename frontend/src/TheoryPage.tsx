@@ -54,11 +54,6 @@ const About: React.FC = () => {
             <ScaleVisualizer/>
           </div>
         }
-        <div className="card-container">
-          <div style={{marginLeft:"50%", height:"150px"}}>
-            <PianoVisualizer/>
-          </div>
-        </div>  
       </div>
     </div>
   );

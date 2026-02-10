@@ -162,6 +162,9 @@ const ChordInversions: React.FC = () => {
             <InversionDisplay 
               inversionDefinition={advancedInversionDefinition}
             />
+            <div style={{ display:"flex",textAlign: "center" , justifyContent: "right"}}>
+              <button onClick={() => {setActiveTab("Scales")}} className="playbtn" style={{width:"10rem", borderRadius:"5rem"}}>{">"} Next</button>
+            </div>
           </div>}
 
           {activeTab === "Scales" && 

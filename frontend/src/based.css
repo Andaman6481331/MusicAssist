@@ -22,59 +22,48 @@
 
 /* Hero Section */
 .hero-section {
-  min-height: 50vh;
+  min-height: 80vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 3rem 2rem;
-  background: linear-gradient(135deg, var(--gradient-1) 0%, var(--primary-color) 50%, var(--gradient-2) 100%);
+  width: 100%;
+  background: linear-gradient(120deg, var(--gradient-1) 0%, var(--accent-color) 40%, var(--primary-color) 70%, var(--gradient-2) 100%);
   position: relative;
   overflow: hidden;
+  box-shadow: 0 12px 48px 0 rgba(10, 47, 92, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  border-bottom: 3px solid rgba(255, 255, 255, 0.15);
 }
 
 .hero-section::before {
   content: "";
   position: absolute;
-  top: -50%;
-  right: -50%;
-  width: 100%;
-  height: 100%;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
-  background-size: 50px 50px;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(ellipse at 80% 50%, rgba(255,255,255,0.12) 0%, transparent 60%);
   z-index: 0;
+  pointer-events: none;
 }
 
 .hero-carousel {
   position: relative;
   width: 100%;
-  max-width: 1000px;
-  height: 500px;
   overflow: hidden;
-  border-radius: 2rem;
-  background: rgba(0, 0, 0, 0.1);
+  background: rgba(0, 0, 0, 0.08);
   z-index: 1;
-}
-
-/* Hero Section */
-.hero-section {
-  min-height: 70vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  background: #f8f9fa;
-  position: relative;
-  overflow: hidden;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
 .hero-carousel {
   position: relative;
   width: 100%;
-  height: 70vh;
-  min-height: 500px;
-  max-height: 800px;
+  height: 80vh;
+  min-height: 400px;
+  max-height: 700px;
   overflow: hidden;
-  background: #ffffff;
+  background: rgba(30, 161, 242, 0.05);
+  box-shadow: inset 0 2px 8px rgba(10, 47, 92, 0.08);
 }
 
 .hero-slides-container {
@@ -91,16 +80,17 @@
   align-items: center;
   justify-content: center;
   position: relative;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--gradient-1) 0%, var(--accent-color) 100%);
+  transition: background 0.5s;
 }
 
 /* Add different gradient for each slide if needed */
 .hero-slide:nth-child(2) {
-  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  background: linear-gradient(135deg, var(--accent-color) 0%, var(--secondary-color) 100%);
 }
 
 .hero-slide:nth-child(3) {
-  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--gradient-2) 100%);
 }
 
 .hero-overlay {
@@ -125,32 +115,37 @@
 .hero-text-content {
   max-width: 700px;
   color: white;
+  padding: 0 3rem;
+  text-align: center;
+  margin: 0 auto;
 }
 
 .hero-slide .landing-title {
-  font-size: clamp(2.5rem, 5vw, 4.5rem);
-  font-weight: 700;
+  font-size: clamp(2.8rem, 6vw, 5rem);
+  font-weight: 800;
   margin: 0 0 1.5rem 0;
   line-height: 1.1;
   letter-spacing: -0.02em;
   color: white;
+  text-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   animation: fadeInUp 0.8s ease-out;
 }
 
 .hero-slide .landing-subtitle {
-  font-size: clamp(1.1rem, 2vw, 1.4rem);
-  font-weight: 400;
+  font-size: clamp(1.2rem, 2vw, 1.6rem);
+  font-weight: 500;
   margin: 0 0 2.5rem 0;
-  opacity: 0.95;
-  line-height: 1.6;
+  opacity: 0.98;
+  line-height: 1.7;
   color: rgba(255, 255, 255, 0.95);
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
   animation: fadeInUp 0.8s ease-out 0.2s both;
 }
 
 .hero-buttons {
   display: flex;
-  gap: 1rem;
   flex-wrap: wrap;
+  justify-content: space-around;
   animation: fadeInUp 0.8s ease-out 0.4s both;
 }
 
@@ -2255,13 +2250,11 @@ li{
 .lesson-titles{
   display: flex;
   justify-content: space-between;
-  background-color: var(--gradient-2);
   padding: 0.5rem 2rem;
   margin: 0;
   font-size: 1.5rem;
   font-weight: 500;
   &:hover{
-    background-color: #5d91d4;
     cursor: pointer;
   }
 }

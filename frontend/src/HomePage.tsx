@@ -231,11 +231,6 @@ const Home: React.FC = () => {
           ))}
         </div>
       </section>
-
-      {/* Footer */}
-      <footer className="landing-footer">
-        <p>&copy; 2025 Harmonic. Learn Music, The Smart Way.</p>
-      </footer>
     </div>
   );
 };

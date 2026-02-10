@@ -558,7 +558,7 @@ const PianoRollApp: React.FC<PianoRollAppProps> = ({onNotePlayed, width = 25, he
           style={{
             width: `${pausedTime / ((totalTime + 2) * 10)}%`,
             height: "100%",
-            background: "#2196f3",
+            background: "var(--accent-color)",
             borderRadius: "4px",
           }}
         />

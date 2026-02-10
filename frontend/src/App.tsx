@@ -152,6 +152,41 @@ const App = () => {
             <main style={{flex: 1}}>
               <Outlet key={location.pathname}/>
               <LoadingBar />
+              <footer
+                style={{
+                  background: 'var(--primary-color)',
+                  color: 'var(--secondary-color)',
+                  padding: '2rem 0 1rem 0',
+                  textAlign: 'center',
+                  fontSize: '1.1rem',
+                  letterSpacing: '0.01em',
+                  boxShadow: '0 -2px 16px 0 rgba(0,0,0,0.04)',
+                  width: '100%'
+                }}
+              >
+                <div style={{ maxWidth: 1200, margin: '0 auto', display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: '1.5rem', padding: '0 2rem' }}>
+                  <div style={{ flex: 1, minWidth: 200, textAlign: 'left' }}>
+                    <img src="/harmonic_logo(1).svg" alt="Harmonic Logo" style={{ height: 36, verticalAlign: 'middle', marginRight: 12 }} />
+                    <span style={{ fontWeight: 700, fontSize: '1.2rem' }}>Harmonic</span>
+                  </div>
+                  <div style={{ flex: 2, minWidth: 200, textAlign: 'center' }}>
+                    <span style={{ opacity: 0.85 }}>
+                      &copy; {new Date().getFullYear()} Harmonic. All rights reserved.
+                    </span>
+                  </div>
+                  <div style={{ flex: 1, minWidth: 200, textAlign: 'right' }}>
+                    <a href="https://github.com/herbyherb/MusicAssist" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent-color)', textDecoration: 'none', fontWeight: 500, marginRight: 16 }}>
+                      GitHub
+                    </a>
+                    <a href="/privacy" style={{ color: 'var(--secondary-color)', textDecoration: 'none', fontWeight: 500, marginRight: 16 }}>
+                      Privacy
+                    </a>
+                    <a href="/contact" style={{ color: 'var(--secondary-color)', textDecoration: 'none', fontWeight: 500 }}>
+                      Contact
+                    </a>
+                  </div>
+                </div>
+              </footer>
             </main>
           </div>
           )}
