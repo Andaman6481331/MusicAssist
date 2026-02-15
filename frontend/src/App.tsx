@@ -6,7 +6,6 @@ import LoadingBar from "./LoadingBar";
 import AuthControls from "./auth/AuthControls";
 import { useGlobalBoolean } from './GlobalBooleanContext.tsx';
 import { ThemeProvider } from './ThemeContext';
-import ThemeToggle from './component/ThemeToggle';
 // import RippleEffect from './RippleEffect';
 
 const sampleUrls: Record<string, string> = {
