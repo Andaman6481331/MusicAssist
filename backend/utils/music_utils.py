@@ -3,8 +3,8 @@ import mido
 import pretty_midi, os
 import librosa
 import soundfile as sf
-# from basic_pitch.inference import predict, Model
-# from basic_pitch import ICASSP_2022_MODEL_PATH
+from basic_pitch.inference import predict, Model
+from basic_pitch import ICASSP_2022_MODEL_PATH
 
 
 
@@ -47,9 +47,10 @@ def analyze_with_pretty_midi(file_path, start_sec=0, duration_sec=120):
             seen.add(key)
 
     deduped.sort(key=lambda x: x['time'])
-    tempo_bpm = round(extract_tempo_via_mido(file_path),2)
+    tempo_bpm = round(extract_tempo_via_mido(file_path), 2)
     
-    total_time = round(max(n['time'] + n['duration'] for n in deduped), 2)
+    # Handle empty notes to avoid ValueError: max() arg is an empty sequence
+    total_time = round(max(n['time'] + n['duration'] for n in deduped), 2) if deduped else 0.0
 
     return deduped, tempo_bpm, total_time
 
@@ -75,7 +76,7 @@ def serialize_note(n):
 #             print(f"Error: {str(e)}\n")
 
 # Load model once globally
-# model = Model(ICASSP_2022_MODEL_PATH)
+model = Model(ICASSP_2022_MODEL_PATH)
 
 def ConvertWavToMidi(wav_file: str, save_dir: str):
     """
@@ -145,82 +146,70 @@ def ConvertWavToMidiDamRsn(wav_file: str, save_dir: str,
     print(f"[DEBUG] Starting ConvertWavToMidiDamRsn for {wav_file}")
     os.makedirs(save_dir, exist_ok=True)
     
-    # Load and preprocess audio (similar to ConvertWavToMidi)
+    # Load and preprocess audio
     y, sr = librosa.load(wav_file, sr=22050, mono=True)
-    y = y / max(abs(y))  # Normalize
+    y = y / (max(abs(y)) + 1e-8)  # Normalize with epsilon
     y = librosa.effects.preemphasis(y, coef=0.97)  # Boost attack
     y, _ = librosa.effects.trim(y, top_db=30)  # Trim silence
     
-    # Load ONNX model
+    # Load ONNX model (Keeping this for future use as requested, but currently using basic-pitch fallback)
     model_path = os.path.join(
         os.path.dirname(__file__), 
         "../DamRsn/ModelData/features_model.onnx"
     )
     
-    if not os.path.exists(model_path):
-        raise FileNotFoundError(f"DamRsn ONNX model not found at: {model_path}")
+    # Inference stub - currently basic-pitch is more reliable for MIDI generation
+    if model is None:
+        raise ImportError("basic-pitch model is not initialized!")
     
-    # Run ONNX inference
-    session = ort.InferenceSession(model_path)
-    input_name = session.get_inputs()[0].name
-    
-    # Reshape audio for model input (add batch dimension)
-    print(f"[DEBUG] Running ONNX inference with {model_path}")
-    print(f"[DEBUG] Input name: {input_name}")
-    print(f"[DEBUG] Audio shape {y.shape}, dtype: {y.dtype}")
-    
-    # Check if model has fixed input shape
-    input_shape = session.get_inputs()[0].shape
-    print(f"[DEBUG] Model expected input shape: {input_shape}")
-
-    audio_input = y.reshape(1, -1, 1).astype(np.float32)
-    print(f"[DEBUG] Formatted audio input shape: {audio_input.shape}")
-    
-    # Run inference
-    try:
-        outputs = session.run(None, {input_name: audio_input})
-        print(f"[DEBUG] ONNX inference successful, output length: {len(outputs)}")
-    except Exception as e:
-        print(f"[ERROR] ONNX session.run failed: {str(e)}")
-        import traceback
-        print(traceback.format_exc())
-        raise e
-    
-    # Convert model outputs to MIDI using basic-pitch's predict function
-    # Note: This is a simplified approach - you may need to adjust based on actual model outputs
-    # For now, fallback to basic-pitch with adjusted parameters
-    # TODO: Implement proper DamRsn output-to-MIDI conversion
-    print(f"[DEBUG] Attempting to import basic-pitch for MIDI conversion")
-    try:
-        from basic_pitch.inference import predict
-        from basic_pitch import ICASSP_2022_MODEL_PATH
-        from basic_pitch.inference import Model as BPModel
-        
-        bp_model = BPModel(ICASSP_2022_MODEL_PATH)
-    except ImportError:
-        print("[ERROR] basic-pitch is not installed but required for this function!")
-        raise ImportError("basic-pitch is required for ConvertWavToMidiDamRsn hybrid mode. Please install it or use the full requirements.txt")
-
-    # Create temporary processed file
-    processed_path = os.path.join(save_dir, "temp_processed.wav")
+    # Create temporary processed file for basic-pitch
+    processed_path = os.path.join(save_dir, "temp_" + os.path.basename(wav_file))
     sf.write(processed_path, y, sr)
     
-    model_output, midi_data, note_events = predict(
-        audio_path=processed_path,
-        model_or_model_path=bp_model,
-        onset_threshold=note_sensitivity,
-        frame_threshold=split_sensitivity,
-        minimum_note_length=int(min_note_duration_ms),
-        minimum_frequency=55,
-        maximum_frequency=1700
-    )
+    try:
+        # 2️⃣ Predict notes / MIDI using basic-pitch
+        model_output, midi_data, note_events = predict(
+            audio_path=processed_path,
+            model_or_model_path=model,
+            onset_threshold=note_sensitivity,
+            frame_threshold=split_sensitivity,
+            minimum_note_length=int(min_note_duration_ms),
+            minimum_frequency=55,
+            maximum_frequency=1700
+        )
+        
+        # 3️⃣ Save MIDI
+        output_midi_path = os.path.join(save_dir, os.path.basename(wav_file).replace(".wav", ".mid"))
+        midi_data.write(output_midi_path)
+        
+        return output_midi_path, len(note_events)
+    finally:
+        # Clean up temp file
+        if os.path.exists(processed_path):
+            os.remove(processed_path)
+
+def wav_to_json_data(wav_path: str, save_dir: str):
+    """
+    Cleaner unified pipeline: WAV -> MIDI -> JSON Data (Dict)
+    """
+    print(f"[PROCESS] Running WAV->MIDI->JSON pipeline for: {wav_path}")
     
-    # Clean up temp file
-    if os.path.exists(processed_path):
-        os.remove(processed_path)
+    # 1. Convert WAV to MIDI
+    midi_path, note_count = ConvertWavToMidiDamRsn(wav_path, save_dir)
+    print(f"[INFO] MIDI conversion complete. {note_count} notes detected.")
     
-    # Save MIDI
-    output_midi_path = os.path.join(save_dir, os.path.basename(wav_file).replace(".wav", "_damrsn.mid"))
-    midi_data.write(output_midi_path)
+    # 2. Analyze MIDI
+    notes, tempo_bpm, total_time = analyze_with_pretty_midi(midi_path)
     
-    return output_midi_path, len(note_events)
+    if not notes:
+        print(f"[WARNING] No notes detected in {wav_path}. Check audio volume/duration.")
+
+    # 3. Format result
+    return {
+        "status": "ok",
+        "tempo_bpm": tempo_bpm,
+        "total_time": total_time,
+        "notes": [serialize_note(n) for n in notes],
+        "note_count": note_count,
+        "midi_filename": os.path.basename(midi_path)
+    }

@@ -32,10 +32,10 @@ const ChordDisplay: React.FC<ChordDisplayProps> = ({
   const activeTheme = themeKey ? themes[themeKey] || globalTheme : globalTheme;
 
   const themeStyles = {
-    "--comp-bg-1": activeTheme.gradient1,
-    "--comp-bg-2": activeTheme.gradient2,
-    "--comp-accent-1": activeTheme.accent,
-    "--comp-accent-2": activeTheme.secondary,
+    "--comp-bg-1": activeTheme.headerBg1,
+    "--comp-bg-2": activeTheme.headerBg2,
+    "--comp-accent-1": activeTheme.accentPrimary,
+    "--comp-accent-2": activeTheme.accentSecondary,
   } as React.CSSProperties;
 
   return (
@@ -129,7 +129,7 @@ const ChordDisplay: React.FC<ChordDisplayProps> = ({
             background: "rgba(255, 255, 255, 0.1)",
             border: "1px solid rgba(255, 255, 255, 0.2)",
           }}>
-          <h3 className="definition-title"  style={{ color: "var(--comp-accent-1)" }}>
+          <h3 className="definition-title"  style={{ color: "var(--accent-secondary)" }}>
             <span style={{ fontSize: "1.75rem" }}>🎹</span>
             {chordDefinition.title}
           </h3>
@@ -148,7 +148,7 @@ const ChordDisplay: React.FC<ChordDisplayProps> = ({
             <ul className="definition-sublist">
               {chordDefinition.structure.map((struct, idx) => (
                 <li key={idx} style={{ marginBottom: "0.25rem" }}>
-                  <span style={{ fontWeight: "bold", color: "var(--comp-accent-2)" }}>
+                  <span style={{ fontWeight: "bold", color: "var(--accent-secondary)" }}>
                     {struct.label}
                   </span>
                   {struct.description && ` - ${struct.description}`}
@@ -164,7 +164,7 @@ const ChordDisplay: React.FC<ChordDisplayProps> = ({
           )}
 
           {chordDefinition.callToAction && (
-            <div className="call-to-action"  style={{ color: "var(--comp-accent-1)" }}>{chordDefinition.callToAction}</div>
+            <div className="call-to-action"  style={{ color: "var(--accent-primary)" }}>{chordDefinition.callToAction}</div>
           )}
         </div>
       )}

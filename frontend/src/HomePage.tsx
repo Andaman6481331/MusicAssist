@@ -87,88 +87,90 @@ const Home: React.FC = () => {
   ];
 
   return (
-    <div className="landing-page">
-{/* Hero Section */}
-<section className="hero-section">
-  <div className="hero-carousel">
-    <div className="hero-slides-container" style={{ transform: `translateX(-${bannerIndex * 100}%)` }}>
-      {heroSlides.map((slide, idx) => (
-        <div className="hero-slide" key={idx}>
-          <div className="hero-overlay" />
-          <div className="hero-content">
-            <div className="hero-text-content">
-              <h1 className="landing-title">{slide.title}</h1>
-              <p className="landing-subtitle">{slide.subtitle}</p>
-              <div className="hero-buttons">
-                {!isGlobalEnabled ? (
-                  <Link className="btn-primary" to="/login">
-                    Get Started
-                  </Link>
-                ) : (
-                  <Link className="btn-primary" to="/generate-prompt">
-                    Start Learning
-                  </Link>
-                )}
-                <button className="btn-secondary" onClick={() => scrollToSection(featuresRef)}>
-                  Learn More
-                </button>
+    <div className="modern-container" style={{ padding: 0 }}>
+      {/* Hero Section */}
+      <section className="hero-section" style={{ minHeight: '90vh', border: 'none', background: 'transparent' }}>
+        <div className="hero-carousel" style={{ height: '90vh', maxHeight: 'none', background: 'transparent' }}>
+          <div className="hero-slides-container" style={{ transform: `translateX(-${bannerIndex * 100}%)` }}>
+            {heroSlides.map((slide, idx) => (
+              <div className="hero-slide" key={idx} style={{ background: idx === 0 ? `radial-gradient(circle at 20% 30%, var(--accent-primary) 0%, var(--bg-primary) 100%)` : idx === 1 ? `radial-gradient(circle at 80% 20%, var(--accent-secondary) 0%, var(--bg-primary) 100%)` : `radial-gradient(circle at 50% 50%, var(--accent-primary) 0%, var(--bg-primary) 100%)` }}>
+                <div className="hero-overlay" style={{ background: 'rgba(0, 0, 0, 0.3)' }} />
+                <div className="hero-content">
+                  <div className="hero-text-content" style={{ maxWidth: '1100px' }}>
+                    <h1 className="modern-title" style={{ fontSize: 'clamp(3rem, 8vw, 6rem)', marginBottom: '2rem', lineHeight: 1 }}>{slide.title}</h1>
+                    <p className="landing-subtitle" style={{ fontSize: '1.4rem', color: 'white', marginBottom: '3rem' }}>{slide.subtitle}</p>
+                    <div className="hero-buttons" style={{ gap: '1.5rem', justifyContent: 'center'}}>
+                      {!isGlobalEnabled ? (
+                        <Link className="start-btn" style={{ padding: '1rem 2.5rem', fontSize: '1.1rem' }} to="/login">
+                          Get Started Free
+                        </Link>
+                      ) : (
+                        <Link className="start-btn" style={{ padding: '1rem 2.5rem', fontSize: '1.1rem' }} to="/generate-prompt">
+                          Start Learning Now
+                        </Link>
+                      )}
+                      <button className="back-btn" style={{ padding: '1rem 2.5rem', fontSize: '1.1rem' , color:'white'}} onClick={() => scrollToSection(featuresRef)}>
+                        Explore Features
+                      </button>
+                    </div>
+                  </div>
+                </div>
               </div>
-            </div>
+            ))}
+          </div>
+
+          <button className="hero-nav-btn hero-nav-prev" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'var(--text-main)' }} onClick={prevBanner}>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+              <path d="M15 18l-6-6 6-6" />
+            </svg>
+          </button>
+          <button className="hero-nav-btn hero-nav-next" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'var(--text-main)' }} onClick={nextBanner}>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+              <path d="M9 18l6-6-6-6" />
+            </svg>
+          </button>
+
+          <div className="hero-dots" >
+            {heroSlides.map((_, idx) => (
+              <button
+                key={idx}
+                className={`hero-dot ${idx === bannerIndex ? "active" : ""}`}
+                style={{ borderColor: 'var(--card-border)' }}
+                onClick={() => setBannerIndex(idx)}
+              />
+            ))}
           </div>
         </div>
-      ))}
-    </div>
-
-    <button className="hero-nav-btn hero-nav-prev" onClick={prevBanner} aria-label="Previous slide">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-        <path d="M15 18l-6-6 6-6" />
-      </svg>
-    </button>
-    <button className="hero-nav-btn hero-nav-next" onClick={nextBanner} aria-label="Next slide">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-        <path d="M9 18l6-6-6-6" />
-      </svg>
-    </button>
-
-    <div className="hero-dots">
-      {heroSlides.map((_, idx) => (
-        <button
-          key={idx}
-          className={`hero-dot ${idx === bannerIndex ? "active" : ""}`}
-          onClick={() => setBannerIndex(idx)}
-          aria-label={`Go to slide ${idx + 1}`}
-        />
-      ))}
-    </div>
-  </div>
-</section>
+      </section>
 
       {/* Features Section */}
-      <section className="features-section" ref={featuresRef}>
-        <div className="section-header">
-          <h2>Why Choose Harmonic?</h2>
-          <p>Everything you need to become a proficient piano accompanist</p>
+      <section className="features-section" ref={featuresRef} style={{ padding: '2rem', background: 'var(--bg-primary)' }}>
+        <div className="section-header" style={{ marginBottom: '5rem' }}>
+          <h2 className="modern-title" style={{ fontSize: '3rem' }}>Intelligent Music Education</h2>
+          <p style={{ color: 'var(--text-dim)', fontSize: '1.2rem' }}>Master piano accompaniment with cutting-edge AI and interactive tools.</p>
         </div>
-        <div className="features-grid">
+        <div className="grid-layout">
           {features.map((feature, idx) => (
-            <div className="feature-card" key={idx}>
-              <div className="feature-icon">{feature.icon}</div>
-              <h3>{feature.title}</h3>
-              <p>{feature.description}</p>
+            <div className="feature-card-modern" key={idx}>
+              <div style={{ fontSize: '3.5rem', marginBottom: '1.5rem', display: 'block' }}>{feature.icon}</div>
+              <h3 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '1rem', color: 'var(--text-main)' }}>{feature.title}</h3>
+              <p style={{ color: 'var(--text-dim)', lineHeight: 1.6 }}>{feature.description}</p>
             </div>
           ))}
         </div>
       </section>
 
       {/* Demo Section */}
-      <section className="demo-section" ref={demoRef}>
-        <div className="demo-container">
-          <div className="demo-content">
-            <h2>See It In Action</h2>
-            <p>Explore our interactive piano roll with pre-loaded songs and visualize how chord progressions work in real music.</p>
+      <section className="demo-section" ref={demoRef} style={{background: 'linear-gradient(to bottom, var(--bg-primary), var(--bg-secondary))' }}>
+        <div className="glass-card" style={{ maxWidth: '2200px', margin: '0 auto', flexDirection: 'row', gap: '1rem', padding: '4rem' }}>
+          <div className="demo-content" style={{ flex: 1 }}>
+            <h2 className="modern-title" style={{ textAlign: 'left', fontSize: '2.5rem', marginBottom: '1.5rem' }}>Interactive Performance</h2>
+            <p style={{ color: 'var(--text-dim)', fontSize: '1.1rem', marginBottom: '2.5rem', lineHeight: 1.7 }}>
+              Experience the power of our real-time piano visualizer. Select a composition below to see how Harmonic analyzes and displays chord structures dynamically.
+            </p>
             <div className="song-selector">
-              <label>Select a Song:</label>
-              <div className="song-buttons">
+              <label style={{ color: 'var(--text-main)', fontWeight: 600, display: 'block', marginBottom: '1rem' }}>Featured Tracks</label>
+              <div className="song-buttons" style={{ gap: '1rem' }}>
                 {[
                   "Yiruma - River Flow In You",
                   "Ed Sheeran - Perfect",
@@ -176,7 +178,15 @@ const Home: React.FC = () => {
                 ].map((song) => (
                   <button
                     key={song}
-                    className={`song-btn ${selectedSong === song ? "active" : ""}`}
+                    className={`back-btn ${selectedSong === song ? "active" : ""}`}
+                    style={{ 
+                        width: '100%', 
+                        justifyContent: 'flex-start', 
+                        padding: '1rem 1.5rem', 
+                        background: selectedSong === song ? 'rgba(59, 130, 246, 0.1)' : 'var(--card-bg)',
+                        borderColor: selectedSong === song ? 'var(--accent-primary)' : 'var(--card-border)',
+                        color: selectedSong === song ? 'var(--accent-primary)' : 'var(--text-dim)'
+                    }}
                     onClick={() => setSelectedSong(song)}
                   >
                     {song}
@@ -185,10 +195,10 @@ const Home: React.FC = () => {
               </div>
             </div>
           </div>
-          <div className="pianoroll-container">
+          <div style={{ flex: 1.2, background: 'rgba(0,0,0,0.3)', borderRadius: '24px', padding: '2rem', border: '1px solid var(--card-border)', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
             <PianoRollApp
-              width={12}
-              height={48}
+              width={14}
+              height={56}
               showNote={false}
               fileName={fileName}
             />
@@ -197,36 +207,38 @@ const Home: React.FC = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="cta-section">
-        <div className="cta-content">
-          <h2>Ready to Transform Your Musical Journey?</h2>
-          <p>Join thousands of musicians learning smarter with Harmonic</p>
-          {!isGlobalEnabled ? (
-            <Link className="btn-primary btn-large" to="/login">
-              Sign Up Now
-            </Link>
-          ) : (
-            <Link className="btn-primary btn-large" to="/generate-prompt">
-              Start Practicing
-            </Link>
-          )}
+      <section className="cta-section" style={{ textAlign: 'center', background: 'radial-gradient(circle at 50% 50%, var(--bg-secondary) 0%, var(--bg-primary) 100%)' }}>
+        <div className="cta-content" style={{margin: '0 auto' }}>
+          <h2 className="modern-title" style={{ fontSize: '4rem', marginBottom: '1.5rem' }}>Ready to Compose?</h2>
+          <p style={{ color: 'var(--text-dim)', fontSize: '1.4rem', marginBottom: '3.5rem' }}>Join the next generation of pianists learning with AI.</p>
+          <div style={{ display: 'flex', gap: '1.5rem', justifyContent: 'center' }}>
+            {!isGlobalEnabled ? (
+                <Link className="start-btn" style={{ padding: '1.25rem 3.5rem', fontSize: '1.2rem' }} to="/login">
+                Create Free Account
+                </Link>
+            ) : (
+                <Link className="start-btn" style={{ padding: '1.25rem 3.5rem', fontSize: '1.2rem' }} to="/generate-prompt">
+                Build Your First Piece
+                </Link>
+            )}
+          </div>
         </div>
       </section>
 
       {/* Team Section */}
-      <section className="team-section" ref={membersRef}>
-        <div className="section-header">
-          <h2>Meet Our Team</h2>
-          <p>Passionate developers building the future of music education</p>
+      <section className="team-section" ref={membersRef} style={{ padding: '2rem', background: 'var(--bg-primary)' }}>
+        <div className="section-header" style={{ marginBottom: '5rem' }}>
+          <h2 className="modern-title" style={{ fontSize: '3rem' }}>The Visionaries</h2>
+          <p style={{ color: 'var(--text-dim)', fontSize: '1.2rem' }}>Meet the team redefining music technology.</p>
         </div>
-        <div className="team-grid">
+        <div className="grid-layout">
           {profiles.map((profile, index) => (
-            <div className="team-card" key={index}>
-              <div className="team-image-wrapper">
-                <img src={profile.img} alt={profile.name} className="team-image" />
+            <div className="team-profile-card" key={index}>
+              <div className="team-image-wrapper" style={{ marginBottom: '2rem' }}>
+                <img src={profile.img} alt={profile.name} className="team-image" style={{ width: '120px', height: '120px', filter: 'grayscale(0.5)', transition: 'all 0.4s ease' }} onMouseEnter={(e) => e.currentTarget.style.filter = 'none'} onMouseLeave={(e) => e.currentTarget.style.filter = 'grayscale(0.5)'} />
               </div>
-              <h3>{profile.name}</h3>
-              <p className="team-role">{profile.role}</p>
+              <h3 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '0.5rem', color: 'var(--text-main)' }}>{profile.name}</h3>
+              <p className="topic-tag" style={{ display: 'inline-block' }}>{profile.role.replace('/', '').trim()}</p>
             </div>
           ))}
         </div>

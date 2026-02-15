@@ -59,69 +59,69 @@ function Login() {
   };
 
   return (
-    <div className={"login-box" + (leaving ? " leaving" : "")}>
-      <div className="auth-header">
-        <h2>Login</h2>
-        <p>Welcome back. Please sign in to continue.</p>
-      </div>
-      <form onSubmit={(e) => { e.preventDefault(); onButtonClick(); }}>
-        <div className="input-group">
-          <label className="input-label" htmlFor="login-email">Email</label>
-          <div className="input-wrap">
-            <input
-              id="login-email"
-              value={email}
-              placeholder="Enter email address here"
-              onChange={(ev) => setEmail(ev.target.value)}
-              className="auth-input"
-              type="email"
-              autoComplete="email"
-            />
-          </div>
-          {emailError ? <small className="errorLabel">{emailError}</small> : null}
+    <div className="modern-container" style={{ justifyContent: 'center' }}>
+      <div className={"login-box" + (leaving ? " leaving" : "")}>
+        <div className="auth-header">
+          <h2>Harmonic</h2>
+          <p>Your creative journey continues here.</p>
         </div>
-        <div className="input-group">
-          <label className="input-label" htmlFor="login-password">Password</label>
-          <div className="input-wrap">
-            <input
-              id="login-password"
-              value={password}
-              placeholder="Enter password here"
-              onChange={(ev) => setPassword(ev.target.value)}
-              className="auth-input"
-              type={showPassword ? 'text' : 'password'}
-              autoComplete="current-password"
-            />
-            <button
-              type="button"
-              aria-label={showPassword ? 'Hide password' : 'Show password'}
-              className="reveal"
-              onClick={() => setShowPassword((v) => !v)}
-            >
-              {showPassword ? 'Hide' : 'Show'}
-            </button>
+        <form onSubmit={(e) => { e.preventDefault(); onButtonClick(); }}>
+          <div className="input-group">
+            <label className="input-label" htmlFor="login-email">Email Address</label>
+            <div className="input-wrap">
+              <input
+                id="login-email"
+                value={email}
+                placeholder="name@example.com"
+                onChange={(ev) => setEmail(ev.target.value)}
+                className="auth-input"
+                type="email"
+                autoComplete="email"
+              />
+            </div>
+            {emailError ? <small className="errorLabel">{emailError}</small> : null}
           </div>
-          {passwordError ? <small className="errorLabel">{passwordError}</small> : null}
+          <div className="input-group">
+            <label className="input-label" htmlFor="login-password">Security Key</label>
+            <div className="input-wrap">
+              <input
+                id="login-password"
+                value={password}
+                placeholder="••••••••"
+                onChange={(ev) => setPassword(ev.target.value)}
+                className="auth-input"
+                type={showPassword ? 'text' : 'password'}
+                autoComplete="current-password"
+              />
+              <button
+                type="button"
+                className="reveal"
+                onClick={() => setShowPassword((v) => !v)}
+              >
+                {showPassword ? 'Hide' : 'Reveal'}
+              </button>
+            </div>
+            {passwordError ? <small className="errorLabel">{passwordError}</small> : null}
+          </div>
+          <input
+            onClick={onButtonClick}
+            className="inputButton"
+            type="submit"
+            value={submitting ? 'Authenticating...' : 'Sign In'}
+            disabled={submitting}
+          />
+        </form>
+        <div className="register-link">
+          <p>
+              New to Harmonic?
+              <Link to="/register" className="register-link-text" onClick={gotoRegister}>
+                 Create account
+              </Link>
+          </p>
         </div>
-        <input
-          onClick={onButtonClick}
-          className="inputButton"
-          type="submit"
-          value={submitting ? 'Signing in...' : 'Submit'}
-          disabled={submitting}
-        />
-      </form>
-      <div className="register-link">
-        <p>
-            Don't have an account?{' '}
-            <Link to="/register" className="register-link-text" onClick={gotoRegister}>
-               Register here
-            </Link>
-        </p>
       </div>
-
     </div>
   );
-}
+};
 
 export default Login;

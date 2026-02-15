@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { logout, subscribeAuth } from '.';
 import { useGlobalBoolean } from '../GlobalBooleanContext.tsx';
+import ThemeToggle from '../component/ThemeToggle.tsx';
 
 const AuthControls = () => {
   const [email, setEmail] = useState<string | null>(null);
@@ -74,7 +75,8 @@ const AuthControls = () => {
           <div className="user-name">{username}</div>
           <div className="user-email" title={email}>{email}</div>
         </div>
-        <Link className="user-item" role="menuitem" to="/data" onClick={() => setMenuOpen(false)}>My List</Link>
+        {/* <Link className="user-item" role="menuitem" to="/data" onClick={() => setMenuOpen(false)}>My List</Link> */}
+        <ThemeToggle/>
         <button className="user-item danger" role="menuitem" style={{ width: '100%' }} onClick={() => { setMenuOpen(false); logout(); }}>Logout</button>
       </div>
     </div>

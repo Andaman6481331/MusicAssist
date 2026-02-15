@@ -139,9 +139,6 @@ const QuestionPage: React.FC = () => {
                         </div>
                     ) : (
                         <div style={{ textAlign: "center" }}>
-                            <div style={{ height: "10rem" }}>
-                                <img src="/img/fail.png" alt="fail" style={{ height: "100%", width: "100%", objectFit: "contain" }} />
-                            </div>
                             <h1>👍 Better Luck Next Time</h1>
                             <p style={{ fontSize: "1.2rem", fontWeight: "bold" }}>Final score: {score}/{totalQuestions}</p>
                             <p>You’re improving! Give it another try...</p>

@@ -6,9 +6,9 @@
 }
 
 .theme-toggle-btn {
-  background: rgba(255, 255, 255, 0.1);
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  color: white;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  color: var(--text-main);
   width: 45px;
   height: 45px;
   border-radius: 50%;
@@ -21,8 +21,8 @@
 }
 
 .theme-toggle-btn:hover {
-  background: rgba(255, 255, 255, 0.2);
-  border-color: rgba(255, 255, 255, 0.6);
+  background: var(--bg-secondary);
+  border-color: var(--accent-primary);
   transform: scale(1.1);
 }
 
@@ -56,14 +56,16 @@
 
 /* Popup Box */
 .theme-popup-box {
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-  border: 1px solid rgba(68, 137, 249, 0.3);
+  background: var(--bg-secondary);
+  border: 1px solid var(--card-border);
   border-radius: 1.5rem;
   padding: 2rem;
   max-width: 500px;
   width: 90vw;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
   animation: slideUp 0.3s ease;
+  position: absolute;
+  top: 20vh;
 }
 
 @keyframes slideUp {
@@ -83,20 +85,20 @@
   align-items: center;
   margin-bottom: 1.5rem;
   padding-bottom: 1rem;
-  border-bottom: 2px solid rgba(68, 137, 249, 0.3);
+  border-bottom: 2px solid var(--card-border);
 }
 
 .theme-popup-header h3 {
   margin: 0;
   font-size: 1.5rem;
-  color: white;
+  color: var(--text-main);
   font-weight: 700;
 }
 
 .theme-popup-close {
   background: none;
   border: none;
-  color: white;
+  color: var(--text-dim);
   font-size: 1.5rem;
   cursor: pointer;
   width: 40px;
@@ -142,9 +144,9 @@
 }
 
 .theme-option.selected {
-  background: rgba(68, 137, 249, 0.15);
-  border-color: #4489f9;
-  box-shadow: 0 0 20px rgba(68, 137, 249, 0.3);
+  background: rgba(59, 130, 246, 0.1);
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.2);
 }
 
 /* Color Preview */
@@ -170,7 +172,7 @@
 .theme-name {
   font-size: 0.9rem;
   font-weight: 600;
-  color: #e0e0e0;
+  color: var(--text-main);
   white-space: nowrap;
   text-overflow: ellipsis;
   overflow: hidden;
@@ -182,7 +184,7 @@
   position: absolute;
   top: 0.5rem;
   right: 0.5rem;
-  background: #4489f9;
+  background: var(--accent-primary);
   color: white;
   width: 24px;
   height: 24px;

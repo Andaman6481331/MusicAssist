@@ -81,27 +81,14 @@ const TriadsPiano: React.FC<TriadsProps> = ({ selectedChord, isMuted = false }) 
           return (
             <div
               key={key}
+              className={`piano-keyboard-white ${isSelected ? 'active' : ''}`}
               style={{
                 width: "40px",
                 height: "150px",
-                backgroundColor: isSelected ? "rgb(98, 208, 220)" : "white",
-                border: "1px solid black",
-                margin: "0",
-                position: "relative",
-                boxSizing: "border-box",
+                zIndex: isSelected ? 5 : 0
               }}
             >
-              <div
-                style={{
-                  position: "absolute",
-                  bottom: "5px",
-                  width: "100%",
-                  textAlign: "center",
-                  fontSize: "12px",
-                  color: isSelected ? "black": "white",
-                  userSelect: "none"
-                }}
-              >
+              <div className="piano-key-text">
                 {key}
               </div>
             </div>
@@ -120,26 +107,15 @@ const TriadsPiano: React.FC<TriadsProps> = ({ selectedChord, isMuted = false }) 
           return (
             <div
               key={key}
+              className={`piano-keyboard-black ${isSelected ? 'active' : ''}`}
               style={{
                 width: "25px",
                 height: "90px",
-                backgroundColor: isSelected ? "rgb(1, 57, 121)" : "black",
                 marginLeft: `${position[key.charAt(0) as keyof typeof position] - 295}px`,
-                zIndex: 1,
                 position: "absolute",
               }}
             >
-              <div
-                style={{
-                  position: "absolute",
-                  bottom: "5px",
-                  width: "100%",
-                  textAlign: "center",
-                  fontSize: "12px",
-                  userSelect: "none",
-                  color: isSelected ? "white" : "black"
-                }}
-              >
+              <div className="piano-key-text">
                 {key}
               </div>
             </div>

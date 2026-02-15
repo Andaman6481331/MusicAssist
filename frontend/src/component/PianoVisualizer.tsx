@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import * as Tone from "tone";
 import { useContext } from "react";
 import { SamplerContext } from "../App";
@@ -31,7 +31,6 @@ const PianoVisualizer: React.FC<PianoVisualizerProps> = ({isPlayable = true, sca
   const sampler = useContext(SamplerContext);
   const [selectedKey, setSelectedKey] = useState<string[]>([]);
   const [activeNotes, setActiveNotes] = useState<ActiveNote[]>([]);
-  const playingRef = useRef<{ abort: boolean }>({ abort: false });
   
   //for ModeDisplay.tsx = check if mode = mixolydian or dorian
   const getPitchClass = (note: string) =>
@@ -139,29 +138,19 @@ const PianoVisualizer: React.FC<PianoVisualizerProps> = ({isPlayable = true, sca
             <div
               key={note}
               onClick={() => isPlayable && isKeyPlayable && handleKeyClick(note)}
+              className={`piano-keyboard-white ${isSelected ? 'active' : ''}`}
               style={{
                 width: `${width}px`,
                 height: `${height}px`,
-                backgroundColor: isSelected ? "var(--secondary-color)" : !isKeyPlayable ? "#ffffff70" : "white",
-                border: "1px solid black",
+                opacity: !isKeyPlayable ? 0.5 : 1,
                 left: `${left}px`,
-                margin: "0",
                 position: "absolute",
-                boxSizing: "border-box",
-                borderRadius: (note==="C"+startOctave.toString())? "10px 0 0 10px": (note==="B"+(startOctave+scaleLength-1).toString())? "0 10px 10px 0": "0"
+                borderRadius: (note==="C"+startOctave.toString())? "10px 0 0 10px": (note==="B"+(startOctave+scaleLength-1).toString())? "0 10px 10px 0": "0",
+                zIndex: isSelected ? 5 : 0
               }}
             >
               {isKeyPlayable && showKeyname &&
-              (<div
-                style={{
-                  position: "absolute",
-                  bottom: "5px",
-                  width: "100%",
-                  textAlign: "center",
-                  fontSize: "12px",
-                  color: "black",
-                  userSelect: "none"
-                }}>
+              (<div className="piano-key-text">
                 {note}
               </div>)}
             </div>
@@ -170,18 +159,13 @@ const PianoVisualizer: React.FC<PianoVisualizerProps> = ({isPlayable = true, sca
       </div>
 
       {/* Black keys */}
-      {/* <div style={{ position: "absolute", display: "flex", left: "0", top: "0", height: "90px", zIndex: 1 }}> */}
-      <div style={{display:"flex", height:"90px", zIndex: 1}}> 
+      <div style={{display:"flex", height:"90px", zIndex: 10}}> 
         {allBlackKeys.map(({ note }) => {
-          // const isSelected = note === selectedKey;
-          // const isSelected = selectedKey.includes(note);
           const isSelected = activeNotes.some(n => n.key === note && n.endTime > Tone.now()) || selectedKey.includes(note) || chordArrays.includes(note);
 
-          // Calculate left offset based on white keys
           const whiteKeyIndex = allWhiteKeys.findIndex(k => k.note.startsWith(note.charAt(0)) && k.octave === parseInt(note.slice(-1)));
-          const left = (whiteKeyIndex*width) + (width*0.7) - (width*(scaleLength*7)/2); // 420 = half pianoroll size = make absolute position centered , 28 = margin btw white and black key
+          const left = (whiteKeyIndex*width) + (width*0.7) - (width*(scaleLength*7)/2); 
           
-          //for ModeDisplay
           const isKeyPlayable =
             !mode
               ? true
@@ -191,27 +175,17 @@ const PianoVisualizer: React.FC<PianoVisualizerProps> = ({isPlayable = true, sca
             <div
               key={note}
               onClick={() => isPlayable && isKeyPlayable && handleKeyClick(note)}
+              className={`piano-keyboard-black ${isSelected ? 'active' : ''}`}
               style={{
                 width: `${width*0.625}px`,
                 height: `${height*0.6}px`,
-                backgroundColor: isSelected ? "var(--secondary-color)" : !isKeyPlayable ? "#00000040": "var(--dark-color)",
+                opacity: !isKeyPlayable ? 0.4 : 1,
                 left: `${left}px`,
-                zIndex: 2,
                 position: "absolute",
-                borderRadius: "0 0 5px 5px"
               }}
             >
               {isKeyPlayable && showKeyname && 
-              (<div
-                style={{
-                  position: "absolute",
-                  bottom: "5px",
-                  width: "100%",
-                  textAlign: "center",
-                  fontSize: "12px",
-                  color: "white",
-                  userSelect: "none"
-                }}>
+              (<div className="piano-key-text">
                 {note}
               </div>)}
             </div>

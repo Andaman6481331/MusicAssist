@@ -59,10 +59,10 @@ const InversionDisplay: React.FC<InversionDisplayProps> = ({
   const activeTheme = themeKey ? themes[themeKey] || globalTheme : globalTheme;
 
   const themeStyles = {
-    "--comp-bg-1": activeTheme.gradient1,
-    "--comp-bg-2": activeTheme.gradient2,
-    "--comp-accent-1": activeTheme.accent,
-    "--comp-accent-2": activeTheme.secondary,
+    "--comp-bg-1": activeTheme.headerBg1,
+    "--comp-bg-2": activeTheme.headerBg2,
+    "--comp-accent-1": activeTheme.accentPrimary,
+    "--comp-accent-2": activeTheme.accentSecondary,
   } as React.CSSProperties;
 
   const notesOnChord: Record<string, string[]> = {
@@ -265,7 +265,7 @@ const InversionDisplay: React.FC<InversionDisplayProps> = ({
             border: "1px solid rgba(255, 255, 255, 0.2)",
           }}
         >
-          <h3 className="definition-title" style={{ color: "var(--comp-accent-1)" }}>
+          <h3 className="definition-title" style={{ color: "var(--accent-secondary)" }}>
             <span style={{ fontSize: "1.75rem" }}>🔄</span>
             {inversionDefinition.title}
           </h3>
@@ -285,7 +285,7 @@ const InversionDisplay: React.FC<InversionDisplayProps> = ({
             <ul className="definition-sublist">
               {inversionDefinition.types.map((type, idx) => (
                 <li key={idx}>
-                  <span style={{ fontWeight: "bold", color: "var(--comp-accent-1)" }}>
+                  <span style={{ fontWeight: "bold", color: "var(--accent-secondary)" }}>
                     {type.label}:
                   </span>{" "}
                   {type.description}
@@ -313,7 +313,7 @@ const InversionDisplay: React.FC<InversionDisplayProps> = ({
           )}
 
           {inversionDefinition.callToAction && (
-            <div className="call-to-action" style={{ color: "var(--comp-accent-2)" }}>
+            <div className="call-to-action" style={{ color: "var(--accent-secondary)" }}>
               {inversionDefinition.callToAction}
             </div>
           )}
@@ -340,10 +340,7 @@ const InversionDisplay: React.FC<InversionDisplayProps> = ({
               fontWeight: "700",
               width: "5rem",
               textAlign: "center",
-              background: "linear-gradient(135deg, var(--comp-accent-1) 0%, var(--comp-accent-2) 100%)",
-              WebkitBackgroundClip: "text",
-              backgroundClip: "text",
-              WebkitTextFillColor: "transparent",
+              color: "var(--accent-secondary)",
             }}
           >
             {!selectedChord ? "C" : selectedChord}
@@ -402,7 +399,7 @@ const InversionDisplay: React.FC<InversionDisplayProps> = ({
                     fontSize: "1.2rem",
                     fontWeight: "700",
                     marginBottom: "0.5rem",
-                    color: "var(--comp-accent-1)",
+                    color: "var(--accent-secondary)",
                   }}
                 >
                   {inv.label}
@@ -411,7 +408,7 @@ const InversionDisplay: React.FC<InversionDisplayProps> = ({
                   style={{
                     fontSize: "1.5rem",
                     fontWeight: "800",
-                    color: "var(--comp-accent-2)",
+                    color: "var(--accent-secondary)",
                   }}
                 >
                   {inv.formula}

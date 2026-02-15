@@ -1,0 +1,227 @@
+.pianoroll-app-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  width: fit-content;
+  min-width: 600px;
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 1.5rem;
+  background: var(--card-bg);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--card-border);
+  border-radius: 24px;
+}
+
+/* --- SVG Piano Roll Area --- */
+.svg-container {
+  position: relative;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid var(--card-border);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: inset 0 4px 20px rgba(0, 0, 0, 0.5);
+}
+
+.note-rect {
+  transition: opacity 0.2s ease;
+  filter: drop-shadow(0 0 4px rgba(0,0,0,0.5));
+}
+
+.note-rect:hover {
+  filter: brightness(1.2) drop-shadow(0 0 8px var(--accent-primary));
+}
+
+.note-text {
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* --- Piano Keys Area --- */
+.piano-keys-wrapper {
+  position: relative;
+  width: 100%;
+  height: 80px;
+  display: flex;
+  justify-content: center;
+}
+
+.piano-keys-container {
+  position: relative;
+  display: flex;
+}
+
+.white-key {
+  position: absolute;
+  background: linear-gradient(to bottom, #fff 0%, #eee 100%);
+  border: 1px solid #ccc;
+  border-radius: 0 0 4px 4px;
+  cursor: pointer;
+  box-sizing: border-box;
+  transition: background 0.1s, transform 0.1s;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.white-key.active {
+  background: linear-gradient(to bottom, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+  transform: translateY(2px);
+  box-shadow: 0 0 15px var(--accent-primary);
+  border-color: var(--accent-primary);
+}
+
+.white-key-text {
+  position: absolute;
+  bottom: 8px;
+  width: 100%;
+  text-align: center;
+  font-size: 10px;
+  color: #666;
+  font-weight: 600;
+  pointer-events: none;
+}
+
+.black-key {
+  position: absolute;
+  background: linear-gradient(180deg, #333 0%, #000 100%);
+  border: 1px solid #000;
+  border-radius: 0 0 3px 3px;
+  cursor: pointer;
+  z-index: 10;
+  transition: background 0.1s, transform 0.1s;
+  box-shadow: 2px 2px 5px rgba(0,0,0,0.5);
+}
+
+.black-key.active {
+  background: linear-gradient(180deg, var(--accent-secondary) 0%, var(--accent-primary) 100%);
+  transform: translateY(2px);
+  box-shadow: 0 0 15px var(--accent-secondary);
+}
+
+.black-key-text {
+  position: absolute;
+  bottom: 6px;
+  width: 100%;
+  text-align: center;
+  font-size: 9px;
+  color: #aaa;
+  font-weight: 500;
+  pointer-events: none;
+}
+
+/* --- Controls Area --- */
+.pianoroll-controls {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  gap: 1rem;
+  padding: 1.25rem;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 20px;
+  border: 1px solid var(--card-border);
+}
+
+.playback-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.9rem;
+  color: var(--text-dim);
+}
+
+.time-display {
+  display: flex;
+  gap: 0.5rem;
+  font-weight: 600;
+}
+
+.time-current {
+  color: var(--text-main);
+}
+
+.time-total {
+  opacity: 0.6;
+}
+
+/* --- Progress Bar --- */
+.seek-bar-container {
+  position: relative;
+  width: 100%;
+  height: 10px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  cursor: pointer;
+  overflow: hidden;
+  transition: all 0.2s ease;
+}
+
+.seek-bar-container:hover {
+  height: 14px;
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.seek-progress {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+  border-radius: 10px;
+  box-shadow: 0 0 10px var(--accent-primary);
+}
+
+/* --- Buttons --- */
+.button-group {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+}
+
+.control-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--card-border);
+  color: var(--text-main);
+  width: 50px;
+  height: 50px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.control-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateY(-4px);
+  border-color: var(--accent-primary);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+.control-btn:active {
+  transform: translateY(0) scale(0.95);
+}
+
+.control-btn.play-btn {
+  background: var(--accent-primary);
+  color: white;
+  width: 60px;
+  height: 60px;
+  border: none;
+}
+
+.control-btn.play-btn:hover {
+  background: var(--accent-secondary);
+  box-shadow: 0 0 20px var(--accent-primary);
+}
+
+.control-btn img {
+  filter: brightness(0) invert(1);
+  width: 20px;
+  height: 20px;
+}
+
+.play-btn img {
+  width: 28px;
+  height: 28px;
+}

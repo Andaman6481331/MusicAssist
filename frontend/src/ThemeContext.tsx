@@ -2,90 +2,84 @@ import React, { createContext, useState, useContext, useEffect, ReactNode } from
 
 export interface Theme {
   name: string;
-  primary: string;
-  secondary: string;
-  accent: string;
-  glow: string;
-  gradient1: string;
-  gradient2: string;
-  dark: string;
-  light: string;
-  lighter: string;
+  bgPrimary: string;
+  bgSecondary: string;
+  textMain: string;
+  textDim: string;
+  accentPrimary: string;
+  accentSecondary: string;
+  cardBg: string;
+  cardBorder: string;
+  headerBg1: string;
+  headerBg2: string;
 }
 
 export const themes: Record<string, Theme> = {
   oceanBlue: {
-    name: 'Ocean Blue',
-    primary: '#1a58b0',
-    secondary: '#1da1f2',
-    accent: '#4489f9',
-    glow: '#5593f7ff',
-    gradient1: '#0a2f5c',
-    gradient2: '#144387',
-    dark: '#0a2f5c',
-    light: '#a8cdfd',
-    lighter: '#b2d3fe',
+    name: 'Ocean Blue (Level 1)',
+    bgPrimary: '#0f172a',
+    bgSecondary: '#1e293b',
+    textMain: '#f1f5f9',
+    textDim: '#cbd5e1',
+    accentPrimary: '#3b82f6',
+    accentSecondary: '#6366f1',
+    cardBg: 'rgba(255, 255, 255, 0.03)',
+    cardBorder: 'rgba(59, 130, 246, 0.2)',
+    headerBg1: '#1e3a8a',
+    headerBg2: '#1e40af',
   },
-  skyHeaven: {
-    name: 'Sky Heaven',
-    primary: '#E0F2FE',
-    secondary: '#F8FAFC',
-    accent: '#7DD3FC',
-    glow: '#7dd3fcff',
-    gradient1: '#0F172A',
-    gradient2: '#0F172A',
-    dark: '#0F172A',
-    light: '#BAE6FD',
-    lighter: '#E0F2FE',
+  cityNight: {
+    name: 'City Night (Level 2)',
+    bgPrimary: '#020617',
+    bgSecondary: '#1e1b4b',
+    textMain: '#ffffff',
+    textDim: '#d1d5db',
+    accentPrimary: '#8b5cf6',
+    accentSecondary: '#ec4899',
+    cardBg: 'rgba(255, 255, 255, 0.02)',
+    cardBorder: 'rgba(139, 92, 246, 0.2)',
+    headerBg1: '#4c1d95',
+    headerBg2: '#5b21b6',
   },
-  nightCity: {
-    name: 'Night City',
-    primary: '#0F172A',
-    secondary: '#7E22CE',
-    accent: '#C084FC',
-    glow: '#c084fcff',
-    gradient1: '#1E1B4B',
-    gradient2: '#6B21A8',
-    dark: '#0F172A',
-    light: '#E9D5FF',
-    lighter: '#F3E8FF',
+  sunsetOrange: {
+    name: 'Sunset Orange (Level 3)',
+    bgPrimary: '#1a0d0d',
+    bgSecondary: '#2d1a1a',
+    textMain: '#fff5f5',
+    textDim: '#feb2b2',
+    accentPrimary: '#f97316',
+    accentSecondary: '#ef4444',
+    cardBg: 'rgba(255, 255, 255, 0.03)',
+    cardBorder: 'rgba(249, 115, 22, 0.2)',
+    headerBg1: '#7c2d12',
+    headerBg2: '#9a3412',
   },
-  loFi: {
-    name: 'Lo-Fi',
-    primary: '#1E1B4B',
-    secondary: '#4C1D95',
-    accent: '#22D3EE',
-    glow: '#22d3eeff',
-    gradient1: '#1E1B4B',
-    gradient2: '#4C1D95',
-    dark: '#1E1B4B',
-    light: '#A5F3FC',
-    lighter: '#E2E8F0',
+  emeraldGreen: {
+    name: 'Emerald City (Level 4)',
+    bgPrimary: '#061a14',
+    bgSecondary: '#064e3b',
+    textMain: '#ecfdf5',
+    textDim: '#a7f3d0',
+    accentPrimary: '#10b981',
+    accentSecondary: '#34d399',
+    cardBg: 'rgba(255, 255, 255, 0.03)',
+    cardBorder: 'rgba(16, 185, 129, 0.2)',
+    headerBg1: '#064e3b',
+    headerBg2: '#065f46',
   },
-  earthTone: {
-    name: 'Earth Tone',
-    primary: '#C2410C',
-    secondary: '#FDFCFB',
-    accent: '#78350F',
-    glow: '#78350fff',
-    gradient1: '#451A03',
-    gradient2: '#7C2D12',
-    dark: '#451A03',
-    light: '#FED7AA',
-    lighter: '#FDFCFB',
-  },
-  forestStyle: {
-    name: 'Forest Style',
-    primary: '#14532D',
-    secondary: '#713F12',
-    accent: '#4ADE80',
-    glow: '#4ade80ff',
-    gradient1: '#14532D',
-    gradient2: '#3F6212',
-    dark: '#14532D',
-    light: '#86EFAC',
-    lighter: '#ECFDF5',
-  },
+  galaxyVivid: {
+    name: 'Galaxy Vivid (Level 5)',
+    bgPrimary: '#0d0221',
+    bgSecondary: '#190e4f',
+    textMain: '#f5f3ff',
+    textDim: '#ddd6fe',
+    accentPrimary: '#d946ef',
+    accentSecondary: '#a855f7',
+    cardBg: 'rgba(255, 255, 255, 0.03)',
+    cardBorder: 'rgba(217, 70, 239, 0.2)',
+    headerBg1: '#701a75',
+    headerBg2: '#86198f',
+  }
 };
 
 interface ThemeContextType {
@@ -100,28 +94,32 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   const [themeName, setThemeName] = useState<string>('oceanBlue');
 
   useEffect(() => {
-    // Load theme from localStorage
     const savedTheme = localStorage.getItem('selectedTheme') || 'oceanBlue';
     setThemeName(savedTheme);
     applyTheme(savedTheme);
   }, []);
 
   const applyTheme = (name: string) => {
-    const selectedTheme = themes[name];
-    if (selectedTheme) {
-      const root = document.documentElement;
-      root.style.setProperty('--primary-color', selectedTheme.primary);
-      root.style.setProperty('--secondary-color', selectedTheme.secondary);
-      root.style.setProperty('--accent-color', selectedTheme.accent);
-      root.style.setProperty('--glow-color', selectedTheme.glow);
-      root.style.setProperty('--gradient-1', selectedTheme.gradient1);
-      root.style.setProperty('--gradient-2', selectedTheme.gradient2);
-      root.style.setProperty('--dark-color', selectedTheme.dark);
-      root.style.setProperty('--dark-color', selectedTheme.dark);
-      root.style.setProperty('--light-color', selectedTheme.light);
-      root.style.setProperty('--lighter-color', selectedTheme.lighter);
-      localStorage.setItem('selectedTheme', name);
-    }
+    const selectedTheme = themes[name] || themes.oceanBlue;
+    const root = document.documentElement;
+    root.style.setProperty('--bg-primary', selectedTheme.bgPrimary);
+    root.style.setProperty('--bg-secondary', selectedTheme.bgSecondary);
+    root.style.setProperty('--text-main', selectedTheme.textMain);
+    root.style.setProperty('--text-dim', selectedTheme.textDim);
+    root.style.setProperty('--accent-primary', selectedTheme.accentPrimary);
+    root.style.setProperty('--accent-secondary', selectedTheme.accentSecondary);
+    root.style.setProperty('--card-bg', selectedTheme.cardBg);
+    root.style.setProperty('--card-border', selectedTheme.cardBorder);
+    root.style.setProperty('--header-bg1', selectedTheme.headerBg1);
+    root.style.setProperty('--header-bg2', selectedTheme.headerBg2);
+    
+    // For components using book.css variables
+    root.style.setProperty('--gradient-1', selectedTheme.headerBg1);
+    root.style.setProperty('--gradient-2', selectedTheme.headerBg2);
+    root.style.setProperty('--accent-color', selectedTheme.accentPrimary);
+    root.style.setProperty('--secondary-color', selectedTheme.accentSecondary);
+    
+    localStorage.setItem('selectedTheme', name);
   };
 
   const setTheme = (name: string) => {
@@ -130,11 +128,12 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   };
 
   return (
-    <ThemeContext.Provider value={{ theme: themes[themeName], themeName, setTheme }}>
+    <ThemeContext.Provider value={{ theme: themes[themeName] || themes.oceanBlue, themeName, setTheme }}>
       {children}
     </ThemeContext.Provider>
   );
 };
+
 
 export const useTheme = () => {
   const context = useContext(ThemeContext);
@@ -143,3 +142,4 @@ export const useTheme = () => {
   }
   return context;
 };
+

@@ -1,14 +1,17 @@
 import { useEffect, useRef, useState } from "react";
 import { useLoading } from "./LoadingContext";
+import { useNavigate } from "react-router-dom";
 import "./LoadingBar.css";
 
 const LoadingBar = () => {
-  const { loading, percent, setPercent, message, setMessage} = useLoading();
+  const { 
+    loading, percent, setPercent, message, setMessage, 
+    showCompletion, setShowCompletion, generatedFilename 
+  } = useLoading();
+  const navigate = useNavigate();
   
-  const [hidden, setHidden] = useState(false);
-
+  const [minimized, setMinimized] = useState(false);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
-  // console.log("LoadingBar render:", { loading, percent, message });
 
   const mesList = [
     "Analyzing the music...",
@@ -19,7 +22,6 @@ const LoadingBar = () => {
     "Synthesizing sounds..."
   ];
 
-  // Fake loading progression
   useEffect(() => {
     if (!loading) {
       if (intervalRef.current) clearInterval(intervalRef.current);
@@ -48,30 +50,76 @@ const LoadingBar = () => {
     };
   }, [loading, setPercent, setMessage]);
 
-  if (!loading) return null;
+  if (!loading && !showCompletion) return null;
 
   return (
-    <div
-      className={`loading-bar ${hidden ? "hidden" : ""}`}
-      onClick={() => setHidden(prev => !prev)}
-    >
-      <div style={{display:"flex", justifyContent:"center", minWidth:"50rem"}}>
-        <div>
-          <div style={{width:"100px", height:"100px", display:"flex", justifyContent:"center", alignContent:"center"}}>
-            <div className="spinner">
+    <>
+      {loading && (
+        <div
+          className={`loading-bar ${minimized ? "minimized" : ""}`}
+          onClick={() => setMinimized(prev => !prev)}
+        >
+          {minimized ? (
+            <div className="minimized-widget">
+              <div className="mini-spinner"></div>
+              <span className="mini-percent">{Math.round(percent)}%</span>
             </div>
-            <div className="percentCir">
-              <span>{Math.min(100, Math.round(percent))}%</span>
+          ) : (
+            <>
+              <div className="spinner-container">
+                <div className="spinner"></div>
+                <div className="percentCir">
+                  {Math.min(100, Math.round(percent))}%
+                </div>
+              </div>
+              
+              <div className="loading-content">
+                <h2 className="loading-header">{message}</h2>
+                <div className="progress-container">
+                  <div 
+                    className="progress-fill" 
+                    style={{ width: `${Math.min(100, percent)}%` }}
+                  />
+                </div>
+              </div>
+              <div className="minimize-hint">Click to minimize</div>
+            </>
+          )}
+        </div>
+      )}
+
+      {showCompletion && (
+        <div className="completion-overlay">
+          <div className="glass-card completion-modal" style={{gap:"0px"}}>
+            <div className="completion-icon">✨</div>
+            <h2 className="modern-title" style={{ fontSize: '2.4rem', margin: '1rem 0' }}>It's Ready!</h2>
+            <p style={{ color: 'var(--text-dim)', fontSize: '1.1rem', marginBottom: '2.5rem', lineHeight: 1.6 }}>
+              Your track "<strong style={{ color: 'var(--text-main)' }}>{generatedFilename}</strong>" is ready for performance. 
+              Would you like to open it in the piano view now?
+            </p>
+            <div className="completion-buttons">
+              <button 
+                className="start-btn" 
+                onClick={() => {
+                  setShowCompletion(false);
+                  navigate(`/output/${generatedFilename}`);
+                }}
+              >
+                Open Piano View
+              </button>
+              <button 
+                className="back-btn" 
+                onClick={() => setShowCompletion(false)}
+              >
+                Maybe Later
+              </button>
             </div>
           </div>
         </div>
-        <div style={{width:"70%", padding:"0 2rem"}}>
-          <h2>{message}</h2>
-          <progress value={percent} max="100" />
-        </div>
-      </div>
-    </div>
+      )}
+    </>
   );
 };
 
 export default LoadingBar;
+

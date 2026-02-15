@@ -1,11 +1,11 @@
-
 # from fastapi import Request, Query
 from fastapi import FastAPI, HTTPException, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse, JSONResponse, PlainTextResponse
 from pydantic import BaseModel
-import os, threading, traceback # torchaudio removed for minimal test
-# from audiocraft.models import musicgen
+import os, threading, traceback
+import torchaudio
+from audiocraft.models import musicgen
 from datetime import datetime
 # from basic_pitch.inference import predict_and_save, ICASSP_2022_MODEL_PATH
 from queue import Queue
@@ -17,10 +17,10 @@ import pretty_midi
 import librosa
 import shutil
 import contextlib
-# import torch
+import torch
 import asyncio, re
 
-from utils.music_utils import analyze_with_pretty_midi, serialize_note, ConvertWavToMidi, ConvertWavToMidiDamRsn
+from utils.music_utils import analyze_with_pretty_midi, serialize_note, ConvertWavToMidi, ConvertWavToMidiDamRsn, wav_to_json_data
 
 app = FastAPI()
 
@@ -36,8 +36,8 @@ app.add_middleware(
 # Load model once at startup
 os.environ["TRITON_IGNORE"] = "1"
 os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
-# model = musicgen.MusicGen.get_pretrained('medium', device='cpu')
-# model.set_generation_params(duration=2)
+model = musicgen.MusicGen.get_pretrained('medium', device='cpu')
+model.set_generation_params(duration=2)
 
 save_dir = "../Collection"  # .Wav & .MIDI from generator
 os.makedirs(save_dir, exist_ok=True)
@@ -47,13 +47,37 @@ os.makedirs(save_dir, exist_ok=True)
 
 output_dir = '../frontend/public/JsonOutputs'   # JsonOutput folder
 
+# ============================================
+# ADD: Generation lock to prevent multiple simultaneous generations
+# ============================================
+generation_lock = asyncio.Lock()
+is_generating = False
+
 @app.get("/check-filename")
 async def check_filename(name: str):
-    import os
+    """
+    Check if a filename already exists in the Collection directory.
+    Checks for both .wav and .mid files.
+    """
     os.makedirs(save_dir, exist_ok=True)
+    
+    # Check for both WAV and MIDI files
+    wav_exists = os.path.exists(os.path.join(save_dir, f"{name}.wav"))
+    mid_exists = os.path.exists(os.path.join(save_dir, f"{name}.mid"))
+    
+    return {
+        "exists": wav_exists or mid_exists,
+        "wav_exists": wav_exists,
+        "mid_exists": mid_exists
+    }
 
-    exists = os.path.exists(os.path.join(save_dir, name))
-    return {"exists": exists}
+@app.get("/generation-status")
+async def generation_status():
+    """
+    Check if a generation is currently in progress.
+    """
+    global is_generating
+    return {"is_generating": is_generating}
 
 @app.post("/wavtojson")
 async def wav_to_json(
@@ -187,110 +211,44 @@ class PromptRequest(BaseModel):
 
 @app.get("/generate")
 async def generate_music(prompt: str, filename: str, mididuration: str):
-    print("generate_music called with:", prompt, filename, mididuration, flush=True)
-    model.set_generation_params(duration=int(mididuration))
-    q = Queue()
-
-    def generate_and_capture():
-        print("Starting generation with prompt:", prompt, flush=True)
-
-        class StreamInterceptor:
-            def __init__(self, q):
-                self.q = q
-                self._stdout = sys.stdout
-
-            def write(self, message):
-                self._stdout.write(message)
-                msg = message.strip()
-                if "/" in message:
-                    try:
-                        num, total = map(int, msg.split("/"))
-                        percent = int((num / total) * 100)
-                        self.q.put(f"{percent}\n")
-                    except:
-                        self.q.put(f"[MSG] {msg}\n")
-                else:
-                    self.q.put(f"[MSG] {msg}\n")
-
-            def flush(self):
-                self._stdout.flush()
-
-        sys.stdout = StreamInterceptor(q)
-        q.put(f"Received prompt: {prompt}\n")
-
-        try:
-            inputPrompts = [prompt]
-            # Actually start generating...
-            q.put("[MSG] Starting model.generate...\n")
-            print("Calling model.generate() now...", flush=True)
-
-            res = model.generate(inputPrompts, progress=True)
-
-            print("model.generate() completed", flush=True)
-            q.put("[MSG] Done generating audio\n")
-
-            audio_data = res[0].cpu()
-            safe_filename = filename.replace(" ", "_").replace("/", "_").replace("\\", "_")
-            wav_filename = os.path.join(save_dir, f"{safe_filename}.wav")
-            torchaudio.save(wav_filename, audio_data, 32000)
-            q.put(f"[MSG] Audio saved: {wav_filename}\n")
-
-            predict_and_save([wav_filename], save_dir, True, False, False, False, ICASSP_2022_MODEL_PATH)
-
-            original_midi = wav_filename.replace(".wav", "_basic_pitch.mid")
-            renamed_midi = wav_filename.replace(".wav", ".mid")
-            if os.path.exists(original_midi):
-                os.rename(original_midi, renamed_midi)
-            midi_filename = renamed_midi
-
-            print("Looking for MIDI file:", midi_filename)
-            print("File exists?", os.path.exists(midi_filename))
-            print(f"saves {midi_filename} success")
-
-            # from server import analyze_with_pretty_midi, serialize_note  # or define them here
-            json_notes, json_tempo_bpm, json_total_time = analyze_with_pretty_midi(midi_filename)
-            base_name = os.path.splitext(os.path.basename(midi_filename))[0]
-            data = {
-                'tempo_bpm': json_tempo_bpm,
-                'total_time': json_total_time,
-                'notes': [serialize_note(n) for n in json_notes],
-            }
-
-            output_json_path = os.path.join(output_dir, base_name + '.json')
-            with open(output_json_path, 'w') as f:
-                json.dump(data, f, indent=4)
-            q.put(f"[MSG] JSON saved to {output_json_path}\n")
-
-        except Exception as e:
-            import traceback
-            err_msg = traceback.format_exc()
-            print("Error occurred:\n", err_msg)
-            q.put(f"Error: {str(e)}\n")
-            q.put(f"[MSG] {err_msg}\n")
-
-        finally:
-            # sys.stdout.flush()
-            sys.stdout = sys.__stdout__
-            q.put("done\n")
-            q.put(None)
-
-    # Run in separate thread context
-    await asyncio.to_thread(generate_and_capture)
-
-    def stream():
-        while True:
-            line = q.get()
-            if line is None:
-                break
-            # yield line
-            yield line.encode()
-
-    return StreamingResponse(stream(), media_type="text/plain")
-async def generate_music(prompt: str, filename: str, mididuration: str):
+    """
+    Generate music with proper filename checking and single-generation enforcement.
+    """
+    global is_generating
+    
     print("generate_music called with:", prompt, filename, mididuration)
+    
+    # ============================================
+    # FIX 1: Check if generation is already in progress
+    # ============================================
+    if is_generating:
+        return JSONResponse(
+            content={
+                "error": "A generation is already in progress. Please wait for it to complete."
+            },
+            status_code=409  # Conflict status code
+        )
+    
+    # ============================================
+    # FIX 2: Check filename BEFORE starting generation
+    # ============================================
+    safe_filename = filename.replace(" ", "_").replace("/", "_").replace("\\", "_")
+    wav_path = os.path.join(save_dir, f"{safe_filename}.wav")
+    mid_path = os.path.join(save_dir, f"{safe_filename}.mid")
+    
+    if os.path.exists(wav_path) or os.path.exists(mid_path):
+        return JSONResponse(
+            content={
+                "error": f"Filename '{safe_filename}' already exists. Please choose a different name."
+            },
+            status_code=409  # Conflict status code
+        )
 
     def generate_and_save():
+        global is_generating
         try:
+            is_generating = True
+            
             model.set_generation_params(duration=int(mididuration))
             inputPrompts = [prompt]
 
@@ -300,47 +258,73 @@ async def generate_music(prompt: str, filename: str, mididuration: str):
 
             # Save WAV
             audio_data = res[0].cpu()
-            safe_filename = filename.replace(" ", "_").replace("/", "_").replace("\\", "_")
-            wav_filename = os.path.join(save_dir, f"{safe_filename}.wav")
-            torchaudio.save(wav_filename, audio_data, 32000)
-            print(f"Audio saved: {wav_filename}")
+            torchaudio.save(wav_path, audio_data, 32000)
+            print(f"Audio saved: {wav_path}")
 
-            # Convert to MIDI
-            midiFile, note_count = ConvertWavToMidi(wav_filename, save_dir)
-
-            # original_midi = wav_filename.replace(".wav", "_basic_pitch.mid")
-            # renamed_midi = wav_filename.replace(".wav", ".mid")
-            # if os.path.exists(original_midi):
-            #     os.rename(original_midi, renamed_midi)
-            # midi_filename = renamed_midi
-
-            # print("Looking for MIDI file:", midi_filename)
-            # print("File exists?", os.path.exists(midi_filename))
-
-            # Analyze MIDI
-            json_notes, json_tempo_bpm, json_total_time = analyze_with_pretty_midi(midiFile)
-            base_name = os.path.splitext(os.path.basename(midiFile))[0]
-            data = {
-                'tempo_bpm': json_tempo_bpm,
-                'total_time': json_total_time,
-                'notes': [serialize_note(n) for n in json_notes],
-            }
-
-            # Save JSON
+            # Unified Pipeline: MIDI conversion + Analysis + JSON creation
+            result_data = wav_to_json_data(wav_path, save_dir)
+            
+            # Save final JSON for frontend (output_dir is defined globally)
+            base_name = os.path.splitext(os.path.basename(wav_path))[0]
             output_json_path = os.path.join(output_dir, base_name + '.json')
+            
             with open(output_json_path, 'w') as f:
-                json.dump(data, f, indent=4)
+                json.dump(result_data, f, indent=4)
             print(f"JSON saved: {output_json_path}")
 
-            return data
+            return result_data
 
         except Exception as e:
             err_msg = traceback.format_exc()
             print("Error occurred:\n", err_msg)
             return {"error": str(e), "traceback": err_msg}
+        finally:
+            is_generating = False
 
-    # Run heavy job in background thread
-    result = await asyncio.to_thread(generate_and_save)
+    # Acquire lock and run generation
+    async with generation_lock:
+        result = await asyncio.to_thread(generate_and_save)
+    
+    if "error" in result:
+        return JSONResponse(content=result, status_code=500)
+    
+    return JSONResponse(content=result)
+
+@app.get("/test-generate")
+async def test_generate(filename: str):
+    """
+    Test endpoint that skips slow AI generation and uses an existing WAV file.
+    """
+    print(f"test_generate called with existing file: {filename}")
+    
+    def process_existing_wav():
+        try:
+            wav_filename = os.path.join(save_dir, f"{filename}.wav")
+            if not os.path.exists(wav_filename):
+                return {"error": f"WAV file not found: {wav_filename}"}
+
+            print(f"Using existing audio: {wav_filename}")
+
+            # Unified Pipeline: MIDI conversion + Analysis + JSON creation
+            result_data = wav_to_json_data(wav_filename, save_dir)
+            
+            # Save final JSON for frontend
+            base_name = os.path.splitext(os.path.basename(wav_filename))[0]
+            output_json_path = os.path.join(output_dir, base_name + '.json')
+            
+            with open(output_json_path, 'w') as f:
+                json.dump(result_data, f, indent=4)
+            print(f"JSON saved: {output_json_path}")
+
+            return result_data
+
+        except Exception as e:
+            err_msg = traceback.format_exc()
+            return {"error": str(e), "traceback": err_msg}
+
+    result = await asyncio.to_thread(process_existing_wav)
+    if "error" in result:
+        return JSONResponse(content=result, status_code=404)
     return JSONResponse(content=result)
 
 @app.get("/result")
@@ -350,4 +334,3 @@ def get_latest_analysis():
             return json.load(f)
     except FileNotFoundError:
         raise HTTPException(status_code=404, detail="Analysis result not found")
-    

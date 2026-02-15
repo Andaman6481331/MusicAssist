@@ -14,11 +14,11 @@ const ThemeToggle: React.FC = () => {
   return (
     <div className="theme-toggle-container">
       <button
-        className="theme-toggle-btn"
+        className="user-item"
         onClick={() => setShowPopup(!showPopup)}
         title="Change color theme"
       >
-        🎨
+        Appearance
       </button>
 
       {showPopup && (
@@ -44,11 +44,11 @@ const ThemeToggle: React.FC = () => {
                   <div className="theme-color-preview">
                     <div
                       className="color-box primary"
-                      style={{ backgroundColor: theme.primary }}
+                      style={{ backgroundColor: theme.bgPrimary }}
                     />
                     <div
                       className="color-box accent"
-                      style={{ backgroundColor: theme.accent }}
+                      style={{ backgroundColor: theme.accentPrimary }}
                     />
                   </div>
                   <div className="theme-name">{theme.name}</div>

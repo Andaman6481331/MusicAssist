@@ -1,29 +1,10 @@
-import {useContext, useState} from "react";
-import * as Tone from "tone";
-import { SamplerContext } from "../App";
+import {useRef, useState} from "react";
 import {useNavigate } from "react-router-dom";
 
 import ProgressLine from "./subComponent/ProgressLine";
-import CircleOfFifths from "../component/CircleofFifth";
-import ChordPiano from "../component/ChordPiano";
 import ScaleDisplay from "./subComponent/ScaleDisplay";
 import ProgressionDisplay from "./subComponent/ProgressionDisplay";
 import ChordDisplay from "./subComponent/ChordDisplay";
-
-const majorScale: Record<string, string[]> = {
-  C:   ["C4", "D4", "E4", "F4", "G4", "A4", "B4", "C5"],
-  "C#": ["C#4", "D#4", "F4", "F#4", "G#4", "A#4", "C5", "C#5"],
-  D:   ["D4", "E4", "F#4", "G4", "A4", "B4", "C#5", "D5"],
-  "D#": ["D#4", "F4", "G4", "G#4", "A#4", "C5", "D5", "D#5"],
-  E:   ["E4", "F#4", "G#4", "A4", "B4", "C#5", "D#5", "E5"],
-  F:   ["F4", "G4", "A4", "A#4", "C5", "D5", "E5", "F5"],
-  "F#": ["F#4", "G#4", "A#4", "B4", "C#5", "D#5", "F5", "F#5"],
-  G:   ["G4", "A4", "B4", "C5", "D5", "E5", "F#5", "G5"],
-  "G#": ["G#4", "A#4", "C5", "C#5", "D#5", "F5", "G5", "G#5"],
-  A:   ["A4", "B4", "C#5", "D5", "E5", "F#5", "G#5", "A5"],
-  "A#": ["A#4", "C5", "D5", "D#5", "F5", "G5", "A5", "A#5"],
-  B:   ["B4", "C#5", "D#5", "E5", "F#5", "G#5", "A#5", "B5"]
-};
 
 // Example 1: Major Scale Definition
 const majorScaleDefinition = {
@@ -94,118 +75,46 @@ const majorTriadDefinition = {
   callToAction: "💡Try clicking the note on the key circle and play chords!!"
 };
 
-// Example 3: Diminished Chords Definition
-const diminishedChordDefinition = {
-  title: "Diminished Triads",
-  description: [
-    "A chord made of three notes with two minor thirds stacked.",
-    "Creates tension and an unstable, mysterious sound.",
-    "Often used as a passing chord or for dramatic effect."
-  ],
-  structure: [
-    {
-      label: "Root",
-      description: ""
-    },
-    {
-      label: "Minor third",
-      description: "(3 notes above root)"
-    },
-    {
-      label: "Diminished fifth",
-      description: "(6 notes above root)"
-    }
-  ],
-  example: "Example: B–D–F (B diminished).",
-  callToAction: "🌀 Feel the tension in these chords!"
-};
-
-// Example 4: Augmented Chords Definition
-const augmentedChordDefinition = {
-  title: "Augmented Triads",
-  description: [
-    "A chord made of three notes with two major thirds stacked.",
-    "Creates a bright, tense, and unresolved sound.",
-    "Often used to create suspense or transition between chords."
-  ],
-  structure: [
-    {
-      label: "Root",
-      description: ""
-    },
-    {
-      label: "Major third",
-      description: "(4 notes above root)"
-    },
-    {
-      label: "Augmented fifth",
-      description: "(8 notes above root)"
-    }
-  ],
-  example: "Example: C–E–G# (C augmented).",
-  callToAction: "✨ Discover the dreamy quality!"
-};
-
-
 const CoreBasic: React.FC = () => {
   const [activeTab, setActiveTab] = useState("Triads");
-  const [selectedChord, setSelectedChord] = useState<string>("");
-  const [selectedScale, setSelectedScale] = useState<string>("C");
-  const [playingKey, setPlayingKey] = useState<string>("");
   const [guidePopup, setGuidePopUp]= useState(false);
 
   const [navCheckPopUp, setNavCheckPopUp] = useState(false);
   const navigate = useNavigate();
 
-  const sampler = useContext(SamplerContext);
-
-  const handleClick = async (key: string) => {
-      await Tone.start();
-      const scaleKeys = majorScale[key];
-      if (!sampler) {
-        console.error("Sampler not loaded");
-        return;
-      }
-  
-      setSelectedScale(key);
-      
-      for (let i = 0; i < scaleKeys.length; i++) {
-        const note = scaleKeys[i];
-        if (sampler?.samplerRef.current) {
-          sampler.samplerRef.current.triggerAttackRelease(note, "1n");
-        }
-        setPlayingKey(note);
-        await new Promise((resolve) => setTimeout(resolve, 250)); // wait 250ms before next note
-      }
-      for (let i = scaleKeys.length-2; i >= 0; i--) {
-        const note = scaleKeys[i];
-        if (sampler?.samplerRef.current) {
-          sampler.samplerRef.current.triggerAttackRelease(note, "1n");
-        }
-        setPlayingKey(note);
-        await new Promise((resolve) => setTimeout(resolve, 250)); // wait 250ms before next note
-      }
-    };
+  const contentRef = useRef<HTMLDivElement>(null);
+  const scrollToSection = (ref: React.RefObject<HTMLDivElement>) => {
+    ref.current?.scrollIntoView({ behavior: "smooth" });
+  };
 
   return(
     <div className="teaching-page-container">
-      <div style={{display:"flex", width:"100%", justifyContent:"space-between", marginBottom:"1rem"}}>
-        <div style={{display:"flex", alignItems: "center"}}>
-          <div className="card-title" style={{alignContent:"center", backgroundColor:"rgba(243, 243, 243, 0.0625)", margin:"1rem 0"}}>
-            Level 1 - Core Basics 
-          </div>
-          <div onClick={() => setGuidePopUp(true)}>
-            <img src="/icon/info.svg" alt="Info" style={{ width: '1.5rem', height: '1.5rem', cursor: 'pointer', margin: '0.5rem 0 0 0.5rem'}} />
+      <div style={{ display:'flex', width:"100%", justifyContent:"space-between", alignItems: 'flex-start', marginBottom:"2rem", gap:'2rem' }}>
+        <div style={{ display:'flex', flexDirection: 'column', gap:'0.2rem' }}>
+          <span className="topic-tag" style={{ background:'rgba(59, 130, 246, 0.1)', color:'var(--accent-primary)', padding:'4px 12px', fontSize:'0.8rem', width:'fit-content' }}>
+            Level 1
+          </span>
+          <div style={{ display:'flex', alignItems: 'center', gap:'1rem' }}>
+            <h1 className="modern-title" style={{ textAlign: 'left', margin: 0, fontSize:'4rem', color: 'var(--text-main)' }}>Core Basics</h1>
+            <button 
+              onClick={() => setGuidePopUp(true)}
+              style={{ background:'rgba(255,255,255,0.05)', border:'1px solid rgba(255,255,255,0.1)', borderRadius:'50%', width:'32px', height:'32px', display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer' }}
+              >
+              <img src="/icon/info.svg" alt="Info" style={{ width: '1rem', height: '1rem', filter: 'brightness(0) invert(1)' }} />
+            </button>
           </div>
         </div>
-        <ProgressLine
-          firstLevel="Major triads"
-          secondLevel="Major scales"
-          thirdLevel="I-IV-V basics"
+        
+        <div className="glass-card" style={{ padding:'0.5rem 1.5rem', width:'auto', maxWidth:'none', margin:0, borderRadius:'16px', background: 'var(--card-bg)', border: '1px solid var(--card-border)' }}>
+          <ProgressLine
+            firstLevel="Major triads"
+            secondLevel="Major scales"
+            thirdLevel="I-IV-V basics"
           />
+        </div>
       </div>
 
-      <div className="nav-elim-bottom2">
+      <div className="nav-elim-bottom2" ref={contentRef}>
             <label className="nbtn" htmlFor="t">
               <input type="radio" id="t" name="nav" onChange={() => setActiveTab("Triads")} checked={activeTab === "Triads"}/>
               <span>Triads</span>
@@ -225,10 +134,17 @@ const CoreBasic: React.FC = () => {
             <ChordDisplay 
               chordType="major"
               chordDefinition={majorTriadDefinition}
+              themeKey="oceanBlue"
             />
             <div className="line"/>
             <div style={{ display:"flex",textAlign: "center" , justifyContent: "flex-end"}}>
-              <button onClick={() => {setActiveTab("Scales")}} className="playbtn" style={{width:"10rem", borderRadius:"5rem"}}>Next {">"}</button>
+              <button 
+                onClick={() => {setActiveTab("Scales"); scrollToSection(contentRef)}} 
+                className="playbtn" 
+                style={{width:"10rem", borderRadius:"5rem", background: 'linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%)', color: 'white', border: 'none'}}
+              >
+                Next {">"}
+              </button>
             </div>
           </div>}
 
@@ -237,11 +153,18 @@ const CoreBasic: React.FC = () => {
             <ScaleDisplay 
               scaleType="major"
               scaleDefinition={majorScaleDefinition}
+              themeKey="oceanBlue"
             />
             <div className="line"/>
             <div style={{ display:"flex",textAlign: "center" , justifyContent: "space-between"}}>
-              <button onClick={() => {setActiveTab("Triads")}} className="playbtn" style={{width:"10rem", borderRadius:"5rem"}}>{"<"} Back</button>
-              <button onClick={() => {setActiveTab("Progressions")}} className="playbtn" style={{width:"10rem", borderRadius:"5rem"}}>Next {">"}</button>
+              <button onClick={() => {setActiveTab("Triads"); scrollToSection(contentRef)}} className="playbtn" style={{width:"10rem", borderRadius:"5rem", background: 'rgba(255,255,255,0.1)', color: 'white', border: '1px solid rgba(255,255,255,0.2)'}}>{"<"} Back</button>
+              <button 
+                onClick={() => {setActiveTab("Progressions"); scrollToSection(contentRef)}} 
+                className="playbtn" 
+                style={{width:"10rem", borderRadius:"5rem", background: 'linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%)', color: 'white', border: 'none'}}
+              >
+                Next {">"}
+              </button>
             </div>
           </div>}
 
@@ -250,11 +173,18 @@ const CoreBasic: React.FC = () => {
             <ProgressionDisplay 
               progType="I-IV-V"
               progDefinition={IIVVDefinition}
+              themeKey="oceanBlue"
             />
             <div className="line"/>
             <div style={{ display:"flex",textAlign: "center" , justifyContent: "space-between"}}>
-              <button onClick={() => {setActiveTab("Scales")}} className="playbtn" style={{width:"10rem", borderRadius:"5rem"}}>{"<"} Back</button>
-              <button className="playbtn" style={{width:"10rem", borderRadius:"5rem"}} onClick={() => {setNavCheckPopUp(true)}}>Test {">"}</button>
+              <button onClick={() => {setActiveTab("Scales"); scrollToSection(contentRef)}} className="playbtn" style={{width:"10rem", borderRadius:"5rem", background: 'rgba(255,255,255,0.1)', color: 'white', border: '1px solid rgba(255,255,255,0.2)'}}>{"<"} Back</button>
+              <button 
+                className="playbtn" 
+                style={{width:"10rem", borderRadius:"5rem", background: 'linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%)', color: 'white', border: 'none'}} 
+                onClick={() => {setNavCheckPopUp(true)}}
+              >
+                Test {">"}
+              </button>
             </div>
           </div>}
 

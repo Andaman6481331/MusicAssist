@@ -12,9 +12,13 @@ type LoadingContextType = {
   loading: boolean;
   percent: number;
   message: string;
+  generatedFilename: string | null;
+  showCompletion: boolean;
   setLoading: (v: boolean) => void;
-  setPercent: React.Dispatch<React.SetStateAction<number>>; // allow function updater
+  setPercent: React.Dispatch<React.SetStateAction<number>>;
   setMessage: (v: string) => void;
+  setGeneratedFilename: (v: string | null) => void;
+  setShowCompletion: (v: boolean) => void;
 };
 
 
@@ -24,9 +28,14 @@ export const LoadingProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [loading, setLoading] = useState(false);
   const [percent, setPercent] = useState(0);
   const [message, setMessage] = useState("Analyzing the music...");
+  const [generatedFilename, setGeneratedFilename] = useState<string | null>(null);
+  const [showCompletion, setShowCompletion] = useState(false);
 
   return (
-    <LoadingContext.Provider value={{ loading, percent, message, setLoading, setPercent, setMessage }}>
+    <LoadingContext.Provider value={{ 
+      loading, percent, message, generatedFilename, showCompletion,
+      setLoading, setPercent, setMessage, setGeneratedFilename, setShowCompletion 
+    }}>
       {children}
     </LoadingContext.Provider>
   );

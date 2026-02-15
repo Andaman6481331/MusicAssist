@@ -271,30 +271,30 @@ const Progression: React.FC = () => {
                   return (
                     <div
                       key={note}
+                      className={`piano-keyboard-white ${isSelected ? 'active' : ''}`}
                       style={{
                         width: `${40}px`,
                         height: `${150}px`,
-                        backgroundColor: isSelected
-                          ? "rgb(32, 173, 255)"
-                          : "white",
-                        border: "1px solid black",
                         left: `${left}px`,
-                        margin: "0",
                         position: "absolute",
-                        boxSizing: "border-box",
                         borderRadius:
                           note === "C3"
                             ? "10px 0 0 10px"
                             : note === "B5"
                             ? "0 10px 10px 0"
                             : "0",
+                        zIndex: isSelected ? 5 : 0
                       }}
-                    ></div>
+                    >
+                      <div className="piano-key-text" style={{ bottom: '8px', fontSize: '12px' }}>
+                        {note}
+                      </div>
+                    </div>
                   );
                 })}
               </div>
               {/* Black keys */}
-              <div style={{ display: "flex", height: "90px", zIndex: 1 }}>
+              <div style={{ display: "flex", height: "90px", zIndex: 10 }}>
                 {allBlackKeys.map(({ note }) => {
                   const isSelected = activeNotes.some(
                     (n) => n.key === note && n.endTime > Tone.now()
@@ -309,18 +309,18 @@ const Progression: React.FC = () => {
                   return (
                     <div
                       key={note}
+                      className={`piano-keyboard-black ${isSelected ? 'active' : ''}`}
                       style={{
                         width: `${40 * 0.625}px`,
                         height: `${150 * 0.6}px`,
-                        backgroundColor: isSelected
-                          ? "rgba(22, 19, 169, 1)"
-                          : "rgb(7, 5, 106)",
                         left: `${left}px`,
-                        zIndex: 2,
                         position: "absolute",
-                        borderRadius: "0 0 5px 5px",
                       }}
-                    ></div>
+                    >
+                      <div className="piano-key-text" style={{ bottom: '6px', fontSize: '10px' }}>
+                        {note}
+                      </div>
+                    </div>
                   );
                 })}
               </div>

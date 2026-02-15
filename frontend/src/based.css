@@ -204,6 +204,7 @@
 .hero-dots {
   position: absolute;
   bottom: 2rem;
+  bottom: 2%;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
@@ -326,8 +327,8 @@
 
 /* Features Section */
 .features-section {
-  padding: 5rem 2rem;
-  /*background: linear-gradient(135deg, var(--gradient-2) 0%, var(--primary-color) 100%);*/
+  padding: 2rem;
+  width: 100%;
 }
 
 .section-header {
@@ -353,8 +354,8 @@
 .features-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 2rem;
-  max-width: 1400px;
+  gap: 1.5rem;
+  max-width: 90vw;
   margin: 0 auto;
 }
 
@@ -402,8 +403,7 @@
 
 /* Demo Section */
 .demo-section {
-  padding: 5rem 2rem;
-  /*background: linear-gradient(135deg, var(--gradient-1), var(--primary-color) 100%);*/
+  padding: 2rem 2rem 0 2rem;
 }
 
 .demo-container {
@@ -490,10 +490,10 @@
 .cta-section {
   padding: 5rem 2rem;
   text-align: center;
+  width: 100%;
 }
 
 .cta-content {
-  max-width: 800px;
   margin: 0 auto;
 }
 
@@ -512,7 +512,8 @@
 
 /* Team Section */
 .team-section {
-  padding: 5rem 2rem;
+  padding: 2rem;
+  width: 100%;
   background: linear-gradient(135deg, var(--gradient-2) 0%, var(--primary-color) 100%);
 }
 
@@ -1003,11 +1004,11 @@
   flex-direction: column;
   min-height: 100vh;
   padding: 2rem 5rem;
-  background: linear-gradient(var(--gradient-1), var(--gradient-2));
+  background: linear-gradient( 130deg, var(--bg-primary) 20%,var(--bg-secondary) 50%, var(--header-bg2) 90%);
 }
 
 .teach-page-header{
-  background: linear-gradient(var(--gradient-1), var(--gradient-2));
+  background: linear-gradient(120deg, var(--gradient-1) 0%, var(--accent-color) 40%, var(--primary-color) 70%, var(--gradient-2) 100%);
   padding: 1rem 3rem 0 3rem;
   border-radius: 3rem 3rem 0 0;
   text-align: center;
@@ -1082,13 +1083,15 @@
   margin: 0 3rem 1rem 3rem;
   border-radius: 0 0 1rem 1rem;
   border-top: 0;
+  background-color: rgb(from var(--accent-color) r g b / 30%);
+  /* background-color: linear-gradient(var(--accent-color),var(--primary-color)); */
 }
 .nav-elim-bottom{
   margin: 0 3rem;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   text-align: center;
-  background-color: rgba(0, 0, 0, 0.1);
+  background-color: var(--accent-color);
   border-radius: 2rem 2rem 0 0;
 }
 /* .nav-elim-bottom2{
@@ -2167,12 +2170,16 @@ li{
   width: 2.5rem;
   height: 2.5rem;
   margin: auto 0.5rem;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.08);
+  transition: var(--transition-fast);
   &:hover{
-    background-color: rgba(143, 170, 253, 0.311);
+    background-color: rgba(255, 255, 255, 0.311);
+    transform: scale(1.05);
   }
 }
 .notebtn.selected {
-  background: #007bff74; /* highlight color */
+  background: var(--accent-primary); /* highlight color */
   color: white;
   border-color: #007bff18;
   font-weight: bold;
@@ -2936,4 +2943,67 @@ li{
     height: 300px;
     opacity: 0;
   }
+}
+
+/* Shared Piano Keyboard Styles */
+.piano-keyboard-white {
+  background: linear-gradient(to bottom, #fff 0%, #eee 100%);
+  border: 1px solid #ccc;
+  border-radius: 0 0 5px 5px;
+  cursor: pointer;
+  box-sizing: border-box;
+  transition: all 0.1s ease;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  position: relative;
+}
+
+.piano-keyboard-white.active {
+  background: linear-gradient(to bottom, var(--accent-primary) 0%, var(--accent-secondary) 100%) !important;
+  transform: translateY(2px);
+  box-shadow: 0 0 15px var(--accent-primary);
+  border-color: var(--accent-primary);
+}
+
+.piano-keyboard-white.highlight {
+  background: var(--bg-secondary) !important;
+  border: 2px solid var(--accent-primary);
+}
+
+.piano-keyboard-black {
+  background: linear-gradient(180deg, #333 0%, #000 100%);
+  border: 1px solid #000;
+  border-radius: 0 0 4px 4px;
+  cursor: pointer;
+  z-index: 10;
+  transition: all 0.1s ease;
+  box-shadow: 2px 2px 5px rgba(0,0,0,0.5);
+  position: relative;
+}
+
+.piano-keyboard-black.active {
+  background: linear-gradient(180deg, var(--accent-secondary) 0%, var(--accent-primary) 100%) !important;
+  transform: translateY(2px);
+  box-shadow: 0 0 15px var(--accent-secondary);
+}
+
+.piano-keyboard-black.highlight {
+  background: var(--bg-secondary) !important;
+  border: 2px solid var(--accent-secondary);
+}
+
+.piano-key-text {
+  position: absolute;
+  bottom: 8px;
+  width: 100%;
+  text-align: center;
+  font-size: 10px;
+  color: #666;
+  font-weight: 600;
+  pointer-events: none;
+}
+
+.piano-keyboard-black .piano-key-text {
+  bottom: 6px;
+  color: #aaa;
+  font-size: 9px;
 }

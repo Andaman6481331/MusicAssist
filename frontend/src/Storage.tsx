@@ -3,11 +3,14 @@ import { Link } from 'react-router-dom';
 import { listGenerationRecords, setFavorite, deleteByIds, type GenerationRecord } from './data/generations';
 import { subscribeAuth } from './auth';
 
+const ITEMS_PER_PAGE = 5;
+
 const Storage: React.FC = () => {
   const [records, setRecords] = useState<GenerationRecord[]>([]);
   const [userId, setUserId] = useState<string | null>(null);
   const [selected, setSelected] = useState<Record<string, boolean>>({});
   const [loading, setLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     const unsub = subscribeAuth((user) => setUserId(user?.uid ?? null));
@@ -28,19 +31,34 @@ const Storage: React.FC = () => {
   // Sort records: favorites first, then by creation date (newest first)
   const sortedRecords = useMemo(() => {
     return [...records].sort((a, b) => {
-      // First, sort by favorite status (true first)
       if (a.favorite !== b.favorite) {
         return a.favorite ? -1 : 1;
       }
-      // If favorite status is the same, sort by creation date (newest first)
       const dateA = a.createdAt?.toDate ? a.createdAt.toDate().getTime() : 0;
       const dateB = b.createdAt?.toDate ? b.createdAt.toDate().getTime() : 0;
       return dateB - dateA;
     });
   }, [records]);
 
+  const totalPages = Math.ceil(sortedRecords.length / ITEMS_PER_PAGE);
+  const paginatedRecords = useMemo(() => {
+    const start = (currentPage - 1) * ITEMS_PER_PAGE;
+    return sortedRecords.slice(start, start + ITEMS_PER_PAGE);
+  }, [sortedRecords, currentPage]);
+
+  // Reset to first page if current page exceeds total pages after a deletion
+  useEffect(() => {
+    if (currentPage > totalPages && totalPages > 0) {
+      setCurrentPage(totalPages);
+    } else if (totalPages === 0) {
+      setCurrentPage(1);
+    }
+  }, [totalPages, currentPage]);
+
   const toggleSelectAll = (checked: boolean) => {
     const map: Record<string, boolean> = {};
+    // Option: Select only current page or select all. 
+    // Standard "Select All" usually selects all items across all pages.
     sortedRecords.forEach((r) => { map[r.id] = checked; });
     setSelected(map);
   };
@@ -52,7 +70,6 @@ const Storage: React.FC = () => {
     try {
       await setFavorite(userId, rec.id, next);
     } catch (e) {
-      // revert on error
       setRecords((prev) => prev.map((r) => r.id === rec.id ? { ...r, favorite: rec.favorite } : r));
     }
   };
@@ -65,7 +82,6 @@ const Storage: React.FC = () => {
     try {
       await deleteByIds(userId, selectedIds);
     } catch (e) {
-      // reload on error
       const fresh = await listGenerationRecords(userId);
       setRecords(fresh);
     }
@@ -83,62 +99,184 @@ const Storage: React.FC = () => {
   }, [isIndeterminate]);
 
   return (
-    <div className="page-container2" style={{ flexDirection: 'column' }}>
-      <div className="container" style={{padding: '1rem 2rem', maxWidth: 1000, width: '100%', alignSelf: 'center'}}>
-        <div className="toolbar">
-          <div className="toolbar-left">
-            <h1 className="card-title" style={{ margin: 0 }}>My Generations</h1>
+    <div className="modern-container" style={{ padding: '4rem 2rem' }}>
+      <div className="glass-card" style={{ maxWidth: '1200px', margin: '0 auto', minHeight: '80vh', display: 'flex', flexDirection: 'column' }}>
+        {/* Header & Toolbar */}
+        <div style={{ 
+            display: 'flex', justifyContent: 'space-between', alignItems: 'center', 
+            marginBottom: '0.5rem', borderBottom: '1px solid rgba(255,255,255,0.05)',
+            paddingBottom: '0.5rem'
+        }}>
+          <div>
+            <h1 className="modern-title" style={{ textAlign: 'left', margin: 0 }}>Music Vault</h1>
+            <p style={{ color: '#94a3b8', fontSize: '1.1rem', marginTop: '0.5rem' }}>Your personal library of AI compositions</p>
           </div>
-          <div className="toolbar-right">
-            <label className="checkbox">
+          
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+            <label style={{ 
+                display: 'flex', alignItems: 'center', gap: '0.75rem', 
+                color: '#94a3b8', fontSize: '0.9rem', cursor: 'pointer' 
+            }}>
               <input
                 ref={masterCheckboxRef}
                 type="checkbox"
                 checked={isAllChecked}
                 onChange={(e) => toggleSelectAll(e.target.checked)}
+                className="modern-checkbox"
               />
-              <span>Select all</span>
+              Select All
             </label>
-            <button className="btn danger" disabled={selectedIds.length === 0} onClick={bulkDelete}>
-              <img src="/icon/trash.svg" alt="delete" />
-              Delete
+            <button 
+                className="back-btn" 
+                disabled={selectedIds.length === 0} 
+                onClick={bulkDelete}
+                style={{ 
+                    padding: '0.75rem 1.25rem', fontSize: '0.9rem', 
+                    background: selectedIds.length > 0 ? 'rgba(239, 68, 68, 0.1)' : 'transparent',
+                    color: selectedIds.length > 0 ? '#ef4444' : '#64748b',
+                    borderColor: selectedIds.length > 0 ? 'rgba(239, 68, 68, 0.2)' : 'rgba(255,255,255,0.05)'
+                }}
+            >
+              🗑 Delete {selectedIds.length > 0 && `(${selectedIds.length})`}
             </button>
           </div>
         </div>
 
-        <div className="list">
-          {loading && <div className="list-empty">Loading...</div>}
-          {!loading && sortedRecords.length === 0 && (
-            <div className="list-empty">No items yet. Generate something from the Generate tab.</div>
+        {/* Content Area */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', flex: 1 }}>
+          {loading && (
+            <div style={{ textAlign: 'center', padding: '5rem 0' }}>
+              <div className="spinner" style={{ margin: '0 auto 1.5rem auto' }}></div>
+              <p style={{ color: '#94a3b8' }}>Retrieving your library...</p>
+            </div>
           )}
-          {sortedRecords.map((rec) => (
-            <div className="list-row" key={rec.id}>
-              <div className="cell checkbox">
-                <input
-                  type="checkbox"
-                  checked={!!selected[rec.id]}
-                  onChange={(e) => setSelected((m) => ({ ...m, [rec.id]: e.target.checked }))}
-                />
-              </div>
-              <button className="icon-btn" onClick={() => toggleFavorite(rec)} title={rec.favorite ? 'Unfavorite' : 'Favorite'} aria-label={rec.favorite ? 'Unfavorite' : 'Favorite'}>
-                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true">
+          
+          {!loading && sortedRecords.length === 0 && (
+            <div style={{ textAlign: 'center', padding: '8rem 0' }}>
+              <div style={{ fontSize: '4rem', marginBottom: '1.5rem', opacity: 0.3 }}>🎹</div>
+              <h3 style={{ color: '#f1f5f9', fontSize: '1.5rem', marginBottom: '1rem' }}>Vault is Empty</h3>
+              <p style={{ color: '#94a3b8', marginBottom: '2rem' }}>Generate your first masterpiece to see it here.</p>
+              <Link to="/generate-prompt" className="start-btn" style={{ textDecoration: 'none', display: 'inline-block' }}>Create Project</Link>
+            </div>
+          )}
+
+          {!loading && paginatedRecords.map((rec) => (
+            <div 
+              key={rec.id} 
+              className="glass-card" 
+              style={{ 
+                padding: '1.25rem 2rem', background: 'rgba(255,255,255,0.03)', 
+                border: selected[rec.id] ? '1px solid rgba(59, 130, 246, 0.3)' : '1px solid rgba(255,255,255,0.05)',
+                display: 'flex', alignItems: 'center', gap: '2rem',
+                transition: 'transform 0.2s ease, background 0.2s ease',
+                flexDirection: 'row',
+              }}
+            >
+              <input
+                type="checkbox"
+                checked={!!selected[rec.id]}
+                onChange={(e) => setSelected((m) => ({ ...m, [rec.id]: e.target.checked }))}
+                className="modern-checkbox"
+              />
+              
+              <button 
+                onClick={() => toggleFavorite(rec)} 
+                style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+              >
+                <svg width="24" height="24" viewBox="0 0 24 24">
                   <path
                     d="M12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21 12 17.27z"
-                    fill={rec.favorite ? '#ffd266' : 'transparent'}
-                    stroke="#ffd266"
+                    fill={rec.favorite ? '#fbbf24' : 'transparent'}
+                    stroke={rec.favorite ? '#fbbf24' : '#64748b'}
                     strokeWidth="1.5"
                   />
                 </svg>
               </button>
-              <div className="cell grow">
-                <Link to={`/output/${encodeURIComponent(rec.filename)}`} className="item-title">{rec.filename}</Link>
-                <div className="item-sub">{rec.difficulty || 'Beginner'}, {rec.genre || 'Pop'}, {rec.key || 'C'}</div>
+
+              <div style={{ flex: 1 }}>
+                <Link 
+                    to={`/output/${encodeURIComponent(rec.filename)}`} 
+                    style={{ color: '#f1f5f9', fontSize: '1.1rem', fontWeight: 600, textDecoration: 'none' }}
+                >
+                    {rec.filename}
+                </Link>
+                <div style={{ display: 'flex', gap: '1rem', marginTop: '0.4rem' }}>
+                    <span className="topic-tag" style={{ fontSize: '0.75rem', padding: '2px 8px' }}>{rec.genre || 'Piano'}</span>
+                    <span className="topic-tag" style={{ fontSize: '0.75rem', padding: '2px 8px', background: 'rgba(255,255,255,0.05)' }}>{rec.difficulty || 'All Levels'}</span>
+                </div>
               </div>
-              <div className="cell meta">{rec.durationSec || 0}s</div>
-              <div className="cell meta">{rec.createdAt?.toDate ? rec.createdAt.toDate().toLocaleDateString(undefined, { day: '2-digit', month: 'short' }) : ''}</div>
+
+              <div style={{ textAlign: 'right', display: 'flex', gap: '3rem', alignItems: 'center' }}>
+                <div style={{ color: '#94a3b8', fontSize: '0.9rem' }}>
+                    <div style={{ color: '#64748b', fontSize: '0.7rem', textTransform: 'uppercase', marginBottom: '2px' }}>Length</div>
+                    {rec.durationSec || 0}s
+                </div>
+                <div style={{ color: '#94a3b8', fontSize: '0.9rem' }}>
+                    <div style={{ color: '#64748b', fontSize: '0.7rem', textTransform: 'uppercase', marginBottom: '2px' }}>Created</div>
+                    {rec.createdAt?.toDate ? rec.createdAt.toDate().toLocaleDateString(undefined, { day: '2-digit', month: 'short' }) : '—'}
+                </div>
+                <Link to={`/output/${encodeURIComponent(rec.filename)}`} className="back-btn" style={{ padding: '0.5rem 1rem', fontSize: '0.85rem' }}>
+                    Open
+                </Link>
+              </div>
             </div>
           ))}
         </div>
+
+        {/* Pagination Footer */}
+        {!loading && sortedRecords.length > 0 && (
+          <div style={{ 
+              marginTop: '2rem', borderTop: '1px solid rgba(255,255,255,0.05)', 
+              paddingTop: '1.5rem', display: 'flex', justifyContent: 'space-between', 
+              alignItems: 'center' 
+          }}>
+            <div style={{ color: '#64748b', fontSize: '0.9rem' }}>
+              Showing {Math.min((currentPage - 1) * ITEMS_PER_PAGE + 1, sortedRecords.length)} to {Math.min(currentPage * ITEMS_PER_PAGE, sortedRecords.length)} of {sortedRecords.length} items
+            </div>
+            
+            <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <button 
+                className="back-btn" 
+                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                disabled={currentPage === 1}
+                style={{ padding: '0.5rem 1rem' }}
+              >
+                Previous
+              </button>
+              
+              <div style={{ display: 'flex', gap: '0.25rem', alignItems: 'center' }}>
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                  <button
+                    key={page}
+                    onClick={() => setCurrentPage(page)}
+                    style={{
+                      padding: '0.5rem 0.8rem',
+                      borderRadius: '8px',
+                      border: '1px solid rgba(255,255,255,0.1)',
+                      background: currentPage === page ? 'rgba(59, 130, 246, 0.1)' : 'transparent',
+                      color: currentPage === page ? '#3b82f6' : '#94a3b8',
+                      cursor: 'pointer',
+                      fontSize: '0.9rem',
+                      fontWeight: currentPage === page ? '700' : '400',
+                      transition: 'all 0.2s ease'
+                    }}
+                  >
+                    {page}
+                  </button>
+                ))}
+              </div>
+
+              <button 
+                className="back-btn" 
+                onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                disabled={currentPage === totalPages}
+                style={{ padding: '0.5rem 1rem' }}
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

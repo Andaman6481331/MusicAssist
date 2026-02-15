@@ -60,10 +60,10 @@ const ModeDisplay: React.FC<ModeDisplayProps> = ({
   const activeTheme = themeKey ? themes[themeKey] || globalTheme : globalTheme;
 
   const themeStyles = {
-    "--comp-bg-1": activeTheme.gradient1,
-    "--comp-bg-2": activeTheme.gradient2,
-    "--comp-accent-1": activeTheme.accent,
-    "--comp-accent-2": activeTheme.secondary,
+    "--comp-bg-1": activeTheme.headerBg1,
+    "--comp-bg-2": activeTheme.headerBg2,
+    "--comp-accent-1": activeTheme.accentPrimary,
+    "--comp-accent-2": activeTheme.accentSecondary,
   } as React.CSSProperties;
 
   useEffect(() => {

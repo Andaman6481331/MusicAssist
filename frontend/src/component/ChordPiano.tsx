@@ -122,26 +122,15 @@ const ChordPiano: React.FC<ChordVisualizerProps> = ({width = 40, height = 150, f
             return (
               <div
                 key={fullNote}
+                className={`piano-keyboard-white ${isSelected ? 'active' : ''}`}
                 style={{
                   width: `${width}px`,
                   height: `${height}px`,
-                  backgroundColor: isSelected ? "var(--secondary-color)" : "white",
-                  border: "1px solid black",
-                  position: "relative",
-                  boxSizing: "border-box",
-                  borderRadius: (fullNote==="C4")? "10px 0 0 10px": (fullNote==="B5")? "0 10px 10px 0": "0"
+                  borderRadius: (fullNote==="C4")? "10px 0 0 10px": (fullNote==="B5")? "0 10px 10px 0": "0",
+                  zIndex: isSelected ? 5 : 0 // Ensure active white key doesn't get hidden behind its neighbors
                 }}
               >
-                <div
-                  style={{
-                    position: "absolute",
-                    bottom: "5px",
-                    width: "100%",
-                    textAlign: "center",
-                    fontSize: "12px",
-                    color: "black",
-                  }}
-                >
+                <div className="piano-key-text">
                   {fullNote}
                 </div>
               </div>
@@ -150,7 +139,7 @@ const ChordPiano: React.FC<ChordVisualizerProps> = ({width = 40, height = 150, f
         </div>
 
         {/* Black Keys */}
-        <div style={{ display: "flex", position: "absolute", top: 0, left: `${width/2}px`, zIndex: 1 }}>
+        <div style={{ display: "flex", position: "absolute", top: 0, left: `${width/2}px`, zIndex: 10 }}>
           {whiteKeys.map((whiteKey, i) => {
             const blackKey = whiteKey + "#";
             if (!blackKeys.includes(blackKey)) return <div key={`gap-${i}`} style={{ width: `${width}px` }} />;
@@ -159,26 +148,15 @@ const ChordPiano: React.FC<ChordVisualizerProps> = ({width = 40, height = 150, f
             return (
               <div
                 key={fullNote}
+                className={`piano-keyboard-black ${isSelected ? 'active' : ''}`}
                 style={{
                   width: `${width*0.75}px`,
                   height: `${height*0.6}px`,
-                  backgroundColor: isSelected ? "var(--secondary-color)" : "var(--dark-color)",
                   marginLeft: `${width/8}px`,
                   marginRight: `${width/8}px`,
-                  position: "relative",
-                  borderRadius: "0 0 5px 5px"
                 }}
               >
-                <div
-                  style={{
-                    position: "absolute",
-                    bottom: "5px",
-                    width: "100%",
-                    textAlign: "center",
-                    fontSize: "10px",
-                    color: "white",
-                  }}
-                >
+                <div className="piano-key-text">
                   {fullNote}
                 </div>
               </div>

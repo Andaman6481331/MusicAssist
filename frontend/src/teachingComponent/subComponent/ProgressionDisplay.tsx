@@ -96,10 +96,10 @@ const ProgressionDisplay: React.FC<ProgressionDisplayProps> = ({
   const activeTheme = themeKey ? themes[themeKey] || globalTheme : globalTheme;
 
   const themeStyles = {
-    "--comp-bg-1": activeTheme.gradient1,
-    "--comp-bg-2": activeTheme.gradient2,
-    "--comp-accent-1": activeTheme.accent,
-    "--comp-accent-2": activeTheme.secondary,
+    "--comp-bg-1": activeTheme.headerBg1,
+    "--comp-bg-2": activeTheme.headerBg2,
+    "--comp-accent-1": activeTheme.accentPrimary,
+    "--comp-accent-2": activeTheme.accentSecondary,
   } as React.CSSProperties;
 
   const progression = [
@@ -235,7 +235,7 @@ const ProgressionDisplay: React.FC<ProgressionDisplayProps> = ({
       {/* Definition Section */}
       {progDefinition && (
         <div className="definition-box" style={{ background: "rgba(255, 255, 255, 0.1)", border: "1px solid rgba(255, 255, 255, 0.2)" }}>
-          <h3 className="definition-title" style={{ color: "var(--comp-accent-1)" }}>
+          <h3 className="definition-title" style={{ color: "var(--accent-secondary)" }}>
             <span style={{ fontSize: "1.75rem" }}>🎶</span>
             {progDefinition.title}
           </h3>
@@ -254,7 +254,7 @@ const ProgressionDisplay: React.FC<ProgressionDisplayProps> = ({
             <ul className="definition-sublist">
               {progDefinition.movement.map((move, idx) => (
                 <li key={idx}>
-                  <span style={{ fontWeight: "bold", color: "var(--comp-accent-1)" }}>
+                  <span style={{ fontWeight: "bold", color: "var(--accent-secondary)" }}>
                     {move.label}:
                   </span>{" "}
                   {move.description}
@@ -272,7 +272,7 @@ const ProgressionDisplay: React.FC<ProgressionDisplayProps> = ({
                 border: "1px solid rgba(255, 255, 255, 0.1)",
               }}
             >
-              <strong style={{ color: "var(--comp-accent-1)" }}>Example in C Major:</strong>
+              <strong style={{ color: "var(--accent-secondary)" }}>Example in C Major:</strong>
               <p
                 style={{
                   margin: "0.5rem 0 0 0",
@@ -331,7 +331,7 @@ const ProgressionDisplay: React.FC<ProgressionDisplayProps> = ({
             border: "none",
             background: isPlaying 
               ? "linear-gradient(135deg, #ccc 0%, #999 100%)" 
-              : "linear-gradient(135deg, var(--comp-accent-1) 0%, var(--comp-accent-2) 100%)",
+              : "var(--accent-primary)",
             color: "white",
             cursor: isPlaying ? "not-allowed" : "pointer",
             boxShadow: "0 4px 15px rgba(0, 0, 0, 0.2)",
@@ -366,7 +366,8 @@ const ProgressionDisplay: React.FC<ProgressionDisplayProps> = ({
             justifyContent: "center", 
             gap: "1rem", 
             marginTop: "1rem",
-            flexWrap: "wrap"
+            flexWrap: "wrap",
+            height: "5rem"
           }}>
             {currentProgression.sequence.map((chord, idx) => {
               const actualChordName = getChordName(selectedKey, chord);
@@ -377,7 +378,7 @@ const ProgressionDisplay: React.FC<ProgressionDisplayProps> = ({
                     padding: "1rem 1.5rem",
                     borderRadius: "12px",
                     background: currentChord === chord 
-                      ? "linear-gradient(135deg, var(--comp-accent-1) 0%, var(--comp-accent-2) 100%)"
+                      ? "var(--accent-primary)"
                       : "rgba(255, 255, 255, 0.1)",
                     border: currentChord === chord 
                       ? "3px solid white"
@@ -385,7 +386,7 @@ const ProgressionDisplay: React.FC<ProgressionDisplayProps> = ({
                     fontSize: "1.5rem",
                     fontWeight: "bold",
                     color: "white",
-                    minWidth: "100px",
+                    minWidth: "110px",
                     textAlign: "center",
                     transition: "all 0.3s ease",
                     transform: currentChord === chord ? "scale(1.1)" : "scale(1)",
@@ -420,7 +421,7 @@ const ProgressionDisplay: React.FC<ProgressionDisplayProps> = ({
         <label className="section-label">Live Visualization</label>
         <div
           className="visualization-box"
-          style={{ position: "relative", minHeight: "180px", overflow: "hidden" }}
+          style={{ position: "relative", minHeight: "250px", overflow: "hidden" }}
         >
           <PianoVisualizer 
             chordArrays={playingNotes} 

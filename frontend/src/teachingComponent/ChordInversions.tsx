@@ -1,4 +1,4 @@
-import {useContext, useState} from "react";
+import {useContext, useRef, useState} from "react";
 import * as Tone from "tone";
 import { SamplerContext } from "../App";
 import {useNavigate } from "react-router-dom";
@@ -123,26 +123,40 @@ const ChordInversions: React.FC = () => {
   const [guidePopup, setGuidePopUp]= useState(false);
   const [navCheckPopUp, setNavCheckPopUp] = useState(false);
   const navigate = useNavigate();
+
+  const contentRef = useRef<HTMLDivElement>(null);
+  const scrollToSection = (ref: React.RefObject<HTMLDivElement>) => {
+    ref.current?.scrollIntoView({ behavior: "smooth" });
+  };
   
   return(
     <div className="teaching-page-container">
-      <div style={{display:"flex", width:"100%", justifyContent:"space-between", marginBottom:"1rem"}}>
-        <div style={{display:"flex", alignItems: "center"}}>
-          <div className="card-title" style={{alignContent:"center", backgroundColor:"rgba(243, 243, 243, 0.0625)", margin:"1rem 0"}}>
-            Level 3 - Chord Inversions 
+      <div style={{ display:'flex', width:"100%", justifyContent:"space-between", alignItems: 'flex-start', marginBottom:"2rem", gap:'2rem' }}>
+        <div style={{ display:'flex', flexDirection: 'column', gap:'0.2rem' }}>
+          <div style={{ display:'flex', alignItems: 'center', gap:'1rem' }}>
+            <span className="topic-tag" style={{ background:'rgba(249, 115, 22, 0.1)', color:'var(--accent-primary)', padding:'4px 12px', fontSize:'0.8rem' }}>
+              Level 3
+            </span>
+            <button 
+              onClick={() => setGuidePopUp(true)}
+              style={{ background:'rgba(255,255,255,0.05)', border:'1px solid rgba(255,255,255,0.1)', borderRadius:'50%', width:'32px', height:'32px', display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer' }}
+            >
+              <img src="/icon/info.svg" alt="Info" style={{ width: '1rem', height: '1rem', filter: 'brightness(0) invert(1)' }} />
+            </button>
           </div>
-          <div onClick={() => setGuidePopUp(true)}>
-            <img src="/icon/info.svg" alt="Info" style={{ width: '1.5rem', height: '1.5rem', cursor: 'pointer', margin: '0.5rem 0 0 0.5rem'}} />
-          </div>
+          <h1 className="modern-title" style={{ textAlign: 'left', margin: 0, fontSize:'4rem', color: 'var(--text-main)' }}>Chord Inversions</h1>
         </div>
-        <ProgressLine
-          firstLevel="Inversions"
-          secondLevel="Intermidiate scales"
-          thirdLevel="I–vi–IV–V"
+        
+        <div className="glass-card" style={{ padding:'0.5rem 1.5rem', width:'auto', maxWidth:'none', margin:0, borderRadius:'16px', background: 'var(--card-bg)', border: '1px solid var(--card-border)' }}>
+          <ProgressLine
+            firstLevel="Inversions"
+            secondLevel="Intermediate scales"
+            thirdLevel="I–vi–IV–V"
           />
+        </div>
       </div>
 
-      <div className="nav-elim-bottom2">
+      <div className="nav-elim-bottom2" ref={contentRef}>
             <label className="nbtn" htmlFor="t">
               <input type="radio" id="t" name="nav" onChange={() => setActiveTab("Inversions")} checked={activeTab === "Inversions"}/>
               <span>Inversions</span>
@@ -161,9 +175,16 @@ const ChordInversions: React.FC = () => {
           <div className="card-container elimtop" style={{margin:0, padding:"2rem 5rem"}}>
             <InversionDisplay 
               inversionDefinition={advancedInversionDefinition}
+              themeKey="sunsetOrange"
             />
             <div style={{ display:"flex",textAlign: "center" , justifyContent: "right"}}>
-              <button onClick={() => {setActiveTab("Scales")}} className="playbtn" style={{width:"10rem", borderRadius:"5rem"}}>{">"} Next</button>
+              <button 
+                onClick={() => {setActiveTab("Scales"); scrollToSection(contentRef)}} 
+                className="playbtn" 
+                style={{width:"10rem", borderRadius:"5rem", background: 'linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%)', color: 'white', border: 'none'}}
+              >
+                {">"} Next
+              </button>
             </div>
           </div>}
 
@@ -172,15 +193,23 @@ const ChordInversions: React.FC = () => {
             <ScaleDisplay
               scaleType="harmonic minor"
               scaleDefinition={harmonicMinorScaleDefinition}
+              themeKey="sunsetOrange"
             />
             <ScaleDisplay
               scaleType="melodic minor"
               scaleDefinition={melodicMinorScaleDefinition}
+              themeKey="sunsetOrange"
             />
             <div className="line"/>
             <div style={{ display:"flex",textAlign: "center" , justifyContent: "space-between"}}>
-              <button onClick={() => {setActiveTab("Inversions")}} className="playbtn" style={{width:"10rem", borderRadius:"5rem"}}>{"<"} Back</button>
-              <button onClick={() => {setActiveTab("Progressions")}} className="playbtn" style={{width:"10rem", borderRadius:"5rem"}}>Next {">"}</button>
+              <button onClick={() => {setActiveTab("Inversions"); scrollToSection(contentRef)}} className="playbtn" style={{width:"10rem", borderRadius:"5rem", background: 'rgba(255,255,255,0.1)', color: 'white', border: '1px solid rgba(255,255,255,0.2)'}}>{"<"} Back</button>
+              <button 
+                onClick={() => {setActiveTab("Progressions"); scrollToSection(contentRef)}} 
+                className="playbtn" 
+                style={{width:"10rem", borderRadius:"5rem", background: 'linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%)', color: 'white', border: 'none'}}
+              >
+                Next {">"}
+              </button>
             </div>
           </div>}
 
@@ -190,12 +219,19 @@ const ChordInversions: React.FC = () => {
               <ProgressionDisplay
                 progType="I-vi-IV-V"
                 progDefinition={IviIVVDefinition}
+                themeKey="sunsetOrange"
               />
             </div>
             <div className="line"/>
             <div style={{ display:"flex",textAlign: "center" , justifyContent: "space-between"}}>
-              <button onClick={() => {setActiveTab("Scales")}} className="playbtn" style={{width:"10rem", borderRadius:"5rem"}}>{"<"} Back</button>
-              <button className="playbtn" style={{width:"10rem", borderRadius:"5rem"}} onClick={() => {setNavCheckPopUp(true)}}>Test {">"}</button>
+              <button onClick={() => {setActiveTab("Scales"); scrollToSection(contentRef)}} className="playbtn" style={{width:"10rem", borderRadius:"5rem", background: 'rgba(255,255,255,0.1)', color: 'white', border: '1px solid rgba(255,255,255,0.2)'}}>{"<"} Back</button>
+              <button 
+                className="playbtn" 
+                style={{width:"10rem", borderRadius:"5rem", background: 'linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%)', color: 'white', border: 'none'}} 
+                onClick={() => {setNavCheckPopUp(true)}}
+              >
+                Test {">"}
+              </button>
             </div>
           </div>}
         {guidePopup &&(

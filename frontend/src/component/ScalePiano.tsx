@@ -105,83 +105,49 @@ const ScalePiano: React.FC<PianoVisualizerProps> = ({scaleLength=3, height=150, 
           return (
             <div
               key={note}
+              className={`piano-keyboard-white ${isPlaying ? 'active' : isSelected ? 'highlight' : ''}`}
               style={{
                 width: `${width}px`,
                 height: `${height}px`,
-                backgroundColor:
-                    isPlaying? "var(--secondary-color)": 
-                    isSelected? "var(--gradient-2)" : "white",
-                border: "1px solid black",
                 left: `${left}px`,
-                margin: "0",
                 position: "absolute",
-                boxSizing: "border-box",
-                borderRadius: (note==="C4")? "10px 0 0 10px": (note==="B5")? "0 10px 10px 0": "0"
+                borderRadius: (note==="C4")? "10px 0 0 10px": (note==="B5")? "0 10px 10px 0": "0",
+                zIndex: isPlaying ? 10 : isSelected ? 5 : 0
               }}
             >
-              {/* <div
-                style={{
-                  position: "absolute",
-                  bottom: "5px",
-                  width: "100%",
-                  textAlign: "center",
-                  fontSize: "12px",
-                  color: "black",
-                  userSelect: "none"
-                }}
-              >
+              <div className="piano-key-text">
                 {note}
-              </div> */}
+              </div>
             </div>
           );
         })}
       </div>
 
       {/* Black keys */}
-      {/* <div style={{ position: "absolute", display: "flex", left: "0", top: "0", height: "90px", zIndex: 1 }}> */}
-      <div style={{display:"flex", height:"90px", zIndex: 1}}> 
+      <div style={{display:"flex", height:"90px", zIndex: 10}}> 
         {allBlackKeys.map(({ note }) => {
           const isSelected = highlightNotes?.includes(note);
           const scaleNotes = KeyOnScale[scale || ""] || [];
           const sameScale = arraysEqual(highlightNotes || [], scaleNotes);
           const isPlaying = sameScale && note === playingNote;
           
-          // Calculate left offset based on white keys
           const whiteKeyIndex = allWhiteKeys.findIndex(k => k.note === note.replace("#", ""));
-
-        //   const whiteKeyIndex = allWhiteKeys.findIndex(k => k.note.startsWith(note.charAt(0)) && k.octave === parseInt(note.slice(-1)));
-          const left = (whiteKeyIndex*width) + (width*0.6) - (width*(scaleLength*7)/2); // 420 = half pianoroll size = make absolute position centered , 28 = margin btw white and black key
+          const left = (whiteKeyIndex*width) + (width*0.6) - (width*(scaleLength*7)/2);
           return (
             <div
               key={note}
+              className={`piano-keyboard-black ${isPlaying ? 'active' : isSelected ? 'highlight' : ''}`}
               style={{
                 width: `${width*0.75}px`,
                 height: `${height*0.6}px`,
-                backgroundColor: isPlaying
-                ? "var(--secondary-color)"
-                : isSelected
-                ? "var(--gradient-2)"
-                : "var(--dark-color)",
                 left: `${left}px`,
-                zIndex: 2,
-                border: "2px solid black",
                 position: "absolute",
-                borderRadius: "0 0 5px 5px"
+                zIndex: isPlaying ? 15 : isSelected ? 12 : 11
               }}
             >
-              {/* <div
-                style={{
-                  position: "absolute",
-                  bottom: "5px",
-                  width: "100%",
-                  textAlign: "center",
-                  fontSize: "12px",
-                  color: "white",
-                  userSelect: "none"
-                }}
-              >
+              <div className="piano-key-text">
                 {note}
-              </div> */}
+              </div>
             </div>
           );
         })}

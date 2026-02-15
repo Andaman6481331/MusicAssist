@@ -1,110 +1,43 @@
-import {useState, useContext, useEffect,useRef} from "react";
-import { useParams } from "react-router-dom";
+import React from "react";
+import { useParams, Link } from "react-router-dom";
 import "./based.css";
 import PianoRollApp from "./component/PianoRollApp";
-import { SamplerContext } from "./App";
-import * as Tone from "tone";
 
 const OutputPage: React.FC = () => {
-    const {filename} = useParams();
-    // const [currentNotes, setCurrentNotes] = useState<{ name: string; duration: number }[]>([]);
-    const samplerRef = useRef<Tone.Sampler | null>(null);
-    // const samplerContext = useContext(SamplerContext);
-
-    const sampleUrls: Record<string, string> = {
-    "A0": "A0vH.mp3",
-    "A0vL": "A0vL.mp3",
-    "A1": "A1vH.mp3",
-    "A1vL": "A1vL.mp3",
-    "A2vL": "A2vL.mp3",
-    "A3": "A3vH.mp3",
-    "A5": "A5vH.mp3",
-    "A5vL": "A5vL.mp3",
-    "A6": "A6vH.mp3",
-    "A6vL": "A6vL.mp3",
-    "A7": "A7vH.mp3",
-    "A7vL": "A7vL.mp3",
-    "B0": "B0vH.mp3",
-    "B1": "B1vH.mp3",
-    "B2": "B2vH.mp3",
-    "B3": "B3vH.mp3",
-    "B4": "B4vH.mp3",
-    "B5": "B5vH.mp3",
-    "B6": "B6vH.mp3",
-    "B7": "B7vH.mp3",
-    "C1": "C1vH.mp3",
-    "C1vL": "C1vL.mp3",
-    "C2": "C2vH.mp3",
-    "C2vL": "C2vL.mp3",
-    "C3": "C3vH.mp3",
-    "C3vL": "C3vL.mp3",
-    "C4vL": "C4vL.mp3",
-    "C5": "C5vH.mp3",
-    "C5vL": "C5vL.mp3",
-    "C6": "C6vH.mp3",
-    "C6vL": "C6vL.mp3",
-    "C7": "C7vH.mp3",
-    "D#1vL": "Ds1vL.mp3",
-    "D#1vH": "Ds1vH.mp3",
-    "D#2vL": "Ds2vL.mp3",
-    "D#2vH": "Ds2vH.mp3",
-    "D#3vL": "Ds3vL.mp3",
-    "D#3vH": "Ds3vH.mp3",
-    "D#4vL": "Ds4vL.mp3",
-    "D#4vH": "Ds4vH.mp3",
-    "D#5vL": "Ds5vL.mp3",
-    "D#5vH": "Ds5vH.mp3",
-    "D#6vL": "Ds6vL.mp3",
-    "D#6vH": "Ds6vH.mp3",
-    "D#7vL": "Ds7vL.mp3",
-    "D#7vH": "Ds7vH.mp3",
-    "F#1vL": "Fs1vL.mp3",
-    "F#2vL": "Fs2vL.mp3",
-    "F#2vH": "Fs2vH.mp3",
-    "F#3": "Fs3vL.mp3",
-    "F#4": "Fs4vH.mp3",
-    "F#4vL": "Fs4vL.mp3",
-    "F#5": "Fs5vH.mp3",
-    "F#5vL": "Fs5vL.mp3",
-    "F#6": "Fs6vH.mp3",
-    "F#6vL": "Fs6vL.mp3",
-    "F#7": "Fs7vH.mp3",
-    "F#7vL": "Fs7vL.mp3"
-    };
-useEffect(() => {
-      // Load the sampler and check for errors
-      const limiter = new Tone.Limiter(-1).toDestination();
-      const gain = new Tone.Gain(0).connect(limiter); // Gain node before limiter
-      // gainRef.current = gain;
-
-      const s = new Tone.Sampler({
-        urls: sampleUrls,
-        onload: () => {
-          console.log("Sampler loaded");
-        },
-        onerror: (error) => {console.error("Error loading sampler:", error);},
-        baseUrl: "samples/",
-        release: 2,
-      }).connect(gain);
-
-      gain.gain.linearRampToValueAtTime(1, Tone.now() + 0.05); // 50ms fade-in
-      s.volume.value = -12  //lower volume to reduce noise
-
-      samplerRef.current = s
-    }, []);
-
-    return(
-        <div className="page-container">
-            <div className="card-container" style={{display:"flex", position:"absolute", left:"5vw"}}>
-                <div className="centered">
-                    <div style={{width:"100%", textAlign:"center"}}>
-                        <h1 className="card-title">{filename}</h1>
+    const { filename } = useParams();
+    
+    return (
+        <div className="modern-container">
+            <div className="glass-card" style={{gap:'0px'}}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                    <Link to="/data" className="back-btn">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M19 12H5M12 19l-7-7 7-7"/>
+                        </svg>
+                        Back to MyList
+                    </Link>
+                    <div style={{ textAlign: "center"}}>
+                        <h1 className="modern-title">{filename?.replace(/_/g, ' ')}</h1>
+                        <p style={{ color: 'var(--text-dim)', fontSize: '1.1rem' }}>Your AI-generated piano composition is ready to play.</p>
                     </div>
-                    <PianoRollApp
-                    // onNotePlayed={setCurrentNotes} 
-                    fileName={filename}
-                    width={20}
-                    height={80}
+                    <div style={{ padding: '4px 12px', background: 'rgba(59, 130, 246, 0.1)', borderRadius: '8px', color: 'var(--accent-primary)', fontSize: '0.8rem', fontWeight: 'bold', textTransform: 'uppercase' }}>
+                        Generated Track
+                    </div>
+                </div>
+
+
+                <div style={{ 
+                    background: 'rgba(0,0,0,0.2)', 
+                    borderRadius: '16px', 
+                    padding: '24px',
+                    border: '1px solid var(--card-border)',
+                    display: 'flex',
+                    justifyContent: 'center'
+                }}>
+                    <PianoRollApp 
+                        fileName={filename}
+                        width={20}
+                        height={80}
                     />
                 </div>
             </div>
@@ -112,4 +45,4 @@ useEffect(() => {
     );
 };
 
-export default  OutputPage
+export default OutputPage;

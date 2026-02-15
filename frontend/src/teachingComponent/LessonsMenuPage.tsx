@@ -101,84 +101,153 @@ const LessonMenuPage: React.FC = () =>{
     };
 
     return (
-        <div className="teaching-page-container">
-            <div>
-                <div className="nav-elim-bottom3">
-                    <h1 style={{fontSize:"3rem", margin:"0"}}>Lessons</h1>
-                    <div onClick={() => setGuidePopUp(true)}>
-                        <img src="/icon/info.svg" alt="Info" style={{ width: '1.5rem', height: '1.5rem', cursor: 'pointer', margin: '1.2rem 0 0 0.5rem'}} />
+        <div className="modern-container">
+            <div className="glass-card">
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+                    <h1 className="modern-title" style={{ margin: 0 }}>Music Academy</h1>
+                    <div 
+                        onClick={() => setGuidePopUp(true)}
+                        style={{ 
+                            background: 'rgba(255,255,255,0.05)', 
+                            padding: '10px', 
+                            borderRadius: '12px', 
+                            cursor: 'pointer',
+                            transition: 'all 0.2s ease',
+                            border: '1px solid rgba(255,255,255,0.1)'
+                        }}
+                        onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
+                        onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
+                    >
+                        <img src="/icon/info.svg" alt="Info" style={{ width: '1.5rem', height: '1.5rem', display: 'block' }} />
                     </div>
                 </div>
-                <div className="card-container elimtop" style={{margin:0, padding:"1rem 10rem"}}>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                     {levels.map(([title], index) => {
                         const isOpen = showDetails === index;
-                        // Lesson 1 (index 0) is always unlocked                      
                         const isUnlocked = index === 0 || index <= highestLevelPassed + 1;
 
                         return (
-                            <div key={title}>
-                            <div
-                                className="lesson-titles"
-                                onClick={() => {
-                                    if (!isUnlocked) return;
-                                    handleClick(index)}}
-                                style={!isUnlocked?{backgroundColor:"var(--primary-color)", color:"#ffffff40", cursor:"default"}:{backgroundColor:"var(--primary-color)", cursor:"pointer"}}
+                            <div 
+                                key={title} 
+                                className={`lesson-card ${isUnlocked ? "unlocked" : "locked"}`}
                             >
-                                {title}
-                            </div>
-
-                            <div className={`lesson-details ${isOpen ? "slide" : ""}`}>
-                                <div style={{ display: "flex" }}>
-                                <h3>Topics:</h3>
-                                <div className="label">{details[index][0]}</div>
-                                <div className="label">{details[index][1]}</div>
-                                <div className="label">{details[index][2]}</div>
+                                <div 
+                                    className="lesson-header"
+                                    onClick={() => isUnlocked && handleClick(index)}
+                                >
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                                        <div style={{ 
+                                            width: '32px', 
+                                            height: '32px', 
+                                            borderRadius: '8px', 
+                                            background: isUnlocked ? 'rgba(59, 130, 246, 0.2)' : 'rgba(255,255,255,0.05)',
+                                            color: isUnlocked ? '#60a5fa' : '#64748b',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            fontWeight: 'bold',
+                                            fontSize: '0.9rem'
+                                        }}>
+                                            {index + 1}
+                                        </div>
+                                        <span className="lesson-title-text">{title.split('|')[1]?.trim() || title}</span>
+                                    </div>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                                        {!isUnlocked && (
+                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                                                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                                            </svg>
+                                        )}
+                                        {isUnlocked && (
+                                            <svg 
+                                                width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                                                style={{ transform: isOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.3s ease' }}
+                                            >
+                                                <path d="M6 9l6 6 6-6"/>
+                                            </svg>
+                                        )}
+                                    </div>
                                 </div>
 
-                                <p>{details[index][3]}</p>
+                                <div style={{ 
+                                    maxHeight: isOpen ? '500px' : '0', 
+                                    overflow: 'hidden', 
+                                    transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+                                    background: 'rgba(255,255,255,0.02)'
+                                }}>
+                                    <div style={{ padding: '1.5rem', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+                                        <div style={{ display: "flex", flexWrap: 'wrap', gap: '8px', marginBottom: '1.5rem' }}>
+                                            <div className="topic-tag">{details[index][0]}</div>
+                                            <div className="topic-tag">{details[index][1]}</div>
+                                            <div className="topic-tag">{details[index][2]}</div>
+                                        </div>
 
-                            {/* Highest score box */}
-                            <div
-                                className="lesson-score-box"
-                                style={{
-                                    marginTop: "0.75rem",
-                                    padding: "0.4rem 0.8rem",
-                                    width: "fit-content",
-                                    backgroundColor: "rgba(255,255,255,0.12)",
-                                    borderRadius: "0.5rem",
-                                    fontSize: "0.85rem",
-                                    opacity: 0.9,
-                                }}
-                            >
-                                {lessonBestScores[index] !== undefined ? (
-                                    <span>
-                                        <strong>Highest score:</strong> {lessonBestScores[index]}%
-                                    </span>
-                                ) : (
-                                    <span style={{ opacity: 0.6 }}>
-                                        Not attempted
-                                    </span>
-                                )}
-                            </div>
+                                        <p style={{ color: '#94a3b8', lineHeight: '1.6', marginBottom: '1.5rem', fontSize: '0.95rem' }}>
+                                            {details[index][3]}
+                                        </p>
 
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                            <div style={{ 
+                                                padding: "8px 16px",
+                                                background: "rgba(255,255,255,0.05)",
+                                                borderRadius: "10px",
+                                                fontSize: "0.85rem",
+                                                color: '#e2e8f0',
+                                                border: '1px solid rgba(255,255,255,0.05)'
+                                            }}>
+                                                {lessonBestScores[index] !== undefined ? (
+                                                    <span><strong>Best:</strong> {lessonBestScores[index]}%</span>
+                                                ) : (
+                                                    <span style={{ opacity: 0.5 }}>Not attempted</span>
+                                                )}
+                                            </div>
 
-                                <button 
-                                    className="playbtn" 
-                                    style={{ width: "5rem", justifySelf:"flex-end", opacity: isUnlocked ? 1 : 0.5, cursor: isUnlocked ? "pointer" : "not-allowed" }} 
-                                    onClick={() => isUnlocked && goToCourse(index)}
-                                    disabled={!isUnlocked}
-                                >
-                                Start
-                                </button>
-                            </div>
+                                            <button 
+                                                className="start-btn" 
+                                                onClick={() => goToCourse(index)}
+                                                disabled={!isUnlocked}
+                                            >
+                                                Start Lesson
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         );
                     })}
                 </div>
             </div>
+
+            {/* Simple Modern Modal */}
+            {guidePopup && (
+                <div style={{
+                    position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+                    backgroundColor: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(8px)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000,
+                    padding: '20px'
+                }}>
+                    <div className="glass-card" style={{ maxWidth: '500px', position: 'relative' }}>
+                        <h2 className="modern-title" style={{ fontSize: '1.8rem' }}>How it Works</h2>
+                        <ul style={{ color: '#cbd5e1', lineHeight: '1.8', paddingLeft: '20px' }}>
+                            <li>Complete lessons to unlock the next level.</li>
+                            <li>Each lesson focuses on specific music theory concepts.</li>
+                            <li>Pass the quiz at the end of each lesson to progress.</li>
+                            <li>Your highest score will be tracked for each lesson.</li>
+                        </ul>
+                        <button 
+                            className="start-btn" 
+                            style={{ width: '100%', marginTop: '1rem' }}
+                            onClick={() => setGuidePopUp(false)}
+                        >
+                            Got it!
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
-
 };
 
 export default LessonMenuPage;

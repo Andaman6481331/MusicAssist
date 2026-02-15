@@ -34,10 +34,10 @@ const ScaleDisplay: React.FC<ScaleDisplayProps> = ({
   const activeTheme = themeKey ? themes[themeKey] || globalTheme : globalTheme;
 
   const themeStyles = {
-    "--comp-bg-1": activeTheme.gradient1,
-    "--comp-bg-2": activeTheme.gradient2,
-    "--comp-accent-1": activeTheme.accent,
-    "--comp-accent-2": activeTheme.secondary,
+    "--comp-bg-1": activeTheme.headerBg1,
+    "--comp-bg-2": activeTheme.headerBg2,
+    "--comp-accent-1": activeTheme.accentPrimary,
+    "--comp-accent-2": activeTheme.accentSecondary,
   } as React.CSSProperties;
 
   // Define scale keys based on type
@@ -260,7 +260,7 @@ const melodicMinorMap: Record<string, string[]> = {
             border: "1px solid rgba(255, 255, 255, 0.2)",
           }}
         >
-          <h3 className="definition-title" style={{ color: "var(--comp-accent-1)" }}>
+          <h3 className="definition-title" style={{ color: "var(--accent-secondary)"}}>
             <span style={{ fontSize: "1.75rem" }}>🎼</span>
             {scaleDefinition.title}
           </h3>
@@ -279,7 +279,7 @@ const melodicMinorMap: Record<string, string[]> = {
             <ul className="definition-sublist">
               {scaleDefinition.pattern.map((pattern, idx) => (
                 <li key={idx} style={{ marginBottom: "0.25rem" }}>
-                  <span style={{ fontWeight: "bold", color: "var(--comp-accent-1)" }}>
+                  <span style={{ fontWeight: "bold", color: "var(--accent-secondary)" }}>
                     {pattern.label}:
                   </span>{" "}
                   {pattern.description}
@@ -295,7 +295,7 @@ const melodicMinorMap: Record<string, string[]> = {
           )}
 
           {scaleDefinition.callToAction && (
-            <div className="call-to-action" style={{ color: "var(--comp-accent-2)" }}>
+            <div className="call-to-action" style={{ color: "var(--accent-secondary)" }}>
               {scaleDefinition.callToAction}
             </div>
           )}

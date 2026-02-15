@@ -109,77 +109,72 @@ const ToolsPage: React.FC = () => {
   };
 
   return (
-    <div className="tools-page">
-      {/* Page Header */}
-      <div className="tools-header">
-        <h1>Music Tools & Utilities</h1>
-        <p>Transform your music files and explore interactive visualizations</p>
+    <div className="modern-container" style={{ padding: '4rem 2rem' }}>
+      <div className="section-header" style={{ marginBottom: '4rem', textAlign: 'center' }}>
+        <h1 className="modern-title" style={{ fontSize: '3.5rem' }}>Music Workshop</h1>
+        <p style={{ color: '#94a3b8', fontSize: '1.2rem' }}>Advanced utilities for your musical workflow</p>
       </div>
 
-      {/* Main Content */}
-      <div className="tools-container">
+      <div className="grid-layout" style={{ maxWidth: '1200px', margin: '0 auto' }}>
         {/* Piano Visualizer Tool */}
-        <div className="tool-card">
-          <div className="tool-header">
-            <div className="tool-title-wrapper">
-              <h2>🎹 Piano Visualizer</h2>
-              <button
-                className="info-btn"
-                onClick={() => setGuidePopUp1(true)}
-                title="Learn more about Piano Visualizer"
-              >
-                ℹ️
-              </button>
-            </div>
+        <div className="glass-card" style={{ padding: '2.5rem', display: 'flex', flexDirection: 'column' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+            <h2 className="modern-title" style={{ fontSize: '1.8rem', textAlign: 'left', margin: 0 }}>🎹 Visualizer</h2>
+            <button
+              className="back-btn"
+              style={{ padding: '8px', borderRadius: '50%', width: '36px', height: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+              onClick={() => setGuidePopUp1(true)}
+            >
+              ℹ️
+            </button>
           </div>
 
-          <div className="tool-content">
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
             {uploadState === "idle" && (
-              <div className="upload-section">
-                <div className="upload-box">
-                  <div className="circle-wrapper">
-                    <img src="icon/music.svg" alt="music-icon" className="music-logo" />
-                  </div>
-                  <h3>Load Your Music File</h3>
-                  <p>Upload JSON, MIDI, or WAV files to visualize in the interactive piano roll</p>
-                  <button onClick={handleButtonClick} className="btn-upload">
-                    <span>📤</span>
-                    Upload File
-                  </button>
-                  <input
-                    type="file"
-                    accept=".json,.wav,.mid,.midi"
-                    ref={fileInputRef}
-                    onChange={handleFileChange}
-                    style={{ display: 'none' }}
-                  />
-                  <p className="file-support">Supported: .json, .wav, .mid, .midi</p>
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ 
+                    width: '80px', height: '80px', borderRadius: '20px', 
+                    background: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: '2.5rem', margin: '0 auto 1.5rem auto'
+                }}>
+                  🎼
                 </div>
+                <h3 style={{ fontSize: '1.25rem', color: '#f1f5f9', marginBottom: '0.5rem' }}>Load Performance</h3>
+                <p style={{ color: '#94a3b8', marginBottom: '2rem', fontSize: '0.95rem' }}>Visualize JSON, MIDI, or WAV files in real-time</p>
+                <button onClick={handleButtonClick} className="start-btn" style={{ width: '100%' }}>
+                  Upload File
+                </button>
+                <input
+                  type="file"
+                  accept=".json,.wav,.mid,.midi"
+                  ref={fileInputRef}
+                  onChange={handleFileChange}
+                  style={{ display: 'none' }}
+                />
               </div>
             )}
             {uploadState === "uploading" && (
-              <div className="uploading-state">
-                <div className="spinner" style={{marginTop: "50%"}}></div>
-                <p>Uploading...</p>
+              <div style={{ textAlign: 'center', padding: '3rem 0' }}>
+                <div className="spinner" style={{ margin: '0 auto 1.5rem auto' }}></div>
+                <p style={{ color: '#94a3b8' }}>Analyzing file structure...</p>
               </div>
             )}
             {uploadState === "done" && (
-              <div className="upload-box">
-                <h3>File Uploaded Successfully!</h3>
-                <p>"{selectedSong}" is ready to view.</p>
-                <div className="action-buttons" style={{ display: 'flex', gap: '10px', justifyContent: 'center', marginTop: '20px' }}>
-                  <button
-                    className="btn-upload"
-                    onClick={() => navigate(`/output/${selectedSong}`)}
-                  >
-                    Go to View
-                  </button>
-                  <button
-                    className="btn-exit"
-                    onClick={() => { setUploadState("idle"); setSelectedSong(""); }}
-                  >
-                    Cancel
-                  </button>
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ 
+                    width: '60px', height: '60px', borderRadius: '50%', 
+                    background: 'rgba(34, 197, 94, 0.1)', color: '#22c55e',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: '1.5rem', margin: '0 auto 1rem auto'
+                }}>
+                  ✓
+                </div>
+                <h3 style={{ fontSize: '1.25rem', color: '#f1f5f9', marginBottom: '0.5rem' }}>Analysis Complete</h3>
+                <p style={{ color: '#94a3b8', marginBottom: '2rem' }}>"{selectedSong}" is ready.</p>
+                <div style={{ display: 'flex', gap: '1rem' }}>
+                  <button className="start-btn" style={{ flex: 1 }} onClick={() => navigate(`/output/${selectedSong}`)}>View</button>
+                  <button className="back-btn" style={{ flex: 1 }} onClick={() => { setUploadState("idle"); setSelectedSong(""); }}>Clear</button>
                 </div>
               </div>
             )}
@@ -187,67 +182,64 @@ const ToolsPage: React.FC = () => {
         </div>
 
         {/* File Converter Tool */}
-        <div className="tool-card">
-          <div className="tool-header">
-            <div className="tool-title-wrapper">
-              <h2>🔄 File Converter</h2>
-              <button
-                className="info-btn"
-                onClick={() => setGuidePopUp2(true)}
-                title="Learn more about File Converter"
-              >
-                ℹ️
-              </button>
-            </div>
+        <div className="glass-card" style={{ padding: '2.5rem', display: 'flex', flexDirection: 'column' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+            <h2 className="modern-title" style={{ fontSize: '1.8rem', textAlign: 'left', margin: 0 }}>🔄 Converter</h2>
+            <button
+              className="back-btn"
+              style={{ padding: '8px', borderRadius: '50%', width: '36px', height: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+              onClick={() => setGuidePopUp2(true)}
+            >
+              ℹ️
+            </button>
           </div>
 
-          <div className="tool-content">
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
             {convertState === "idle" && (
-              <div className="upload-section">
-                <div className="upload-box">
-                  <div className="circle-wrapper">
-                    <img src="icon/music.svg" alt="music-icon" className="music-logo" />
-                  </div>
-                  <h3>Convert Music Files</h3>
-                  <p>Convert WAV or MIDI files to JSON format for the interactive viewer</p>
-                  <button onClick={handleConvertClick} className="btn-upload">
-                    <span>🔄</span>
-                    Convert File
-                  </button>
-                  <input
-                    type="file"
-                    accept=".wav,.mid,.midi"
-                    ref={convertInputRef}
-                    onChange={handleConvertFileChange}
-                    style={{ display: 'none' }}
-                  />
-                  <p className="file-support">Supported: .wav, .mid, .midi</p>
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ 
+                    width: '80px', height: '80px', borderRadius: '20px', 
+                    background: 'rgba(168, 85, 247, 0.1)', color: '#a855f7',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: '2.5rem', margin: '0 auto 1.5rem auto'
+                }}>
+                  📂
                 </div>
+                <h3 style={{ fontSize: '1.25rem', color: '#f1f5f9', marginBottom: '0.5rem' }}>Transform Audio</h3>
+                <p style={{ color: '#94a3b8', marginBottom: '2rem', fontSize: '0.95rem' }}>Convert MIDI/WAV to Harmonic JSON</p>
+                <button onClick={handleConvertClick} className="start-btn" style={{ width: '100%', background: 'linear-gradient(135deg, #a855f7 0%, #7e22ce 100%)', boxShadow: '0 4px 12px rgba(126, 34, 206, 0.3)' }}>
+                  Convert File
+                </button>
+                <input
+                  type="file"
+                  accept=".wav,.mid,.midi"
+                  ref={convertInputRef}
+                  onChange={handleConvertFileChange}
+                  style={{ display: 'none' }}
+                />
               </div>
             )}
             {convertState === "uploading" && (
-              <div className="uploading-state">
-                <div className="spinner" style={{marginTop: "50%"}}></div>
-                <p>Converting...</p>
+              <div style={{ textAlign: 'center', padding: '3rem 0' }}>
+                <div className="spinner" style={{ margin: '0 auto 1.5rem auto', borderTopColor: '#a855f7' }}></div>
+                <p style={{ color: '#94a3b8' }}>Processing audio frequencies...</p>
               </div>
             )}
             {convertState === "done" && (
-              <div className="upload-box">
-                <h3>Conversion Successful!</h3>
-                <p>"{convertFile?.name}" has been converted.</p>
-                <div className="action-buttons" style={{ display: 'flex', gap: '10px', justifyContent: 'center', marginTop: '20px' }}>
-                  <button
-                    className="btn-upload"
-                    onClick={() => navigate(`/output/${convertFile?.name.replace(/\.[^/.]+$/, "")}`)}
-                  >
-                    Go to Viewer
-                  </button>
-                  <button
-                    className="btn-exit"
-                    onClick={() => { setConvertState("idle"); setConvertFile(null); }}
-                  >
-                    Convert Another
-                  </button>
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ 
+                    width: '60px', height: '60px', borderRadius: '50%', 
+                    background: 'rgba(34, 197, 94, 0.1)', color: '#22c55e',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: '1.5rem', margin: '0 auto 1rem auto'
+                }}>
+                  ✓
+                </div>
+                <h3 style={{ fontSize: '1.25rem', color: '#f1f5f9', marginBottom: '0.5rem' }}>Success!</h3>
+                <p style={{ color: '#94a3b8', marginBottom: '2rem' }}>"{convertFile?.name}" transformed.</p>
+                <div style={{ display: 'flex', gap: '1rem' }}>
+                  <button className="start-btn" style={{ flex: 1 }} onClick={() => navigate(`/output/${convertFile?.name.replace(/\.[^/.]+$/, "")}`)}>Open</button>
+                  <button className="back-btn" style={{ flex: 1 }} onClick={() => { setConvertState("idle"); setConvertFile(null); }}>Again</button>
                 </div>
               </div>
             )}
@@ -255,68 +247,55 @@ const ToolsPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Popups */}
-      {guidePopup1 && (
-        <div className="popup-overlay">
-          <div className="popup-box">
-            <h2>Piano Visualizer Guide</h2>
-            <p>Upload your <strong>MIDI or Music file</strong> to view it in an <strong>interactive piano roll</strong>. You can play, pause, and practice directly with the visual notes once loaded.</p>
-            <div className="popup-buttons">
-              <button className="btn-primary" onClick={() => setGuidePopUp1(false)}>Got it!</button>
+      {/* Modern Popups */}
+      {(guidePopup1 || guidePopup2 || convertPopup || convertError) && (
+        <div style={{
+            position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+            backgroundColor: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(8px)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000,
+            padding: '20px'
+        }}>
+          {guidePopup1 && (
+            <div className="glass-card" style={{ maxWidth: '500px' }}>
+              <h2 className="modern-title" style={{ fontSize: '2rem', marginBottom: '1rem' }}>Visualizer Guide</h2>
+              <p style={{ color: '#94a3b8', lineHeight: '1.6', marginBottom: '2rem' }}>
+                Upload any <strong>MIDI or Music file</strong> to see a physical representation of the notes. This tool allows you to isolate melodies, study chord structures, and practice along with the visuals.
+              </p>
+              <button className="start-btn" style={{ width: '100%' }} onClick={() => setGuidePopUp1(false)}>Got it!</button>
             </div>
-          </div>
-        </div>
-      )}
-      {guidePopup2 && (
-        <div className="popup-overlay">
-          <div className="popup-box">
-            <h2>File Converter Guide</h2>
-            <p>Convert your <strong>.wav</strong> or <strong>.midi</strong> files into <strong>.json format</strong> that Harmonic can use. After conversion, you'll automatically move to the practice view to explore your music.</p>
-            <p className="tip-text">💡 Tip: Toggle between MIDI and WAV modes easily</p>
-            <div className="popup-buttons">
-              <button className="btn-primary" onClick={() => setGuidePopUp2(false)}>Got it!</button>
+          )}
+          {guidePopup2 && (
+            <div className="glass-card" style={{ maxWidth: '500px' }}>
+              <h2 className="modern-title" style={{ fontSize: '2rem' }}>Converter Guide</h2>
+              <p style={{ color: '#94a3b8', lineHeight: '1.6', marginBottom: '2rem' }}>
+                Harmonic uses a specialized JSON format for high-precision visualization. Use this tool to convert standard <strong>.wav</strong> or <strong>.midi</strong> recordings into our optimized format.
+              </p>
+              <button className="start-btn" style={{ width: '100%' }} onClick={() => setGuidePopUp2(false)}>Understood</button>
             </div>
-          </div>
-        </div>
-      )}
-
-      {/* Duplicate File Warning Popup */}
-      {convertPopup && (
-        <div className="popup-overlay">
-          <div className="popup-box">
-            <h3 style={{ color: "black" }}>{convertFile?.name} already exists!</h3>
-            <p style={{ color: "black" }}>What would you like to do?</p>
-            <div className="popup-buttons">
-              <button
-                className="btn-primary"
-                onClick={() => { if (convertFile) uploadFile(convertFile, "add_anyway"); }}
-              >
-                Add Anyway
-              </button>
-              <button
-                className="btn-exit"
-                onClick={() => { setConvertPopup(false); setConvertState("idle"); }}
-              >
-                Cancel
-              </button>
+          )}
+          {convertPopup && (
+            <div className="glass-card" style={{ maxWidth: '500px', textAlign: 'center' }}>
+              <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>⚠</div>
+              <h2 className="modern-title" style={{ fontSize: '1.8rem', color: '#fbbf24' }}>File Conflict</h2>
+              <p style={{ color: '#94a3b8', marginBottom: '2rem' }}>A file named "<strong style={{ color: '#fff' }}>{convertFile?.name}</strong>" already exists in our database. How should we proceed?</p>
+              <div style={{ display: 'flex', gap: '1rem' }}>
+                <button className="start-btn" style={{ flex: 1 }} onClick={() => { if (convertFile) uploadFile(convertFile, "add_anyway"); }}>Overwrite</button>
+                <button className="back-btn" style={{ flex: 1 }} onClick={() => { setConvertPopup(false); setConvertState("idle"); }}>Cancel</button>
+              </div>
             </div>
-          </div>
-        </div>
-      )}
-
-      {convertError && (
-        <div className="popup-overlay">
-          <div className="popup-box">
-            <h3 style={{ color: "red" }}>Error</h3>
-            <p>{convertError}</p>
-            <div className="popup-buttons">
-              <button className="btn-exit" onClick={() => setConvertError("")}>Close</button>
+          )}
+          {convertError && (
+            <div className="glass-card" style={{ maxWidth: '450px' }}>
+              <h2 className="modern-title" style={{ fontSize: '2rem', color: '#ef4444' }}>Engine Error</h2>
+              <p style={{ color: '#94a3b8', marginBottom: '2rem' }}>{convertError}</p>
+              <button className="start-btn" style={{ width: '100%', background: '#ef4444' }} onClick={() => setConvertError("")}>Close</button>
             </div>
-          </div>
+          )}
         </div>
       )}
     </div>
   );
 };
+
 
 export default ToolsPage;

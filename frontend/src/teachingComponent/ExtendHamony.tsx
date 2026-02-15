@@ -1,37 +1,5 @@
-const MajorHarmonizationTriads: Record<string,string[]> = {
-  "C":  ["C", "Dm", "Em", "F", "G", "Am", "Bdim"],
-  "C#": ["C#", "D#m", "Fm", "F#", "G#", "A#m", "Cdim"],
-  "D":  ["D", "Em", "F#m", "G", "A", "Bm", "C#dim"],
-  "Eb": ["Eb", "Fm", "Gm", "Ab", "Bb", "Cm", "Ddim"],
-  "E":  ["E", "F#m", "G#m", "A", "B", "C#m", "D#dim"],
-  "F":  ["F", "Gm", "Am", "Bb", "C", "Dm", "Edim"],
-  "F#": ["F#", "G#m", "A#m", "B", "C#", "D#m", "E#dim"],
-  "G":  ["G", "Am", "Bm", "C", "D", "Em", "F#dim"],
-  "Ab": ["Ab", "Bbm", "Cm", "Db", "Eb", "Fm", "Gdim"],
-  "A":  ["A", "Bm", "C#m", "D", "E", "F#m", "G#dim"],
-  "Bb": ["Bb", "Cm", "Dm", "Eb", "F", "Gm", "Adim"],
-  "B":  ["B", "C#m", "D#m", "E", "F#", "G#m", "A#dim"],
-};
-
-const NaturalMinorHarmonizationTriads: Record<string, string[]> = {
-  "A":  ["Am", "Bdim", "C", "Dm", "Em", "F", "G"],
-  "Bb": ["Bbm", "Cdim", "Db", "Ebm", "Fm", "Gb", "Ab"],
-  "B":  ["Bm", "C#dim", "D", "Em", "F#m", "G", "A"],
-  "C":  ["Cm", "Ddim", "Eb", "Fm", "Gm", "Ab", "Bb"],
-  "C#": ["C#m", "D#dim", "E", "F#m", "G#m", "A", "B"],
-  "D":  ["Dm", "Edim", "F", "Gm", "Am", "Bb", "C"],
-  "Eb": ["Ebm", "Fdim", "Gb", "Abm", "Bbm", "Cb", "Db"],
-  "E":  ["Em", "F#dim", "G", "Am", "Bm", "C", "D"],
-  "F":  ["Fm", "Gdim", "Ab", "Bbm", "Cm", "Db", "Eb"],
-  "F#": ["F#m", "G#dim", "A", "Bm", "C#m", "D", "E"],
-  "G":  ["Gm", "Adim", "Bb", "Cm", "Dm", "Eb", "F"],
-  "Ab": ["Abm", "Bbdim", "Cb", "Dbm", "Ebm", "Fb", "Gb"],
-};
-
-import {useContext, useState} from "react";
-import * as Tone from "tone";
-import { SamplerContext } from "../App";
-import {Link, useNavigate } from "react-router-dom";
+import {useRef, useState} from "react";
+import {useNavigate } from "react-router-dom";
 
 import ProgressLine from "./subComponent/ProgressLine";
 import ProgressionDisplay from "./subComponent/ProgressionDisplay";
@@ -122,43 +90,46 @@ const advancedHarmonizingDefinition = {
   callToAction: "🎼 Master the art of emotional storytelling through harmony!"
 };
 
-// Simple beginner definition
-const simpleHarmonizingDefinition = {
-  title: "Understanding Harmony",
-  description: [
-    "Harmony is when chords play along with a melody.",
-    "The chords you choose change how the melody feels.",
-    "It's like choosing different colors to paint the same picture!"
-  ],
-  callToAction: "💡 Discover how chords change the mood of music!"
-};
-
 const ExtendHamony: React.FC = () => {
   const [activeTab, setActiveTab] = useState("Extension");
   const [guidePopup, setGuidePopUp]= useState(false);
 
   const [navCheckPopUp, setNavCheckPopUp] = useState(false);
   const navigate = useNavigate();
+
+  const contentRef = useRef<HTMLDivElement>(null);
+  const scrollToSection = (ref: React.RefObject<HTMLDivElement>) => {
+    ref.current?.scrollIntoView({ behavior: "smooth" });
+  };
   
   return(
     <div className="teaching-page-container">
-      <div style={{display:"flex", width:"100%", justifyContent:"space-between", marginBottom:"1rem"}}>
-        <div style={{display:"flex", alignItems: "center"}}>
-          <div className="card-title" style={{alignContent:"center", backgroundColor:"rgba(243, 243, 243, 0.0625)", margin:"1rem 0"}}>
-            Level 4 - Extend Harmony 
-          </div>
-          <div onClick={() => setGuidePopUp(true)}>
-            <img src="/icon/info.svg" alt="Info" style={{ width: '1.5rem', height: '1.5rem', cursor: 'pointer', margin: '0.5rem 0 0 0.5rem'}} />
+      <div style={{ display:'flex', width:"100%", justifyContent:"space-between", alignItems: 'flex-start', marginBottom:"2rem", gap:'2rem' }}>
+        <div style={{ display:'flex', flexDirection: 'column', gap:'0.2rem' }}>
+          <span className="topic-tag" style={{ background:'rgba(16, 185, 129, 0.1)', color:'var(--accent-primary)', padding:'4px 12px', fontSize:'0.8rem', width:'fit-content' }}>
+            Level 4
+          </span>
+          <div style={{ display:'flex', alignItems: 'center', gap:'1rem' }}>
+            <h1 className="modern-title" style={{ textAlign: 'left', margin: 0, fontSize:'4rem', color: 'var(--text-main)' }}>Extend Harmony</h1>
+            <button 
+              onClick={() => setGuidePopUp(true)}
+              style={{ background:'rgba(255,255,255,0.05)', border:'1px solid rgba(255,255,255,0.1)', borderRadius:'50%', width:'32px', height:'32px', display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer' }}
+              >
+              <img src="/icon/info.svg" alt="Info" style={{ width: '1rem', height: '1rem', filter: 'brightness(0) invert(1)' }} />
+            </button>
           </div>
         </div>
-        <ProgressLine
-          firstLevel="Extensions"
-          secondLevel="ii-IV-i progression"
-          thirdLevel="Harmonizing"
+        
+        <div className="glass-card" style={{ padding:'0.5rem 1.5rem', width:'auto', maxWidth:'none', margin:0, borderRadius:'16px', background: 'var(--card-bg)', border: '1px solid var(--card-border)' }}>
+          <ProgressLine
+            firstLevel="Extensions"
+            secondLevel="ii-V-I basics"
+            thirdLevel="Major/Minor Harmonizing"
           />
+        </div>
       </div>
 
-      <div className="nav-elim-bottom2">
+      <div className="nav-elim-bottom2" ref={contentRef}>
             <label className="nbtn" htmlFor="t">
               <input type="radio" id="t" name="nav" onChange={() => setActiveTab("Extension")} checked={activeTab === "Extension"}/>
               <span>Extension</span>
@@ -177,32 +148,56 @@ const ExtendHamony: React.FC = () => {
           <div className="card-container elimtop" style={{margin:0, padding:"2rem 5rem"}}>
             <ExtensionDisplay 
               extensionDefinition={advancedExtensionDefinition}
+              themeKey="emeraldGreen"
             />
+            <div style={{ display:"flex",textAlign: "center" , justifyContent: "right"}}>
+              <button 
+                onClick={() => {setActiveTab("Progressions"); scrollToSection(contentRef)}} 
+                className="playbtn" 
+                style={{width:"10rem", borderRadius:"5rem", background: 'linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%)', color: 'white', border: 'none'}}
+              >
+                Next{'>'}
+              </button>
+            </div>
           </div>}
+
           {activeTab === "Progressions" && 
           <div className="card-container elimtop" style={{margin:0, padding:"2rem 5rem"}}>
             <div>
               <ProgressionDisplay
                 progType="ii-V-I"
                 progDefinition={iiVIIDefinition}
+                themeKey="emeraldGreen"
               />
             </div>
             <div className="line"/>
             <div style={{ display:"flex",textAlign: "center" , justifyContent: "space-between"}}>
-              <button onClick={() => {setActiveTab("Extension")}} className="playbtn" style={{width:"10rem", borderRadius:"5rem"}}>Extension</button>
-              <button onClick={() => {setActiveTab("Scales")}} className="playbtn" style={{width:"10rem", borderRadius:"5rem"}}>Harmonizing</button>
+              <button onClick={() => {setActiveTab("Extension"); scrollToSection(contentRef)}} className="playbtn" style={{width:"10rem", borderRadius:"5rem", background: 'rgba(255,255,255,0.1)', color: 'white', border: '1px solid rgba(255,255,255,0.2)'}}>{'<'}Back</button>
+              <button 
+                onClick={() => {setActiveTab("Scales"); scrollToSection(contentRef)}} 
+                className="playbtn" 
+                style={{width:"10rem", borderRadius:"5rem", background: 'linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%)', color: 'white', border: 'none'}}
+              >
+                Next{'>'}
+              </button>
             </div>
           </div>}
+
           {activeTab === "Scales" && 
           <div className="card-container elimtop" style={{margin:0, padding:"2rem 5rem"}}>
             <HarmonizingDisplay 
               harmonizingDefinition={advancedHarmonizingDefinition}
+              themeKey="emeraldGreen"
             />
             <div className="line"/>
             <div style={{ display:"flex",textAlign: "center" , justifyContent: "space-between"}}>
-              <button onClick={() => {setActiveTab("Progressions")}} className="playbtn" style={{width:"10rem", borderRadius:"5rem"}}>Progressions</button>
-              <button className="playbtn" style={{width:"10rem", borderRadius:"5rem"}} onClick={() => {setNavCheckPopUp(true)}}>
-                Test
+              <button onClick={() => {setActiveTab("Progressions"); scrollToSection(contentRef)}} className="playbtn" style={{width:"10rem", borderRadius:"5rem", background: 'rgba(255,255,255,0.1)', color: 'white', border: '1px solid rgba(255,255,255,0.2)'}}>{'<'}Back</button>
+              <button 
+                className="playbtn" 
+                style={{width:"10rem", borderRadius:"5rem", background: 'linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%)', color: 'white', border: 'none'}} 
+                onClick={() => {setNavCheckPopUp(true)}}
+              >
+                Test{'>'}
               </button>  
             </div>
           </div>}

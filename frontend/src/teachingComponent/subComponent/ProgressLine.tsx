@@ -10,25 +10,24 @@ const ProgressLine: React.FC<progressLineProps> = ({
   thirdLevel = "last",
 }) => {
   return (
-    <div>
+    <div style={{ position: 'relative', width: '320px' }}>
       <style>
         {`
         .timeline-container {
           position: relative;
           display: flex;
           justify-content: space-between;
-          padding: 30px 32px 10px 32px;
+          padding: 1rem 0;
           color: white;
-          width: 25rem;
         }
 
         .timeline-line {
           position: absolute;
-          top: 45%;
-          left: 60px;
-          right: 60px;
-          height: 4px;
-          background: white;
+          top: 32px;
+          left: 10px;
+          right: 10px;
+          height: 2px;
+          background: rgba(255, 255, 255, 0.1);
           z-index: 0;
         }
 
@@ -36,33 +35,50 @@ const ProgressLine: React.FC<progressLineProps> = ({
           display: flex;
           flex-direction: column;
           align-items: center;
+          gap: 0.75rem;
           z-index: 1;
+          flex: 1;
         }
 
         .circle {
-          width: 35px;
-          height: 35px;
-          background: white;
-          color: #1e3a8a;
+          width: 32px;
+          height: 32px;
+          background: rgba(15, 23, 42, 0.8);
+          border: 2px solid rgba(255, 255, 255, 0.2);
+          color: #94a3b8;
           border-radius: 50%;
           display: flex;
           align-items: center;
           justify-content: center;
-          font-weight: bold;
-          font-size: 20px;
+          font-weight: 700;
+          font-size: 0.9rem;
+          transition: all 0.3s ease;
+        }
+
+        .timeline-item.active .circle {
+          background: #3b82f6;
+          border-color: #60a5fa;
+          color: white;
+          box-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
         }
 
         .timeline-item span {
-          margin-top: 8px;
-          font-size: 14px;
-          font-weight: bold;
+          font-size: 0.75rem;
+          font-weight: 600;
+          color: #64748b;
+          text-align: center;
+          line-height: 1.2;
+        }
+
+        .timeline-item.active span {
+          color: #f1f5f9;
         }
         `}
       </style>
       <div className="timeline-container">
         <div className="timeline-line" />
 
-        <div className="timeline-item">
+        <div className="timeline-item active">
           <div className="circle">1</div>
           <span>{firstLevel}</span>
         </div>

@@ -1,6 +1,4 @@
-import {useContext, useState} from "react";
-import * as Tone from "tone";
-import { SamplerContext } from "../App";
+import {useRef, useState} from "react";
 import {useNavigate } from "react-router-dom";
 
 import ProgressLine from "./subComponent/ProgressLine";
@@ -75,47 +73,47 @@ const iViDefinition = {
   example: "Example in A minor: Am (i) → E (V) → Am (i)."
 };
 
-const keys = ["Cm", "C#m", "Dm", "D#m", "Em", "Fm", "F#m", "Gm", "G#m", "Am", "A#m", "Bm"];
-const minorScale: Record<string, string[]> = {
-  "Cm":   ["C4", "D4", "D#4", "F4", "G4", "G#4", "A#4", "C5"],
-  "C#m":  ["C#4", "D#4", "E4", "F#4", "G#4", "A4", "B4", "C#5"],
-  "Dm":   ["D4", "E4", "F4", "G4", "A4", "A#4", "C5", "D5"],
-  "D#m":  ["D#4", "F4", "F#4", "G#4", "A#4", "B4", "C#5", "D#5"],
-  "Em":   ["E4", "F#4", "G4", "A4", "B4", "C5", "D5", "E5"],
-  "Fm":   ["F4", "G4", "G#4", "A#4", "C5", "C#5", "D#5", "F5"],
-  "F#m":  ["F#4", "G#4", "A4", "B4", "C#5", "D5", "E5", "F#5"],
-  "Gm":   ["G4", "A4", "A#4", "C5", "D5", "D#5", "F5", "G5"],
-  "G#m":  ["G#4", "A#4", "B4", "C#5", "D#5", "E5", "F#5", "G#5"],
-  "Am":   ["A4", "B4", "C5", "D5", "E5", "F5", "G5", "A5"],
-  "A#m":  ["A#4", "C5", "C#5", "D#5", "F5", "F#5", "G#5", "A#5"],
-  "Bm":   ["B4", "C#5", "D5", "E5", "F#5", "G5", "A5", "B5"]
-};
+
 
 const MinorEssentials: React.FC = () => {
   const [activeTab, setActiveTab] = useState("Triads");
   const [guidePopup, setGuidePopUp]= useState(false);
   const [navCheckPopUp, setNavCheckPopUp] = useState(false);
   const navigate = useNavigate();
+
+  const contentRef = useRef<HTMLDivElement>(null);
+  const scrollToSection = (ref: React.RefObject<HTMLDivElement>) => {
+    ref.current?.scrollIntoView({ behavior: "smooth" });
+  };
   
   return(
     <div className="teaching-page-container">
-      <div style={{display:"flex", width:"100%", justifyContent:"space-between", marginBottom:"1rem"}}>
-        <div style={{display:"flex", alignItems: "center"}}>
-          <div className="card-title" style={{alignContent:"center", backgroundColor:"rgba(243, 243, 243, 0.0625)", margin:"1rem 0"}}>
-            Level 2 - Minor Essentials 
-          </div>
-          <div onClick={() => setGuidePopUp(true)}>
-            <img src="/icon/info.svg" alt="Info" style={{ width: '1.5rem', height: '1.5rem', cursor: 'pointer', margin: '0.5rem 0 0 0.5rem'}} />
+      <div style={{ display:'flex', width:"100%", justifyContent:"space-between", alignItems: 'flex-start', marginBottom:"2rem", gap:'2rem' }}>
+        <div style={{ display:'flex', flexDirection: 'column', gap:'0.2rem' }}>
+          <span className="topic-tag" style={{ background:'rgba(139, 92, 246, 0.1)', color:'var(--accent-primary)', padding:'4px 12px', fontSize:'0.8rem', width:'fit-content' }}>
+            Level 2
+          </span>
+          <div style={{ display:'flex', alignItems: 'center', gap:'1rem' }}>
+            <h1 className="modern-title" style={{ textAlign: 'left', margin: 0, color: 'var(--text-main)' }}>Minor Essentials</h1>
+            <button 
+              onClick={() => setGuidePopUp(true)}
+              style={{ background:'rgba(255,255,255,0.05)', border:'1px solid rgba(255,255,255,0.1)', borderRadius:'50%', width:'32px', height:'32px', display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer' }}
+              >
+              <img src="/icon/info.svg" alt="Info" style={{ width: '1rem', height: '1rem', filter: 'brightness(0) invert(1)' }} />
+            </button>
           </div>
         </div>
-        <ProgressLine
-          firstLevel="Minor triads"
-          secondLevel="Natural Minor scales"
-          thirdLevel="i-V-i pattern"
+        
+        <div className="glass-card" style={{ padding:'0.5rem 1.5rem', width:'auto', maxWidth:'none', margin:0, borderRadius:'16px', background: 'var(--card-bg)', border: '1px solid var(--card-border)' }}>
+          <ProgressLine
+            firstLevel="Minor triads"
+            secondLevel="Minor scales"
+            thirdLevel="i-V-i pattern"
           />
+        </div>
       </div>
 
-      <div className="nav-elim-bottom2">
+      <div className="nav-elim-bottom2" ref={contentRef}>
             <label className="nbtn" htmlFor="t">
               <input type="radio" id="t" name="nav" onChange={() => setActiveTab("Triads")} checked={activeTab === "Triads"}/>
               <span>Triads</span>
@@ -135,10 +133,17 @@ const MinorEssentials: React.FC = () => {
             <ChordDisplay 
               chordType="minor"
               chordDefinition={minorTriadDefinition}
+              themeKey="cityNight"
             />
             <div className="line"/>
             <div style={{ display:"flex",textAlign: "center" , justifyContent: "flex-end"}}>
-              <button onClick={() => {setActiveTab("Scales")}} className="playbtn" style={{width:"10rem", borderRadius:"5rem"}}>Next {">"}</button>
+              <button 
+                onClick={() => {setActiveTab("Scales"); scrollToSection(contentRef)}} 
+                className="playbtn" 
+                style={{width:"10rem", borderRadius:"5rem", background: 'linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%)', color: 'white', border: 'none'}}
+              >
+                Next {">"}
+              </button>
             </div>
           </div>}
 
@@ -147,11 +152,18 @@ const MinorEssentials: React.FC = () => {
             <ScaleDisplay 
               scaleType="minor"
               scaleDefinition={minorScaleDefinition}
+              themeKey="cityNight"
             />
             <div className="line"/>
             <div style={{ display:"flex",textAlign: "center" , justifyContent: "space-between"}}>
-              <button onClick={() => {setActiveTab("Triads")}} className="playbtn" style={{width:"10rem", borderRadius:"5rem"}}>{"<"} Back</button>
-              <button onClick={() => {setActiveTab("Progressions")}} className="playbtn" style={{width:"10rem", borderRadius:"5rem"}}>Next {">"}</button>
+              <button onClick={() => {setActiveTab("Triads"); scrollToSection(contentRef)}} className="playbtn" style={{width:"10rem", borderRadius:"5rem", background: 'rgba(255,255,255,0.1)', color: 'white', border: '1px solid rgba(255,255,255,0.2)'}}>{"<"} Back</button>
+              <button 
+                onClick={() => {setActiveTab("Progressions"); scrollToSection(contentRef)}} 
+                className="playbtn" 
+                style={{width:"10rem", borderRadius:"5rem", background: 'linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%)', color: 'white', border: 'none'}}
+              >
+                Next {">"}
+              </button>
             </div>
           </div>}
 
@@ -160,11 +172,18 @@ const MinorEssentials: React.FC = () => {
             <ProgressionDisplay 
               progType="i-V-i"
               progDefinition={iViDefinition}
+              themeKey="cityNight"
             />
             <div className="line"/>
             <div style={{ display:"flex",textAlign: "center" , justifyContent: "space-between"}}>
-              <button onClick={() => {setActiveTab("Scales")}} className="playbtn" style={{width:"10rem", borderRadius:"5rem"}}>{'<'} Back</button>
-              <button className="playbtn" style={{width:"10rem", borderRadius:"5rem"}} onClick={() => {setNavCheckPopUp(true)}}>Test {'>'}</button>
+              <button onClick={() => {setActiveTab("Scales"); scrollToSection(contentRef)}} className="playbtn" style={{width:"10rem", borderRadius:"5rem", background: 'rgba(255,255,255,0.1)', color: 'white', border: '1px solid rgba(255,255,255,0.2)'}}>{'<'} Back</button>
+              <button 
+                className="playbtn" 
+                style={{width:"10rem", borderRadius:"5rem", background: 'linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%)', color: 'white', border: 'none'}} 
+                onClick={() => {setNavCheckPopUp(true)}}
+              >
+                Test {'>'}
+              </button>
             </div>
           </div>}
         {guidePopup &&(

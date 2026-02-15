@@ -1,45 +1,9 @@
-import {useContext, useState} from "react";
-import * as Tone from "tone";
-import { SamplerContext } from "../App";
-import {Link, useNavigate } from "react-router-dom";
+import {useRef, useState} from "react";
+import {useNavigate } from "react-router-dom";
 
 import ProgressLine from "./subComponent/ProgressLine";
-import CircleOfFifths from "../component/CircleofFifth";
-import ChordPiano from "../component/ChordPiano";
-import ScalePiano from "../component/ScalePiano";
-import ProgressionDisplay from "./subComponent/ProgressionDisplay";
 import ModeDisplay from "./subComponent/ModeDisplay";
 import ScaleDisplay from "./subComponent/ScaleDisplay";
-
-const keys = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
-const dorian: Record<string, string[]> = {
-  "C Dorian":  ["C4","D4","D#4","F4","G4","A4","A#4"],
-  "C# Dorian": ["C#4","D#4","E4","F#4","G#4","A#4","B4"],
-  "D Dorian":  ["D4","E4","F4","G4","A4","B4","C5"],
-  "Eb Dorian": ["D#4","F4","F#4","G#4","A#4","C5","C#5"],
-  "E Dorian":  ["E4","F#4","G4","A4","B4","C#5","D5"],
-  "F Dorian":  ["F4","G4","G#4","A#4","C5","D5","D#5"],
-  "F# Dorian": ["F#4","G#4","A4","B4","C#5","D#5","E5"],
-  "G Dorian":  ["G4","A4","A#4","C5","D5","E5","F5"],
-  "Ab Dorian": ["G#4","A#4","B4","C#5","D#5","F5","F#5"],
-  "A Dorian":  ["A4","B4","C5","D5","E5","F#5","G5"],
-  "Bb Dorian": ["A#4","C5","C#5","D#5","F5","G5","G#5"],
-  "B Dorian":  ["B4","C#5","D5","E5","F#5","G#5","A5"]
-};
-const mixolydian: Record<string, string[]> = {
-  "C Mixolydian":  ["C4","D4","E4","F4","G4","A4","A#4"],
-  "C# Mixolydian": ["C#4","D#4","F4","F#4","G#4","A#4","B4"],
-  "D Mixolydian":  ["D4","E4","F#4","G4","A4","B4","C5"],
-  "Eb Mixolydian": ["D#4","F4","G4","G#4","A#4","C5","C#5"],
-  "E Mixolydian":  ["E4","F#4","G#4","A4","B4","C#5","D5"],
-  "F Mixolydian":  ["F4","G4","A4","A#4","C5","D5","D#5"],
-  "F# Mixolydian": ["F#4","G#4","A#4","B4","C#5","D#5","E5"],
-  "G Mixolydian":  ["G4","A4","B4","C5","D5","E5","F5"],
-  "Ab Mixolydian": ["G#4","A#4","C5","C#5","D#5","F5","F#5"],
-  "A Mixolydian":  ["A4","B4","C#5","D5","E5","F#5","G5"],
-  "Bb Mixolydian": ["A#4","C5","D5","D#5","F5","G5","G#5"],
-  "B Mixolydian":  ["B4","C#5","D#5","E5","F#5","G#5","A5"]
-};
 
 // Advanced definition with more modes
 const advancedModeDefinition = {
@@ -126,68 +90,43 @@ const mixolydianScaleDefinition = {
 
 const ModalColors: React.FC = () => {
   const [activeTab, setActiveTab] = useState("Dorian");
-  const [selectedScale, setSelectedScale] = useState<string>("C");
-  const [playingKey, setPlayingKey] = useState<string>("");
   const [guidePopup, setGuidePopUp]= useState(false);
 
   const [navCheckPopUp, setNavCheckPopUp] = useState(false);
   const navigate = useNavigate();
 
-  const sampler = useContext(SamplerContext);
-
-  const handleClick = async (key: string, Mode: string) => {
-      await Tone.start();
-
-      const scaleKeys = 
-        Mode === "mixolydian"
-          ? mixolydian[`${key} Mixolydian`]
-          : dorian[`${key} Dorian`];
-
-
-      if (!sampler) {
-        console.error("Sampler not loaded");
-        return;
-      }
-  
-      setSelectedScale(key);
-      
-      for (let i = 0; i < scaleKeys.length; i++) {
-        const note = scaleKeys[i];
-        if (sampler?.samplerRef.current) {
-          sampler.samplerRef.current.triggerAttackRelease(note, "1n");
-        }
-        setPlayingKey(note);
-        await new Promise((resolve) => setTimeout(resolve, 250)); // wait 250ms before next note
-      }
-      for (let i = scaleKeys.length-2; i >= 0; i--) {
-        const note = scaleKeys[i];
-        if (sampler?.samplerRef.current) {
-          sampler.samplerRef.current.triggerAttackRelease(note, "1n");
-        }
-        setPlayingKey(note);
-        await new Promise((resolve) => setTimeout(resolve, 250)); // wait 250ms before next note
-      }
-    };
-  
+  const contentRef = useRef<HTMLDivElement>(null);
+  const scrollToSection = (ref: React.RefObject<HTMLDivElement>) => {
+    ref.current?.scrollIntoView({ behavior: "smooth" });
+  };
   return(
     <div className="teaching-page-container">
-      <div style={{display:"flex", width:"100%", justifyContent:"space-between", marginBottom:"1rem"}}>
-        <div style={{display:"flex", alignItems: "center"}}>
-          <div className="card-title" style={{alignContent:"center", backgroundColor:"rgba(243, 243, 243, 0.0625)", margin:"1rem 0"}}>
-            Level 5 - Modal Colors 
-          </div>
-          <div onClick={() => setGuidePopUp(true)}>
-            <img src="/icon/info.svg" alt="Info" style={{ width: '1.5rem', height: '1.5rem', cursor: 'pointer', margin: '0.5rem 0 0 0.5rem'}} />
+      <div style={{ display:'flex', width:"100%", justifyContent:"space-between", alignItems: 'flex-start', marginBottom:"2rem", gap:'2rem' }}>
+        <div style={{ display:'flex', flexDirection: 'column', gap:'0.2rem' }}>
+          <span className="topic-tag" style={{ background:'rgba(236, 72, 153, 0.1)', color:'var(--accent-primary)', padding:'4px 12px', fontSize:'0.8rem', width:'fit-content' }}>
+            Level 5
+          </span>
+          <div style={{ display:'flex', alignItems: 'center', gap:'1rem' }}>
+            <h1 className="modern-title" style={{ textAlign: 'left', margin: 0,fontSize:'4rem', color: 'var(--text-main)' }}>Modal Colors</h1>
+            <button 
+              onClick={() => setGuidePopUp(true)}
+              style={{ background:'rgba(255,255,255,0.05)', border:'1px solid rgba(255,255,255,0.1)', borderRadius:'50%', width:'32px', height:'32px', display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer' }}
+              >
+              <img src="/icon/info.svg" alt="Info" style={{ width: '1rem', height: '1rem', filter: 'brightness(0) invert(1)' }} />
+            </button>
           </div>
         </div>
-        <ProgressLine
-          firstLevel="Dorian"
-          secondLevel="Mixolydian"
-          thirdLevel="Mode pattern"
+        
+        <div className="glass-card" style={{ padding:'0.5rem 1.5rem', width:'auto', maxWidth:'none', margin:0, borderRadius:'16px', background: 'var(--card-bg)', border: '1px solid var(--card-border)' }}>
+          <ProgressLine
+            firstLevel="Dorian"
+            secondLevel="Mixolydian"
+            thirdLevel="Mode pattern"
           />
+        </div>
       </div>
 
-      <div className="nav-elim-bottom2">
+      <div className="nav-elim-bottom2" ref={contentRef}>
             <label className="nbtn" htmlFor="t">
               <input type="radio" id="t" name="nav" onChange={() => setActiveTab("Dorian")} checked={activeTab === "Dorian"}/>
               <span>Dorian</span>
@@ -207,10 +146,17 @@ const ModalColors: React.FC = () => {
             <ScaleDisplay
               scaleType="dorian"
               scaleDefinition={dorianScaleDefinition}
+              themeKey="galaxyVivid"
             />
             <div className="line"/>
             <div style={{ display:"flex",textAlign: "center" , justifyContent: "flex-end"}}>
-              <button onClick={() => {setActiveTab("Mixolydian")}} className="playbtn" style={{width:"10rem", borderRadius:"5rem"}}>Next {">"}</button>
+              <button 
+                onClick={() => {setActiveTab("Mixolydian"); scrollToSection(contentRef)}} 
+                className="playbtn" 
+                style={{width:"10rem", borderRadius:"5rem", background: 'linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%)', color: 'white', border: 'none'}}
+              >
+                Next {">"}
+              </button>
             </div>
           </div>}
 
@@ -219,11 +165,18 @@ const ModalColors: React.FC = () => {
             <ScaleDisplay
               scaleType="mixolydian"
               scaleDefinition={mixolydianScaleDefinition}
+              themeKey="galaxyVivid"
             />
             <div className="line"/>
             <div style={{ display:"flex",textAlign: "center" , justifyContent: "space-between"}}>
-              <button onClick={() => {setActiveTab("Dorian")}} className="playbtn" style={{width:"10rem", borderRadius:"5rem"}}>{"<"} Back</button>
-              <button onClick={() => {setActiveTab("Progressions")}} className="playbtn" style={{width:"10rem", borderRadius:"5rem"}}>Next {">"}</button>
+              <button onClick={() => {setActiveTab("Dorian"); scrollToSection(contentRef)}} className="playbtn" style={{width:"10rem", borderRadius:"5rem", background: 'rgba(255,255,255,0.1)', color: 'white', border: '1px solid rgba(255,255,255,0.2)'}}>{"<"} Back</button>
+              <button 
+                onClick={() => {setActiveTab("Progressions"); scrollToSection(contentRef)}} 
+                className="playbtn" 
+                style={{width:"10rem", borderRadius:"5rem", background: 'linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%)', color: 'white', border: 'none'}}
+              >
+                Next {">"}
+              </button>
             </div>
           </div>}
 
@@ -231,11 +184,16 @@ const ModalColors: React.FC = () => {
           <div className="card-container elimtop" style={{margin:0, padding:"2rem 5rem"}}>
             <ModeDisplay 
               modeDefinition={advancedModeDefinition}
+              themeKey="galaxyVivid"
             />
             <div className="line"/>
             <div style={{ display:"flex",textAlign: "center" , justifyContent: "space-between"}}>
-              <button onClick={() => {setActiveTab("Mixolydian")}} className="playbtn" style={{width:"10rem", borderRadius:"5rem"}}>Mixolydian</button>
-              <button className="playbtn" style={{width:"10rem", borderRadius:"5rem"}} onClick={() => {setNavCheckPopUp(true)}}>
+              <button onClick={() => {setActiveTab("Mixolydian"); scrollToSection(contentRef)}} className="playbtn" style={{width:"10rem", borderRadius:"5rem", background: 'rgba(255,255,255,0.1)', color: 'white', border: '1px solid rgba(255,255,255,0.2)'}}>Mixolydian</button>
+              <button 
+                className="playbtn" 
+                style={{width:"10rem", borderRadius:"5rem", background: 'linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%)', color: 'white', border: 'none'}} 
+                onClick={() => {setNavCheckPopUp(true)}}
+              >
                 Test
               </button>
             </div>

@@ -5,11 +5,11 @@
   line-height: 1.5;
   font-weight: 400;
   color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
+  color: var(--text-main);
   background-size: cover;
   background-repeat: no-repeat;
   background-attachment: fixed;
-  width: 100vw;
+  width: 100%;
   /* background: linear-gradient(rgb(1, 64, 109),rgb(11, 103, 169)); */
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -18,11 +18,11 @@
   overflow-x: hidden;
   --sz: 4px; /*** size ***/
   --sp: 5s; /*** speed ***/
- --b1: var(--accent-color); /*** color ***/
-  --b2: var(--accent-color); /*** color ***/
-  --b3: var(--accent-color); /*** color ***/
-  --b4: var(--accent-color); /*** color ***/
-  --c1: var(--glow-color); /*** color ***/
+ --b1: var(--accent-primary); /*** color ***/
+  --b2: var(--accent-secondary); /*** color ***/
+  --b3: var(--bg-secondary); /*** color ***/
+  --b4: var(--bg-primary); /*** color ***/
+  --c1: var(--bg-primary); /*** color ***/
   --ts: 50% / calc(var(--sz) * 17.5) calc(var(--sz) * 29.5);
   background:
 		/* black shadows */ radial-gradient(
@@ -181,10 +181,13 @@
   animation: colors var(--sp) linear 0s infinite;
 }
 
+* {
+  box-sizing: border-box;
+}
+
 html, body {
   margin: 0;
   padding: 0;
-  box-sizing: border-box;
 }
 
 
@@ -196,5 +199,24 @@ button {
   font: inherit;
   color: inherit;
   cursor: pointer;
+}
+
+h1 {
+  animation: fadeInUp 0.8s ease-out 0.2s both;
+}
+
+p {
+  animation: fadeInUp 0.8s ease-out 0.2s both;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
