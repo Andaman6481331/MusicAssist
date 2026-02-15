@@ -65,7 +65,8 @@
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
   animation: slideUp 0.3s ease;
   position: absolute;
-  top: 20vh;
+  top: 10vh;
+  right: 30vw;
 }
 
 @keyframes slideUp {

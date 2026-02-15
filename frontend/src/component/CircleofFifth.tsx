@@ -1,3 +1,6 @@
+import { useState } from "react";
+import { useTheme } from "../ThemeContext";
+
 type Mode = "major" | "minor" | "diminished" | "augmented";
 interface Props {
   selectedChord: string | null;
@@ -5,12 +8,9 @@ interface Props {
   mmtype?: Mode;
 }
 
-//Feature: Two Octave, Receive input from homepage 
 const keys = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
 
-// Define chord structures
 const chordNotes: Record<string, string[]> = {
-  // Major chords
   C: ["C", "E", "G"],
   "C#": ["C#", "F", "G#"],
   D: ["D", "F#", "A"],
@@ -23,8 +23,6 @@ const chordNotes: Record<string, string[]> = {
   A: ["A", "C#", "E"],
   "A#": ["A#", "D", "F"],
   B: ["B", "D#", "F#"],
-  
-  // Minor chords
   Cm: ["C", "D#", "G"],
   "C#m": ["C#", "E", "G#"],
   Dm: ["D", "F", "A"],
@@ -37,8 +35,6 @@ const chordNotes: Record<string, string[]> = {
   Am: ["A", "C", "E"],
   "A#m": ["A#", "C#", "F"],
   Bm: ["B", "D", "F#"],
-  
-  // Diminished chords
   Cdim: ["C", "D#", "F#"],
   "C#dim": ["C#", "E", "G"],
   Ddim: ["D", "F", "G#"],
@@ -51,8 +47,6 @@ const chordNotes: Record<string, string[]> = {
   Adim: ["A", "C", "D#"],
   "A#dim": ["A#", "C#", "E"],
   Bdim: ["B", "D", "F"],
-  
-  // Augmented chords
   Caug: ["C", "E", "G#"],
   "C#aug": ["C#", "F", "A"],
   Daug: ["D", "F#", "A#"],
@@ -67,15 +61,14 @@ const chordNotes: Record<string, string[]> = {
   Baug: ["B", "D#", "G"],
 };
 
-export default function CircleOfFifths({selectedChord, setSelectedChord, mmtype="major"}: Props) {
-  const radius = 125;
-  const center = radius * 1.25;
+export default function CircleOfFifths({ selectedChord, setSelectedChord, mmtype = "major" }: Props) {
+  const { theme } = useTheme();
+  const radius = 130;
+  const center = 180;
+  const [hoveredKey, setHoveredKey] = useState<string | null>(null);
 
-  // Calculating SelectedNote & Points
   const selectedChordNotes = selectedChord ? chordNotes[selectedChord] : [];
-  const highlightedIndices = selectedChordNotes.map((note) =>
-    keys.indexOf(note)
-  );
+  const highlightedIndices = selectedChordNotes.map((note) => keys.indexOf(note));
 
   const selectedPoints = highlightedIndices.map((i) => {
     const angle = (i / 12) * 2 * Math.PI;
@@ -84,101 +77,123 @@ export default function CircleOfFifths({selectedChord, setSelectedChord, mmtype=
     return { x, y };
   });
 
-  // Ensure the selected points form a closed shape for the lines
-  const pointsForPolyline = selectedPoints
-    .map((point) => `${point.x},${point.y}`)
-    .join(" ");
+  const pointsForPolyline = selectedPoints.map((p) => `${p.x},${p.y}`).join(" ");
 
-  // Get the chord suffix based on mode
   const getChordSuffix = () => {
     switch (mmtype) {
-      case "major":
-        return "";
-      case "minor":
-        return "m";
-      case "diminished":
-        return "dim";
-      case "augmented":
-        return "aug";
-      default:
-        return "";
+      case "minor": return "m";
+      case "diminished": return "dim";
+      case "augmented": return "aug";
+      default: return "";
     }
   };
 
   return (
-    <div style={{ display: "flex", justifyContent: "center", paddingTop: '20px'}}>
-      <svg width={2 * center} height={2 * center}>
+    <div style={{ display: "flex", justifyContent: "center", padding: "2rem", perspective: "1000px" }}>
+      <svg width={2 * center} height={2 * center} style={{ filter: "drop-shadow(0 10px 30px rgba(0,0,0,0.5))" }}>
+        <defs>
+          <filter id="glow">
+            <feGaussianBlur stdDeviation="3" result="coloredBlur" />
+            <feMerge>
+              <feMergeNode in="coloredBlur" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+          <radialGradient id="centerGlow" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stopColor={theme.accentPrimary} stopOpacity="0.15" />
+            <stop offset="100%" stopColor={theme.accentPrimary} stopOpacity="0" />
+          </radialGradient>
+        </defs>
+
         <g transform={`translate(${center}, ${center})`}>
-          {/* Draw the rotated polygon */}
+          {/* Central Glow */}
+          <circle cx="0" cy="0" r={radius * 1.2} fill="url(#centerGlow)" />
+          
+          {/* Decorative Outer Ring */}
+          <circle 
+            cx="0" cy="0" r={radius + 30} 
+            fill="none" 
+            stroke={theme.cardBorder} 
+            strokeWidth="1" 
+            strokeDasharray="4 4" 
+            opacity="0.3"
+          />
+
+          {/* Background Polygon */}
           <g transform="rotate(15)">
             <polygon
               points={Array.from({ length: 12 })
                 .map((_, i) => {
                   const angle = (i / 12) * 2 * Math.PI;
-                  const x = radius * Math.sin(angle) - 5;
-                  const y = -radius * Math.cos(angle) - 8;
-                  return `${x},${y}`;
+                  const r = radius - 5;
+                  return `${r * Math.sin(angle)},${-r * Math.cos(angle)}`;
                 })
                 .join(" ")}
-              fill={`var(--comp-accent-2)`}
+              fill="rgba(255, 255, 255, 0.03)"
+              stroke={theme.cardBorder}
+              strokeWidth="1"
             />
           </g>
 
-          {selectedPoints.length === 3 &&
-            (() => {
-              return (
-                <polyline
-                  points={pointsForPolyline}
-                  fill={`var(--primary-color)`}
-                  strokeLinecap="round"
-                />
-              );
-            })()}
+          {/* Selected Chord Shape */}
+          {selectedPoints.length >= 3 && (
+            <polygon
+              points={pointsForPolyline}
+              fill={theme.accentPrimary}
+              fillOpacity="0.2"
+              stroke={theme.accentPrimary}
+              strokeWidth="3"
+              strokeLinejoin="round"
+              filter="url(#glow)"
+              style={{ transition: "all 0.5s cubic-bezier(0.4, 0, 0.2, 1)" }}
+            />
+          )}
 
-          {/* Draw the text for the keys */}
+          {/* Notes */}
           {keys.map((key, i) => {
             const angle = (i / 12) * 2 * Math.PI;
             const x = radius * Math.sin(angle);
             const y = -radius * Math.cos(angle);
             const isSelected = highlightedIndices.includes(i);
+            const isHovered = hoveredKey === key;
 
             return (
-<g 
-  key={key} 
-  onClick={() => {
-    const suffix = getChordSuffix();
-    setSelectedChord(key + suffix);
-  }}
-  style={{ cursor: "pointer" }}
->
-  {/* The Background Circle */}
-  {isSelected && (
-    <circle
-      cx={x}
-      cy={y - 15} // Adjust offset to center vertically with text
-      r="25"    // Adjust radius based on your font size
-      fill="var(--bg-color-light)" // Or any color
-      style={{ transition: "all 0.3s ease" }}
-    />
-  )}
+              <g 
+                key={key} 
+                onClick={() => setSelectedChord(key + getChordSuffix())}
+                onMouseEnter={() => setHoveredKey(key)}
+                onMouseLeave={() => setHoveredKey(null)}
+                style={{ cursor: "pointer" }}
+              >
+                {/* Node Target Circle */}
+                <circle
+                  cx={x}
+                  cy={y}
+                  r={isSelected ? "22" : isHovered ? "18" : "15"}
+                  fill={isSelected ? theme.accentPrimary : "rgba(255,255,255,0.05)"}
+                  stroke={isSelected ? "#fff" : isHovered ? theme.accentSecondary : "transparent"}
+                  strokeWidth="2"
+                  style={{ transition: "all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)" }}
+                />
 
-  {/* Your Existing Text */}
-  <text
-    x={x}
-    y={y}
-    textAnchor="middle"
-    fontSize={isSelected ? "40" : "24"}
-    fill={isSelected ? `var(--gradient-2)` : "black"}
-    fontWeight={isSelected ? "bold" : "normal"}
-    style={{
-      userSelect: "none",
-      transition: "all 0.3s ease-in-out"
-    }}
-  >
-    {key}
-  </text>
-</g>
-
+                {/* Note Name */}
+                <text
+                  x={x}
+                  y={y}
+                  textAnchor="middle"
+                  alignmentBaseline="central"
+                  fontSize={isSelected ? "18" : "14"}
+                  fontWeight={isSelected ? "800" : "600"}
+                  fill={isSelected ? "#fff" : isHovered ? theme.accentPrimary : theme.textMain}
+                  style={{
+                    userSelect: "none",
+                    transition: "all 0.2s ease",
+                    pointerEvents: "none"
+                  }}
+                >
+                  {key}
+                </text>
+              </g>
             );
           })}
         </g>

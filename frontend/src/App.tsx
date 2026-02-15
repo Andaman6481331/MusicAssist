@@ -124,6 +124,14 @@ const App = () => {
       };
     }, []);
 
+  // Scroll to top on page change with a smooth "slide" effect
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  }, [location.pathname]);
+
   return (
     <ThemeProvider>
       <div>
@@ -159,7 +167,9 @@ const App = () => {
               </div>
             </header>
             <main style={{flex: 1}}>
-              <Outlet key={location.pathname}/>
+              <div key={location.pathname} className="page-transition-wrapper">
+                <Outlet />
+              </div>
               <LoadingBar />
             {/* Modern Footer */}
             <footer style={{ 

@@ -172,7 +172,7 @@ const ChordDisplay: React.FC<ChordDisplayProps> = ({
       {/* Circle of Fifths and Piano */}
       <div style={{ marginBottom: "2rem" }}>
         <label className="section-label">Select a Chord</label>
-        <div className="visualization-box">
+        <div className="visualization-box" style={{padding:"0"}}>
           <CircleOfFifths
             selectedChord={selectedChord}
             setSelectedChord={setSelectedChord}

@@ -1,9 +1,11 @@
-import React,{ useEffect, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
-import questions from "./subComponent/QuestionList.json"
+import React, { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import questions from "./subComponent/QuestionList.json";
 import { subscribeAuth } from "../auth";
 import { updateUserProgress } from "../data/lessonProgression";
 import PianoRollAnswer from "./subComponent/PianoRollAnswer";
+import { useTheme } from "../ThemeContext";
+import "../App.css";
 
 export type RawQuestion = {
   question: string;
@@ -20,101 +22,64 @@ export type LevelData = {
 };
 
 const QuestionPage: React.FC = () => {
+    useTheme();
     const navigate = useNavigate();
-
-    const [currentQ, setCurrentQ] = useState(0);
-    const [userId, setUserId] = useState<string | null>(null);
-    
     const { level } = useParams<{ level: string }>();
     const levelNumber = Number(level);
-    const levelData = (questions as LevelData[]).find(
-        l => l.level_number === levelNumber
-    );
     
-    useEffect(() => {
-        const unsub = subscribeAuth((user) => {
-            setUserId(user?.uid ?? null);
-        });
-        return () => unsub();
-    }, []);
-    
-    if (!levelData) {
-        return <p>Level not found</p>;
-    }
-    
-    const q = levelData.questions[currentQ];  
-    const totalQuestions = levelData.questions.length;
-
-    const [answers, setAnswers] = useState<(number | string[] | null)[]>(
-        Array(totalQuestions).fill(null)
-    );
-    const [pianoRollAnswers, setPianoRollAnswers] = useState<string[][]>(
-        Array(totalQuestions).fill(null).map(() => [])
-    );
+    const [currentQ, setCurrentQ] = useState(0);
+    const [userId, setUserId] = useState<string | null>(null);
     const [isFinished, setIsFinished] = useState(false);
 
-    const handleFinish = () => {
-        setIsFinished(true);
-    };
+    const levelData = (questions as LevelData[]).find(l => l.level_number === levelNumber);
+    
+    useEffect(() => {
+        const unsub = subscribeAuth((user) => setUserId(user?.uid ?? null));
+        return () => unsub();
+    }, []);
+
+    if (!levelData) return <div className="modern-container"><h1>Level not found</h1></div>;
+    
+    const totalQuestions = levelData.questions.length;
+    const [answers, setAnswers] = useState<(number | string[] | null)[]>(Array(totalQuestions).fill(null));
+    const [pianoRollAnswers, setPianoRollAnswers] = useState<string[][]>(Array(totalQuestions).fill(null).map(() => []));
+
+    const handleFinish = () => setIsFinished(true);
 
     const calculateScore = () => {
         return answers.reduce((acc: number, curr, idx) => {
             const question = levelData.questions[idx];
             if (question.type === "piano_roll") {
-                // For piano roll, compare selected notes with correctNotes
                 const selectedNotes = pianoRollAnswers[idx] || [];
                 const correctNotes = question.correctNotes || [];
-                // Check if arrays have same length and contain same notes (order doesn't matter)
-                if (selectedNotes.length !== correctNotes.length) {
-                    return acc;
-                }
+                if (selectedNotes.length !== correctNotes.length) return acc;
                 const sortedSelected = [...selectedNotes].sort();
                 const sortedCorrect = [...correctNotes].sort();
                 return sortedSelected.every((note, i) => note === sortedCorrect[i]) ? acc + 1 : acc;
             } else {
-                // For choice questions, compare index
                 return curr === question.correct ? acc + 1 : acc;
             }
         }, 0);
     };
 
     const score = calculateScore();
-
-    //test highest score function
-    const scorePercentage = Math.round((score / totalQuestions) * 100);
+    const progress = ((currentQ + 1) / totalQuestions) * 100;
 
     const passTest = async () => {
-    if (userId) {
-        try {
-            const newHighestLevel = levelNumber - 1;
-            await updateUserProgress(userId, newHighestLevel);
-        } catch (error: any) {
-            console.error("Failed to save progress:", error);
-        }
-    }
-
-    navigate("/lessons", {
-        state: {
-            lessonIndex: levelNumber - 1,
-            score: Math.round((score / totalQuestions) * 100),
-        },
-    });
-};
-
-    /*const passTest = async () => {
         if (userId) {
             try {
-                const newHighestLevel = levelNumber - 1;
-                console.log(`✅ User passed levelNumber ${levelNumber}, setting highestLevelPassed to ${newHighestLevel} for userId: ${userId}`);
-                await updateUserProgress(userId, newHighestLevel);
-            } catch (error: any) {
-                console.error("❌ ERROR: Failed to save progress to Firebase:", error);
-                const errorMsg = error?.message || "Unknown error";
-                alert(`Warning: Could not save your progress.\n\nError: ${errorMsg}`);
+                await updateUserProgress(userId, levelNumber - 1);
+            } catch (error) {
+                console.error("Failed to save progress:", error);
             }
         }
-        navigate("/lessons");
-    };*/
+        navigate("/lessons", {
+            state: {
+                lessonIndex: levelNumber - 1,
+                score: Math.round((score / totalQuestions) * 100),
+            },
+        });
+    };
 
     const redoTest = () => {
         setIsFinished(false);
@@ -126,110 +91,122 @@ const QuestionPage: React.FC = () => {
     if (isFinished) {
         const passed = score >= (totalQuestions / 2);
         return (
-            <div className="popup-overlay">
-                <div className="popup-box" style={{ maxWidth: "600px", width: "95%", maxHeight: "90vh", overflowY: "auto", padding: "2rem" }}>
+            <div className="modern-container" style={{ padding: '2rem' }}>
+                <div className="glass-card" style={{ maxWidth: '800px', margin: '0 auto', textAlign: 'center' }}>
                     {passed ? (
-                        <div style={{ textAlign: "center" }}>
-                            <div style={{ height: "10rem" }}>
-                                <img src="/img/rewards.png" alt="reward" style={{ height: "100%", width: "100%", objectFit: "contain" }} />
-                            </div>
-                            <h1>🎉 Congratulations! 🎉</h1>
-                            <p style={{ fontSize: "1.2rem", fontWeight: "bold" }}>Final score: {score}/{totalQuestions}</p>
-                            <p>You Passed! You’re ready for the next lesson.</p>
+                        <div style={{ animation: 'bounceIn 0.8s ease' }}>
+                            <div style={{ fontSize: '5rem', marginBottom: '1rem' }}>🏆</div>
+                            <h1 className="modern-title" style={{ fontSize: '3rem' }}>Brilliant!</h1>
+                            <p style={{ color: 'var(--text-main)', fontSize: '1.4rem', fontWeight: 600 }}>Score: {score} / {totalQuestions}</p>
+                            <p style={{ color: 'var(--text-dim)', marginBottom: '2rem' }}>You've mastered these concepts and are ready for the next level.</p>
                         </div>
                     ) : (
-                        <div style={{ textAlign: "center" }}>
-                            <h1>👍 Better Luck Next Time</h1>
-                            <p style={{ fontSize: "1.2rem", fontWeight: "bold" }}>Final score: {score}/{totalQuestions}</p>
-                            <p>You’re improving! Give it another try...</p>
+                        <div>
+                            <div style={{ fontSize: '5rem', marginBottom: '1rem' }}>🕯️</div>
+                            <h1 className="modern-title" style={{ fontSize: '3rem', filter: 'hue-rotate(180deg)' }}>Carry On</h1>
+                            <p style={{ color: 'var(--text-main)', fontSize: '1.4rem', fontWeight: 600 }}>Score: {score} / {totalQuestions}</p>
+                            <p style={{ color: 'var(--text-dim)', marginBottom: '2rem' }}>Persistence is key. Review the results below and try again.</p>
                         </div>
                     )}
 
-                    <div style={{ marginTop: "2rem", textAlign: "left" }}>
-                        <h3 style={{ borderBottom: "1px solid rgba(255,255,255,0.2)", paddingBottom: "0.5rem" }}>Review Results</h3>
+                    <div style={{ textAlign: 'left', marginTop: '1rem', borderTop: '1px solid var(--card-border)', paddingTop: '2rem' }}>
+                        <h3 style={{ color: 'var(--text-main)', marginBottom: '1.5rem', opacity: 0.8 }}>Review Summary</h3>
                         {levelData.questions.map((question, idx) => {
-                            const userAnswer = answers[idx];
-                            let isCorrect: boolean;
-                            let userAnswerDisplay: string;
-                            let correctAnswerDisplay: string;
-
-                            if (question.type === "piano_roll") {
-                                const selectedNotes = pianoRollAnswers[idx] || [];
-                                const correctNotes = question.correctNotes || [];
-                                const sortedSelected = [...selectedNotes].sort();
-                                const sortedCorrect = [...correctNotes].sort();
-                                isCorrect = selectedNotes.length === correctNotes.length &&
-                                    sortedSelected.every((note, i) => note === sortedCorrect[i]);
-                                userAnswerDisplay = selectedNotes.length > 0 
-                                    ? selectedNotes.join("–") 
-                                    : "No Answer";
-                                correctAnswerDisplay = correctNotes.join("–");
-                            } else {
-                                isCorrect = userAnswer === question.correct;
-                                userAnswerDisplay = userAnswer !== null 
-                                    ? question.choices[userAnswer as number] 
-                                    : "No Answer";
-                                correctAnswerDisplay = question.choices[question.correct];
-                            }
+                            const selectedNotes = pianoRollAnswers[idx] || [];
+                            const correctNotes = question.correctNotes || [];
+                            const isCorrect = question.type === "piano_roll" 
+                                ? (selectedNotes.length === correctNotes.length && [...selectedNotes].sort().every((n, i) => n === [...correctNotes].sort()[i]))
+                                : (answers[idx] === question.correct);
 
                             return (
-                                <div key={idx} style={{ 
-                                    padding: "1rem", 
-                                    marginBottom: "1rem", 
-                                    backgroundColor: "rgba(255,255,255,0.05)", 
-                                    borderRadius: "0.5rem",
-                                    borderLeft: `5px solid ${userAnswer === null && (!question.type || pianoRollAnswers[idx]?.length === 0) ? "#888" : isCorrect ? "#29B839" : "#D10909"}`
+                                <div key={idx} className="lesson-card" style={{ 
+                                    padding: '1.25rem', 
+                                    background: 'rgba(255,255,255,0.02)',
+                                    borderColor: isCorrect ? 'rgba(34, 197, 94, 0.3)' : 'rgba(239, 68, 68, 0.3)'
                                 }}>
-                                    <p style={{ margin: "0 0 0.5rem 0", fontWeight: "bold" }}>Q{idx + 1}. {question.question}</p>
-                                    <p style={{ margin: "0", fontSize: "0.9rem" }}>
-                                        Your Answer: <span style={{ color: (userAnswer === null && (!question.type || pianoRollAnswers[idx]?.length === 0)) ? "#888" : isCorrect ? "#53CA61" : "#CA5353" }}>
-                                            {userAnswerDisplay}
-                                        </span>
-                                    </p>
-                                    {!isCorrect && (userAnswer !== null || (question.type === "piano_roll" && pianoRollAnswers[idx]?.length > 0)) && (
-                                        <p style={{ margin: "0.2rem 0 0 0", fontSize: "0.9rem", color: "#29B839" }}>
-                                            Correct Answer: {correctAnswerDisplay}
-                                        </p>
-                                    )}
+                                    <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
+                                        <div style={{ 
+                                            flexShrink: 0, width: '28px', height: '28px', borderRadius: '50%', 
+                                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                            fontSize: '0.9rem', fontWeight: 'bold',
+                                            background: isCorrect ? 'rgba(34, 197, 94, 0.1)' : 'rgba(239, 68, 68, 0.1)',
+                                            color: isCorrect ? '#4ade80' : '#f87171'
+                                        }}>
+                                            {isCorrect ? '✓' : '✗'}
+                                        </div>
+                                        <div>
+                                            <p style={{ margin: 0, fontWeight: 700, color: 'var(--text-main)' }}>Q{idx + 1}. {question.question}</p>
+                                            <p style={{ margin: '4px 0 0 0', fontSize: '0.9rem', opacity: 0.7 }}>
+                                                Answered: <span style={{ fontWeight: 600 }}>
+                                                    {question.type === "piano_roll" ? (selectedNotes.length > 0 ? selectedNotes.join(", ") : "None") : (answers[idx] !== null ? question.choices[answers[idx] as number] : "None")}
+                                                </span>
+                                            </p>
+                                            {!isCorrect && (
+                                                <p style={{ margin: '4px 0 0 0', fontSize: '0.9rem', color: '#4ade80', fontWeight: 600 }}>
+                                                    Solution: {question.type === "piano_roll" ? correctNotes.join(", ") : question.choices[question.correct]}
+                                                </p>
+                                            )}
+                                        </div>
+                                    </div>
                                 </div>
                             );
                         })}
                     </div>
 
-                    <div className="popup-buttons" style={{ marginTop: "2rem", justifyContent: "center", display: "flex", gap: "1rem" }}>
+                    <div style={{ display: 'flex', gap: '1rem', marginTop: '2rem' }}>
                         {passed ? (
-                            <button onClick={passTest} style={{ padding: "0.8rem 2rem", backgroundColor: "#29B839", borderRadius: "0.5rem", color: "white" }}>Continue</button>
+                            <button onClick={passTest} className="start-btn" style={{ flex: 1 }}>Continue to Journey</button>
                         ) : (
-                            <button onClick={redoTest} style={{ padding: "0.8rem 2rem", backgroundColor: "#4078C3", borderRadius: "0.5rem", color: "white" }}>Try Again</button>
+                            <button onClick={redoTest} className="start-btn" style={{ flex: 1, filter: 'hue-rotate(220deg)' }}>Retake Exam</button>
                         )}
-                        <button onClick={() => navigate("/lessons")} style={{ padding: "0.8rem 2rem", backgroundColor: "rgba(255,255,255,0.1)", borderRadius: "0.5rem", color: "white" }}>Back to Lessons</button>
+                        <button onClick={() => navigate("/lessons")} className="back-btn" style={{ padding: '0.8rem 2rem' }}>Quit to Lessons</button>
                     </div>
                 </div>
             </div>
         );
     }
 
+    const q = levelData.questions[currentQ];
+
     return (
-        <div style={{ padding: "2rem 5rem" }}>
-            <div className="teach-page-header">
-                <h1>Level - {levelData.level_number} Test</h1>
-                <h3>{levelData.level_name}</h3>
-                <div style={{ position: "absolute", right: "2rem", top: "2rem" }}>
-                    Question {currentQ + 1} / {totalQuestions}
+        <div className="modern-container">
+            <div className="glass-card" style={{ overflow: 'hidden', padding: 0 }}>
+                {/* Progress Header */}
+                <div style={{ background: 'rgba(255,255,255,0.03)', padding: '2rem 2.5rem', borderBottom: '1px solid var(--card-border)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+                        <div>
+                            <h2 className="modern-title" style={{ textAlign: 'left', margin: 0, fontSize: '1.8rem' }}>{levelData.level_name} Challenge</h2>
+                            <p style={{ color: 'var(--text-dim)', margin: '4px 0 0 0' }}>Showcase your musical understanding</p>
+                        </div>
+                        <div style={{ textAlign: 'right' }}>
+                            <span style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--accent-primary)' }}>{currentQ + 1}</span>
+                            <span style={{ fontSize: '1rem', opacity: 0.5, marginLeft: '4px' }}>/ {totalQuestions}</span>
+                        </div>
+                    </div>
+                    {/* Progress Bar Container */}
+                    <div style={{ height: '8px', background: 'rgba(255,255,255,0.05)', borderRadius: '4px', overflow: 'hidden' }}>
+                        <div style={{ 
+                            height: '100%', width: `${progress}%`, 
+                            background: 'linear-gradient(90deg, var(--accent-primary), var(--accent-secondary))',
+                            transition: 'width 0.4s cubic-bezier(0.1, 0.7, 0.1, 1)'
+                        }} />
+                    </div>
                 </div>
-            </div>
-            <div className="teach-page-content" style={{ minHeight: "60vh", display: "flex", flexDirection: "column" }}>
-                <div style={{ flex: 1 }}>
-                    <p><span style={{ backgroundColor: "#144387", borderRadius: "1rem", padding: "0.5rem" }}>Q{currentQ + 1}.</span> {q.question}</p>
+
+                {/* Question Area */}
+                <div style={{ padding: '3rem 2.5rem', flex: 1 }}>
+                    <h3 style={{ fontSize: '1.5rem', color: 'var(--text-main)', lineHeight: 1.4, marginBottom: '2.5rem', maxWidth: '800px' }}>
+                         {q.question}
+                    </h3>
+
                     {q.type === "piano_roll" ? (
-                        <div style={{ marginLeft: "2rem", marginTop: "2rem", display: "flex", justifyContent: "center" }}>
+                        <div style={{ display: 'flex', justifyContent: 'center', animation: 'fadeIn 0.5s ease' }}>
                             <PianoRollAnswer
                                 selectedNotes={pianoRollAnswers[currentQ] || []}
                                 onNotesChange={(notes) => {
                                     const newPianoRollAnswers = [...pianoRollAnswers];
                                     newPianoRollAnswers[currentQ] = notes;
                                     setPianoRollAnswers(newPianoRollAnswers);
-                                    // Also update answers array for consistency
                                     const newAnswers = [...answers];
                                     newAnswers[currentQ] = notes.length > 0 ? notes : null;
                                     setAnswers(newAnswers);
@@ -237,77 +214,54 @@ const QuestionPage: React.FC = () => {
                             />
                         </div>
                     ) : (
-                        <div style={{ marginLeft: "2rem", marginTop: "2rem" }}>
-                            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gridTemplateRows: "auto", gap: "1rem 2rem" }}>
-                                {q.choices.map((choice, cIndex) => {
-                                    const selected = answers[currentQ] === cIndex;
-                                    let bgColor, bgColor2;
-
-                                    if (selected) {
-                                        bgColor = "#0F66F3";
-                                        bgColor2 = "#4489F9";
-                                    } else {
-                                        bgColor = "#4078C3";
-                                        bgColor2 = "#5386CA";
-                                    }
-                                    return (
-                                        <label
-                                            key={choice}
-                                            className="choiceBtn"
-                                            style={{ display: "flex", cursor: "pointer", backgroundColor: bgColor2 }}
-                                        >
-                                            <input
-                                                type="radio"
-                                                name={`q-${currentQ}`}
-                                                checked={selected}
-                                                onChange={() =>
-                                                    setAnswers((prev) => {
-                                                        const newAnswers = [...prev];
-                                                        newAnswers[currentQ] = cIndex;
-                                                        return newAnswers;
-                                                    })
-                                                }
-                                                style={{ display: "none" }}
-                                            />
-                                            <div style={{ backgroundColor: bgColor, borderRadius: "1rem 0 0 1rem", padding: "1rem" }}>{cIndex + 1}</div>
-                                            <div style={{ padding: "1rem 0.5rem 1rem 1rem" }}>{choice}</div>
-                                        </label>
-                                    );
-                                })}
-                            </div>
+                        <div className="grid-layout" style={{ gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
+                            {q.choices.map((choice, cIndex) => {
+                                const selected = answers[currentQ] === cIndex;
+                                return (
+                                    <label key={cIndex} className={`modern-radio-label ${selected ? 'active' : ''}`} style={{ padding: '1.5rem', gap: '1rem' }}>
+                                        <input
+                                            type="radio"
+                                            checked={selected}
+                                            onChange={() => setAnswers(prev => {
+                                                const newA = [...prev];
+                                                newA[currentQ] = cIndex;
+                                                return newA;
+                                            })}
+                                            style={{ display: 'none' }}
+                                        />
+                                        <div style={{ 
+                                            width: '32px', height: '32px', borderRadius: '50%', background: selected ? 'var(--accent-primary)' : 'rgba(255,255,255,0.05)',
+                                            display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', color: selected ? 'white' : 'var(--text-dim)',
+                                            border: selected ? 'none' : '1px solid var(--card-border)'
+                                        }}>
+                                            {String.fromCharCode(65 + cIndex)}
+                                        </div>
+                                        <div style={{ fontSize: '1.1rem' }}>{choice}</div>
+                                    </label>
+                                );
+                            })}
                         </div>
                     )}
                 </div>
-                
-                <div style={{ display: "flex", justifyContent: "space-between", marginTop: "2rem" }}>
-                    <div 
-                        className="playbtn" 
-                        style={{ 
-                            width: "8rem", 
-                            visibility: currentQ > 0 ? "visible" : "hidden",
-                            backgroundColor: "rgba(255,255,255,0.1)" 
-                        }} 
+
+                {/* Navigation Footer */}
+                <div style={{ padding: '2rem 2.5rem', display: 'flex', justifyContent: 'space-between', background: 'rgba(0,0,0,0.1)' }}>
+                    <button 
+                        className="back-btn" 
+                        style={{ padding: '0.8rem 1.5rem', visibility: currentQ > 0 ? 'visible' : 'hidden' }}
                         onClick={() => setCurrentQ(prev => prev - 1)}
                     >
-                        Back
-                    </div>
-                    
+                        Previous Step
+                    </button>
+
                     {currentQ < totalQuestions - 1 ? (
-                        <div 
-                            className="playbtn" 
-                            style={{ width: "8rem" }} 
-                            onClick={() => setCurrentQ(prev => prev + 1)}
-                        >
-                            Next
-                        </div>
+                        <button className="start-btn" onClick={() => setCurrentQ(prev => prev + 1)}>
+                            Continue Progression
+                        </button>
                     ) : (
-                        <div 
-                            className="playbtn" 
-                            style={{ width: "8rem", backgroundColor: "#29B839" }} 
-                            onClick={handleFinish}
-                        >
-                            Finish
-                        </div>
+                        <button className="start-btn" style={{ background: '#22c55e', boxShadow: '0 4px 15px rgba(34, 197, 94, 0.3)' }} onClick={handleFinish}>
+                            Analyze Results
+                        </button>
                     )}
                 </div>
             </div>
