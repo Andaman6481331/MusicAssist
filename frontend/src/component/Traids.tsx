@@ -3,7 +3,6 @@ import CircleOfFifths from "./CircleofFifth";
 import ChordVisualizer from "./TriadsPiano";
 
 const Triads: React.FC = () => {
-    const [isMuted, setIsMuted] = useState<boolean>(false);
     const [selectedChord, setSelectedChord] = useState<string>("");
     const [guidePopup, setGuidePopUp] = useState(false);
 
@@ -25,7 +24,6 @@ const Triads: React.FC = () => {
               <div style={{ display: 'flex', justifyContent: 'center' }}>
                 <ChordVisualizer 
                   selectedChord={selectedChord}
-                  isMuted={isMuted}
                 />
               </div>
             </div>

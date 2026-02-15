@@ -1,6 +1,4 @@
-import {useContext, useRef, useState} from "react";
-import * as Tone from "tone";
-import { SamplerContext } from "../App";
+import {useRef, useState} from "react";
 import {useNavigate } from "react-router-dom";
 
 import ProgressLine from "./subComponent/ProgressLine";

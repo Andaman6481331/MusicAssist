@@ -1,8 +1,6 @@
 import React, { useState} from "react";
 import ScaleVisualizer from "./component/ScaleVisualizer";
 import Progression from "./component/Progression";
-import { useSearchParams } from "react-router-dom";
-import PianoVisualizer from "./component/PianoVisualizer";
 import Triads from "./component/Traids";
 import ChordVisualizer from "./component/ChordVisualizer";
 

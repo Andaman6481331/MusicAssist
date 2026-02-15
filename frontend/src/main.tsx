@@ -1,4 +1,4 @@
-import React, { StrictMode, useRef, useState, useEffect } from "react";
+import { StrictMode, useRef } from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import * as Tone from "tone";

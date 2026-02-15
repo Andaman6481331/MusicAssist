@@ -1,5 +1,5 @@
 //Feature: Two Octave, Receive input from homepage, Display Root Chord
-import React, { useEffect, useState } from "react";
+import React from "react";
 import * as Tone from "tone";
 import { useContext } from "react";
 import { SamplerContext } from "../App";

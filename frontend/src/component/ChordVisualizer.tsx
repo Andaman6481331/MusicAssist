@@ -2,7 +2,6 @@ import {useState, useEffect} from "react";
 import ChordPiano from "./ChordPiano";
 
 const ChordVisualizer: React.FC = () => {
-  const [isMuted, setIsMuted] = useState<boolean>(false);
 // const selectedChord = searchParams.get("chord") || "";
   const [selectedMM, setMinorMajor] = useState<string>("");
   const [selectedSus, setSus] = useState<string>("");
@@ -14,10 +13,6 @@ const ChordVisualizer: React.FC = () => {
 
   const [guidePopup,setGuidePopUp] = useState(false);
 
-  const showChordVisualizerInfo = (e: React.MouseEvent) => {
-    e.preventDefault(); // Prevents the anchor from jumping to top
-    alert("This section helps you build and visualize chords with custom extensions, sus, and voicings.");
-  };
 
   //mapping used in the selection Menu
   const groups = [
@@ -150,7 +145,6 @@ const ChordVisualizer: React.FC = () => {
                 width={40}
                 height={160}
                 finalChord={finalChord}
-                isMuted={isMuted}
               />
             </div>
           </div>

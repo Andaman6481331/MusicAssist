@@ -2,7 +2,6 @@ import { getDbSafe } from "../auth/firebase";
 import {
   addDoc,
   collection,
-  deleteDoc,
   doc,
   getDocs,
   orderBy,
@@ -31,7 +30,7 @@ function getUserCollection(db: Firestore, userId: string) {
   return collection(db, "users", userId, "generations");
 }
 
-export async function addGenerationRecord(userId: string, data: Omit<GenerationRecord, "id"|"userId">) {
+export async function addGenerationRecord(userId: string, data: Omit<GenerationRecord, "id" | "userId">) {
   const db = getDbSafe();
   if (!db) throw new Error("Firestore not configured. Set VITE_FIREBASE_* env vars.");
   const col = getUserCollection(db, userId);
