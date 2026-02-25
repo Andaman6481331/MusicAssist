@@ -1,50 +1,121 @@
+# 🎹 Harmonic (MusicAssist)
 
+Harmonic is an AI-powered music assistant designed to empower musicians through advanced music theory tools, interactive piano visualizations, and AI-driven music generation. Whether you're a student learning the ropes or a professional looking for inspiration, Harmonic provides a suite of tools to enhance your musical journey.
 
-NEED Python3.9.13 !!!!!!!!!!
-(check using "python --version" in backend folder)
+---
 
-installation
-<!-- 0) cmd
-1) get into backend folder (cd backend)
-2) once in the backend directory, type-> .\.venv\Scripts\activate
-3) then install these commands: 
+## 🚀 Key Features
 
-	pip install -r requirements.txt --extra-index-url https://download.pytorch.org/whl/cu121 -->
+- **AI Music Generation**: Create original music from user choices using Replicate's MusicGen.
+- **WAV/MP3 to MIDI/JSON**: Convert audio recordings into structured musical data for analysis.
+- **Interactive Piano Roll**: Visualize and play back musical compositions in real-time.
+- **Music Theory Academy**: Structured lessons and interactive tools for learning music theory.
+- **Sample Playback**: High-quality piano samples powered by Tone.js.
+- **Global Theme System**: Fully customizable UI with multiple vibrant themes.
 
-use another terminal to install frontend library
-0) cmd
-1) get into frontend folder (cd frontend)
-2) npm init -y
-3) npm install react react-dom tone @tonejs/midi
+---
 
-==================================================================================================
+## 🛠️ Tech Stack
 
-Run Backend
-0) cmd
-1) get into backend folder (cd backend)
-2) once in the backend directory, type-> .\.venv\Scripts\activate
-3) uvicorn server:app --host 0.0.0.0 --port 8000
+- **Frontend**: React (TypeScript), Vite, Tone.js, Firebase.
+- **Backend**: Python (FastAPI), Uvicorn, BasicPitch, pretty_midi.
+- **AI Integration**: Replicate (MusicGen).
 
-Run Frontend
-0) cmd
-1) get into frontend folder (cd frontend)
-2) npm run dev
+---
 
+## 📥 Installation
 
-other...
-<Python3.9.13 dir
-C:/Users/herby/PycharmProjects/PythonProject/.venv1/Scripts/python.exe>
+### Prerequisites
+- **Python 3.9+**: Required for backend processing.
+- **Node.js (LTS)**: Required for the frontend development server.
 
-pip install basic-pitch fastapi uvicorn	//
+### 1. Backend Setup
+Navigate to the `backend` directory and set up a virtual environment:
 
-pip install torch==2.1.0+cu121 --index-url https://download.pytorch.org/whl/cu121
+#### **Windows**
+```powershell
+cd backend
+python -m venv .venv
+.\.venv\Scripts\activate
+pip install -r requirements.txt
+```
 
-pip install -r pipreqRequirements.txt
-
-
-python3.9 -m venv .venv
+#### **macOS / Linux**
+```bash
+cd backend
+python3 -m venv .venv
 source .venv/bin/activate
+pip install -r requirements.txt
+```
 
+#### **Environment Variables**
+Create a `.env` file in the `backend` directory:
+```env
+REPLICATE_API_TOKEN=your_token_here
+```
 
-pip install frechet-audio-distance
+---
 
+### 2. Frontend Setup
+Navigate to the `frontend` directory and install dependencies:
+
+```bash
+cd frontend
+npm install
+```
+
+---
+
+### 3. Root Setup
+Install dependencies in the project root to enable the combined start scripts:
+
+```bash
+cd ..
+npm install
+```
+
+---
+
+## 🏃 How to Run
+
+After completing the installation, you can run both the frontend and backend simultaneously using a single command from the project root.
+
+### **Windows**
+```bash
+npm run dev
+```
+
+### **macOS / Linux**
+```bash
+npm run dev:linux
+```
+
+---
+
+## 🛠️ Individual Commands (Optional)
+
+If you need to run the services separately:
+
+| Service | Windows | macOS / Linux |
+| :--- | :--- | :--- |
+| **Frontend** | `npm run dev-frontend` | `npm run dev-frontend:linux` |
+| **Backend** | `npm run dev-backend` | `npm run dev-backend:linux` |
+
+---
+
+## 📂 Project Structure
+
+- `frontend/`: React application, UI components, and Tone.js integration.
+- `backend/`: FastAPI server handling MIDI conversion and AI requests.
+- `Collection/`: Local storage for generated `.wav` and `.mid` files.
+- `public/samples/`: Piano samples for the interactive audio engine.
+
+---
+
+## 🤝 Contributing
+Contributions are welcome! If you'd like to improve Harmonic, please fork the repository and submit a pull request.
+
+---
+
+## ⚖️ License
+This project is for educational and creative purposes. Created with 💙 for musicians.

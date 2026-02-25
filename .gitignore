@@ -32,3 +32,5 @@ __pycache__/
 *.pyc
 backend/__pycache__/server.cpython-39.pyc
 /backend/generated_wav
+
+toDoList.txt

@@ -142,16 +142,13 @@ const App = () => {
             </div>
           ) : (<div style={{ display: "flex", flexDirection: "column" }}>
             <header className="navbar">
-              <Link to="/" style={{ outline: "0", display: "flex" }}>
-                {/* <div style={{ height: "40px", margin: "20px 20px 0 20px" }}>
-                  <img src="/harmonic_logo(1).svg" alt="logo" style={{
-                    height: "100%",
-                    width: "100%",
-                    objectFit: "contain",
-                    display: "block"
-                  }} />
-                </div> */}
-                <h1 className="title" style={{ marginLeft: "20px" }}>Harmonic</h1>
+              <Link to="/" style={{ outline: "0", display: "flex", alignItems: "center", gap: "1rem", marginLeft: "2rem" }}>
+                <img src="/harmonic_logo(1).svg" alt="logo" style={{
+                  height: "50px",
+                  width: "auto",
+                  objectFit: "contain",
+                }} />
+                <h1 className="title" style={{ marginLeft: "12px", margin: "0" }}>Harmonic</h1>
               </Link>
               <div className="right-nav">
                 {
