@@ -114,7 +114,7 @@ def ConvertWavToMidi(wav_file: str, save_dir: str):
     )
     
     # 3️⃣ Save MIDI
-    output_midi_path = os.path.join(save_dir, os.path.basename(wav_file).replace(".wav", ".mid"))
+    output_midi_path = os.path.join(save_dir, os.path.splitext(os.path.basename(wav_file))[0] + ".mid")
     midi_data.write(output_midi_path)
     
     return output_midi_path, len(note_events)
@@ -179,7 +179,7 @@ def ConvertWavToMidiDamRsn(wav_file: str, save_dir: str,
         )
         
         # 3️⃣ Save MIDI
-        output_midi_path = os.path.join(save_dir, os.path.basename(wav_file).replace(".wav", ".mid"))
+        output_midi_path = os.path.join(save_dir, os.path.splitext(os.path.basename(wav_file))[0] + ".mid")
         midi_data.write(output_midi_path)
         
         return output_midi_path, len(note_events)
@@ -188,14 +188,16 @@ def ConvertWavToMidiDamRsn(wav_file: str, save_dir: str,
         if os.path.exists(processed_path):
             os.remove(processed_path)
 
-def wav_to_json_data(wav_path: str, save_dir: str):
+def wav_to_json_data(audio_path: str, save_dir: str):
     """
-    Cleaner unified pipeline: WAV -> MIDI -> JSON Data (Dict)
+    Unified pipeline: WAV or MP3 -> MIDI (basic-pitch) -> JSON Data (Dict).
+    Accepts both .wav and .mp3 input files.
     """
+    wav_path = audio_path  # alias for clarity
     print(f"[PROCESS] Running WAV->MIDI->JSON pipeline for: {wav_path}")
     
     # 1. Convert WAV to MIDI
-    midi_path, note_count = ConvertWavToMidiDamRsn(wav_path, save_dir)
+    midi_path, note_count = ConvertWavToMidi(wav_path, save_dir)
     print(f"[INFO] MIDI conversion complete. {note_count} notes detected.")
     
     # 2. Analyze MIDI

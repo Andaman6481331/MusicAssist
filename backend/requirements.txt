@@ -1,0 +1,11 @@
+fastapi
+uvicorn
+replicate
+python-dotenv
+requests
+basic-pitch
+pretty_midi
+mido
+librosa
+soundfile
+python-multipart

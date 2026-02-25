@@ -1,5 +1,5 @@
-import {useRef, useState} from "react";
-import {useNavigate } from "react-router-dom";
+import { useRef, useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 import ProgressLine from "./subComponent/ProgressLine";
 import ProgressionDisplay from "./subComponent/ProgressionDisplay";
@@ -92,7 +92,7 @@ const advancedHarmonizingDefinition = {
 
 const ExtendHamony: React.FC = () => {
   const [activeTab, setActiveTab] = useState("Extension");
-  const [guidePopup, setGuidePopUp]= useState(false);
+  const [guidePopup, setGuidePopUp] = useState(false);
 
   const [navCheckPopUp, setNavCheckPopUp] = useState(false);
   const navigate = useNavigate();
@@ -101,26 +101,36 @@ const ExtendHamony: React.FC = () => {
   const scrollToSection = (ref: React.RefObject<HTMLDivElement>) => {
     ref.current?.scrollIntoView({ behavior: "smooth" });
   };
-  
-  return(
+
+  useEffect(() => {
+    if (guidePopup || navCheckPopUp) {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      document.body.classList.add("modal-open");
+    } else {
+      document.body.classList.remove("modal-open");
+    }
+    return () => document.body.classList.remove("modal-open");
+  }, [guidePopup, navCheckPopUp]);
+
+  return (
     <div className="teaching-page-container">
-      <div style={{ display:'flex', width:"100%", justifyContent:"space-between", alignItems: 'flex-start', marginBottom:"2rem", gap:'2rem' }}>
-        <div style={{ display:'flex', flexDirection: 'column', gap:'0.2rem' }}>
-          <span className="topic-tag" style={{ background:'rgba(16, 185, 129, 0.1)', color:'var(--accent-primary)', padding:'4px 12px', fontSize:'0.8rem', width:'fit-content' }}>
+      <div style={{ display: 'flex', width: "100%", justifyContent: "space-between", alignItems: 'flex-start', marginBottom: "2rem", gap: '2rem' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
+          <span className="topic-tag" style={{ background: 'rgba(16, 185, 129, 0.1)', color: 'var(--accent-primary)', padding: '4px 12px', fontSize: '0.8rem', width: 'fit-content' }}>
             Level 4
           </span>
-          <div style={{ display:'flex', alignItems: 'center', gap:'1rem' }}>
-            <h1 className="modern-title" style={{ textAlign: 'left', margin: 0, fontSize:'4rem', color: 'var(--text-main)' }}>Extend Harmony</h1>
-            <button 
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <h1 className="modern-title" style={{ textAlign: 'left', margin: 0, fontSize: '4rem', color: 'var(--text-main)' }}>Extend Harmony</h1>
+            <button
               onClick={() => setGuidePopUp(true)}
-              style={{ background:'rgba(255,255,255,0.05)', border:'1px solid rgba(255,255,255,0.1)', borderRadius:'50%', width:'32px', height:'32px', display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer' }}
-              >
+              style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+            >
               <img src="/icon/info.svg" alt="Info" style={{ width: '1rem', height: '1rem', filter: 'brightness(0) invert(1)' }} />
             </button>
           </div>
         </div>
-        
-        <div className="glass-card" style={{ padding:'0.5rem 1.5rem', width:'auto', maxWidth:'none', margin:0, borderRadius:'16px', background: 'var(--card-bg)', border: '1px solid var(--card-border)' }}>
+
+        <div className="glass-card" style={{ padding: '0.5rem 1.5rem', width: 'auto', maxWidth: 'none', margin: 0, borderRadius: '16px', background: 'var(--card-bg)', border: '1px solid var(--card-border)' }}>
           <ProgressLine
             firstLevel="Extensions"
             secondLevel="ii-V-I basics"
@@ -130,110 +140,110 @@ const ExtendHamony: React.FC = () => {
       </div>
 
       <div className="nav-elim-bottom2" ref={contentRef}>
-            <label className="nbtn" htmlFor="t">
-              <input type="radio" id="t" name="nav" onChange={() => setActiveTab("Extension")} checked={activeTab === "Extension"}/>
-              <span>Extension</span>
-            </label>
-            <label className="nbtn" htmlFor="p">
-              <input type="radio" id="p" name="nav" onChange={() => setActiveTab("Progressions")} checked={activeTab === "Progressions"}/>
-              <span>Progressions</span>
-            </label>
-            <label className="nbtn" htmlFor="s">
-              <input type="radio" id="s" name="nav" onChange={() => setActiveTab("Scales")} checked={activeTab === "Scales"}/>
-              <span>Harmonizing</span>
-            </label>
-          </div>
+        <label className="nbtn" htmlFor="t">
+          <input type="radio" id="t" name="nav" onChange={() => setActiveTab("Extension")} checked={activeTab === "Extension"} />
+          <span>Extension</span>
+        </label>
+        <label className="nbtn" htmlFor="p">
+          <input type="radio" id="p" name="nav" onChange={() => setActiveTab("Progressions")} checked={activeTab === "Progressions"} />
+          <span>Progressions</span>
+        </label>
+        <label className="nbtn" htmlFor="s">
+          <input type="radio" id="s" name="nav" onChange={() => setActiveTab("Scales")} checked={activeTab === "Scales"} />
+          <span>Harmonizing</span>
+        </label>
+      </div>
 
-          {activeTab === "Extension" && 
-          <div className="card-container elimtop" style={{margin:0, padding:"2rem 5rem"}}>
-            <ExtensionDisplay 
-              extensionDefinition={advancedExtensionDefinition}
+      {activeTab === "Extension" &&
+        <div className="card-container elimtop" style={{ margin: 0, padding: "2rem 5rem" }}>
+          <ExtensionDisplay
+            extensionDefinition={advancedExtensionDefinition}
+            themeKey="emeraldGreen"
+          />
+          <div style={{ display: "flex", textAlign: "center", justifyContent: "right" }}>
+            <button
+              onClick={() => { setActiveTab("Progressions"); scrollToSection(contentRef) }}
+              className="playbtn"
+              style={{ width: "10rem", borderRadius: "5rem", background: 'linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%)', color: 'white', border: 'none' }}
+            >
+              Next{'>'}
+            </button>
+          </div>
+        </div>}
+
+      {activeTab === "Progressions" &&
+        <div className="card-container elimtop" style={{ margin: 0, padding: "2rem 5rem" }}>
+          <div>
+            <ProgressionDisplay
+              progType="ii-V-I"
+              progDefinition={iiVIIDefinition}
               themeKey="emeraldGreen"
             />
-            <div style={{ display:"flex",textAlign: "center" , justifyContent: "right"}}>
-              <button 
-                onClick={() => {setActiveTab("Progressions"); scrollToSection(contentRef)}} 
-                className="playbtn" 
-                style={{width:"10rem", borderRadius:"5rem", background: 'linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%)', color: 'white', border: 'none'}}
-              >
-                Next{'>'}
-              </button>
-            </div>
-          </div>}
+          </div>
+          <div className="line" />
+          <div style={{ display: "flex", textAlign: "center", justifyContent: "space-between" }}>
+            <button onClick={() => { setActiveTab("Extension"); scrollToSection(contentRef) }} className="playbtn" style={{ width: "10rem", borderRadius: "5rem", background: 'rgba(255,255,255,0.1)', color: 'white', border: '1px solid rgba(255,255,255,0.2)' }}>{'<'}Back</button>
+            <button
+              onClick={() => { setActiveTab("Scales"); scrollToSection(contentRef) }}
+              className="playbtn"
+              style={{ width: "10rem", borderRadius: "5rem", background: 'linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%)', color: 'white', border: 'none' }}
+            >
+              Next{'>'}
+            </button>
+          </div>
+        </div>}
 
-          {activeTab === "Progressions" && 
-          <div className="card-container elimtop" style={{margin:0, padding:"2rem 5rem"}}>
-            <div>
-              <ProgressionDisplay
-                progType="ii-V-I"
-                progDefinition={iiVIIDefinition}
-                themeKey="emeraldGreen"
-              />
-            </div>
-            <div className="line"/>
-            <div style={{ display:"flex",textAlign: "center" , justifyContent: "space-between"}}>
-              <button onClick={() => {setActiveTab("Extension"); scrollToSection(contentRef)}} className="playbtn" style={{width:"10rem", borderRadius:"5rem", background: 'rgba(255,255,255,0.1)', color: 'white', border: '1px solid rgba(255,255,255,0.2)'}}>{'<'}Back</button>
-              <button 
-                onClick={() => {setActiveTab("Scales"); scrollToSection(contentRef)}} 
-                className="playbtn" 
-                style={{width:"10rem", borderRadius:"5rem", background: 'linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%)', color: 'white', border: 'none'}}
-              >
-                Next{'>'}
-              </button>
-            </div>
-          </div>}
+      {activeTab === "Scales" &&
+        <div className="card-container elimtop" style={{ margin: 0, padding: "2rem 5rem" }}>
+          <HarmonizingDisplay
+            harmonizingDefinition={advancedHarmonizingDefinition}
+            themeKey="emeraldGreen"
+          />
+          <div className="line" />
+          <div style={{ display: "flex", textAlign: "center", justifyContent: "space-between" }}>
+            <button onClick={() => { setActiveTab("Progressions"); scrollToSection(contentRef) }} className="playbtn" style={{ width: "10rem", borderRadius: "5rem", background: 'rgba(255,255,255,0.1)', color: 'white', border: '1px solid rgba(255,255,255,0.2)' }}>{'<'}Back</button>
+            <button
+              className="playbtn"
+              style={{ width: "10rem", borderRadius: "5rem", background: 'linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%)', color: 'white', border: 'none' }}
+              onClick={() => { setNavCheckPopUp(true) }}
+            >
+              Test{'>'}
+            </button>
+          </div>
+        </div>}
 
-          {activeTab === "Scales" && 
-          <div className="card-container elimtop" style={{margin:0, padding:"2rem 5rem"}}>
-            <HarmonizingDisplay 
-              harmonizingDefinition={advancedHarmonizingDefinition}
-              themeKey="emeraldGreen"
-            />
-            <div className="line"/>
-            <div style={{ display:"flex",textAlign: "center" , justifyContent: "space-between"}}>
-              <button onClick={() => {setActiveTab("Progressions"); scrollToSection(contentRef)}} className="playbtn" style={{width:"10rem", borderRadius:"5rem", background: 'rgba(255,255,255,0.1)', color: 'white', border: '1px solid rgba(255,255,255,0.2)'}}>{'<'}Back</button>
-              <button 
-                className="playbtn" 
-                style={{width:"10rem", borderRadius:"5rem", background: 'linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%)', color: 'white', border: 'none'}} 
-                onClick={() => {setNavCheckPopUp(true)}}
-              >
-                Test{'>'}
-              </button>  
-            </div>
-          </div>}
-
-        {guidePopup &&(
-          <div className="popup-overlay">
-            <div className="popup-box">
-              <h1>Guide</h1>
-              <p>Level 4 — Extended Harmony</p>
-              <p>At this level, students learn how scales turn into harmony. Instead of just playing scales, we build chords from each scale note and understand their musical roles.</p>
-              <p style={{textAlign:"left"}}>Students will:</p>
-              <ul>
-                <li>Build diatonic chords from scales</li>
-                <li>Learn ii–V–I progressions</li>
-                <li>Use 7th chords for richer sound</li>
-                <li>Choose chords that fit a melody</li>
-              </ul>
-              <p>This level explains how real songs are harmonized.</p>
-              <div className="popup-buttons">
-                <button onClick={() => setGuidePopUp(false)}>Got it!</button>
-              </div>
+      {guidePopup && (
+        <div className="popup-overlay">
+          <div className="popup-box">
+            <h1>Guide</h1>
+            <p>Level 4 — Extended Harmony</p>
+            <p>At this level, students learn how scales turn into harmony. Instead of just playing scales, we build chords from each scale note and understand their musical roles.</p>
+            <p style={{ textAlign: "left" }}>Students will:</p>
+            <ul>
+              <li>Build diatonic chords from scales</li>
+              <li>Learn ii–V–I progressions</li>
+              <li>Use 7th chords for richer sound</li>
+              <li>Choose chords that fit a melody</li>
+            </ul>
+            <p>This level explains how real songs are harmonized.</p>
+            <div className="popup-buttons">
+              <button onClick={() => setGuidePopUp(false)}>Got it!</button>
             </div>
           </div>
-        )}
-        {navCheckPopUp &&(
-          <div className="popup-overlay">
-            <div className="popup-box">
-              <h1>Moving to Test</h1>
-              <p>Once you move you will not be able to return to the lesson, are you ready?</p>
-              <div className="popup-buttons">
-                <button onClick={() => setNavCheckPopUp(false)}>Study a bit more</button>
-                <button onClick={() => navigate("/test/4")}>Lets start the test!</button>
-              </div>
+        </div>
+      )}
+      {navCheckPopUp && (
+        <div className="popup-overlay">
+          <div className="popup-box">
+            <h1>Moving to Test</h1>
+            <p>Once you move you will not be able to return to the lesson, are you ready?</p>
+            <div className="popup-buttons">
+              <button onClick={() => setNavCheckPopUp(false)}>Study a bit more</button>
+              <button onClick={() => navigate("/test/4")}>Lets start the test!</button>
             </div>
           </div>
-        )}
+        </div>
+      )}
     </div>
   );
 };

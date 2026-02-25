@@ -12,7 +12,7 @@ const PracticePage: React.FC = () => {
   const [filename, setFilename] = useState('Untitled');
   const [error, setError] = useState('');
   const [inputMiss, setInputMiss] = useState("");
-  
+
   const { setLoading, setPercent, setMessage, setGeneratedFilename, setShowCompletion } = useLoading();
   const [userId, setUserId] = useState<string | null>(null);
 
@@ -22,49 +22,64 @@ const PracticePage: React.FC = () => {
   }, []);
 
   const groups = [
-      {
-        name: "Difficulties",
-        options: [
-          { value: "simple easy", label: "Beginner" },
-          { value: "steady block", label: "Intermediate" },
-          { value: "complex broken", label: "Advanced" },
-        ],
-      },
-      {
-        name: "Genre",
-        options: [
-          { value: "pop", label: "Pop" },
-          { value: "jazz", label: "Jazz" },
-          { value: "classic", label: "Classic" },
-          { value: "rock", label: "Rock" },
-          { value: "blue", label: "Blue" },
-        ],
-      },
-      {
-        name: "Key",
-        options: [
-          { value: "C", label: "C" },
-          { value: "C sharp", label: "C#" },
-          { value: "D", label: "D" },
-          { value: "D sharp", label: "D#" },
-          { value: "E", label: "E" },
-          { value: "F", label: "F" },
-          { value: "F sharp", label: "F#" },
-          { value: "G", label: "G" },
-          { value: "G sharp", label: "G#" },
-          { value: "A", label: "A" },
-          { value: "A sharp", label: "A#" },
-          { value: "B", label: "B" },
-        ],
-      },
-      {
-        name: "Duration(s)",
-        options: [
-          { value: "5", label: "5s" },
-          { value: "10", label: "10s" },
-          { value: "20", label: "20s" },
-        ],
-      },
+    {
+      name: "Difficulties",
+      options: [
+        { value: "Mostly block chords and single-note melody.", label: "Beginner" },
+        { value: "Steady block chords with simple melody.", label: "Intermediate" },
+        { value: "Complex broken chords with active melody.", label: "Advanced" },
+      ],
+    },
+    {
+      name: "Genre",
+      options: [
+        {
+          value: "Upbeat contemporary pop piano piece, catchy melody, bright chords, modern harmony, 120 BPM, clean studio sound, emotional but uplifting",
+          label: "Pop"
+        },
+        {
+          value: "Smooth jazz piano piece, rich extended chords, swing feel, expressive dynamics, warm tone, improvisational style, 90 BPM",
+          label: "Jazz"
+        },
+        {
+          value: "Romantic classical piano composition, expressive dynamics, lyrical melody, rich harmonic progression, inspired by 19th century style, 80 BPM",
+          label: "Classical"
+        },
+        {
+          value: "Energetic rock-style piano piece, strong rhythmic drive, powerful chord progressions, dramatic dynamics, 110 BPM",
+          label: "Rock"
+        },
+        {
+          value: "Blues piano piece in 12-bar structure, soulful melody, expressive bends and grace notes, swing groove, emotional and raw, 85 BPM",
+          label: "Blues"
+        }
+      ]
+    },
+    {
+      name: "Key",
+      options: [
+        { value: "C", label: "C" },
+        { value: "C sharp", label: "C#" },
+        { value: "D", label: "D" },
+        { value: "D sharp", label: "D#" },
+        { value: "E", label: "E" },
+        { value: "F", label: "F" },
+        { value: "F sharp", label: "F#" },
+        { value: "G", label: "G" },
+        { value: "G sharp", label: "G#" },
+        { value: "A", label: "A" },
+        { value: "A sharp", label: "A#" },
+        { value: "B", label: "B" },
+      ],
+    },
+    {
+      name: "Duration(s)",
+      options: [
+        { value: "30", label: "30s" },
+        { value: "60", label: "60s" },
+        { value: "90", label: "90s" },
+      ],
+    },
   ];
 
   const handleFinalGenerate = async () => {
@@ -79,7 +94,7 @@ const PracticePage: React.FC = () => {
     try {
       const statusRes = await fetch('http://localhost:8000/generation-status');
       const statusData = await statusRes.json();
-      
+
       if (statusData.is_generating) {
         setError("A generation is already in progress. Please wait.");
         return;
@@ -117,21 +132,18 @@ const PracticePage: React.FC = () => {
     setShowPopup(false);
     setLoading(true);
 
-    const basePrompt = `Solo acoustic piano only.
-No other instruments.
+    const basePrompt = `Solo acoustic piano only. No other instruments.
 Slow to moderate tempo (60–85 BPM).
 Very clear note separation.
 No sustain pedal.
 Short note durations with clean attacks and clear endings.
 Simple rhythm.
 Minimal overlapping notes.
-Mostly block chords and single-note melody.
 No fast runs, no ornamentation.
 Dry studio recording sound, no reverb.
 Educational style, easy to transcribe.`;
 
-    const difficulty = selectedOptions["Difficulties"] === "simple easy" ? "Beginner" : 
-                       selectedOptions["Difficulties"] === "steady block" ? "Intermediate" : "Advanced";
+    const difficulty = selectedOptions["Difficulties"];
     const genre = selectedOptions["Genre"];
     const key = selectedOptions["Key"];
 
@@ -140,7 +152,7 @@ Educational style, easy to transcribe.`;
 
     console.log("Prompt:", textprompt);
     localStorage.setItem("mididuration", String(mididuration));
-    
+
     try {
       const response = await fetch(
         `http://localhost:8000/generate?prompt=${encodeURIComponent(textprompt)}&filename=${encodeURIComponent(filename)}&mididuration=${mididuration}`
@@ -188,7 +200,7 @@ Educational style, easy to transcribe.`;
           console.error("Failed saving record:", e);
         }
       }
-      
+
       setMessage("Finishing your masterpiece...");
       setPercent(0);
       setGeneratedFilename(filename);
@@ -211,7 +223,7 @@ Educational style, easy to transcribe.`;
             <h1 className="modern-title" style={{ textAlign: 'left', margin: 0 }}>Piano Architect</h1>
             <p style={{ color: 'var(--text-dim)', fontSize: '1.1rem', marginTop: '0.5rem' }}>Design your custom AI accompaniment</p>
           </div>
-          <button 
+          <button
             className="back-btn"
             style={{ padding: '0.75rem 1.25rem', fontSize: '0.9rem' }}
             onClick={() => setGuidePopUp(true)}
@@ -227,7 +239,7 @@ Educational style, easy to transcribe.`;
               <h3 style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--text-main)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{group.name}</h3>
               <div className="modern-radio-group">
                 {group.options.map((option, optionIdx) => (
-                  <label 
+                  <label
                     key={optionIdx}
                     className={`modern-radio-label ${selectedOptions[group.name] === option.value ? 'active' : ''}`}
                   >
@@ -252,7 +264,7 @@ Educational style, easy to transcribe.`;
           ))}
 
           <div style={{ marginTop: '1rem', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '2.5rem' }}>
-            <button 
+            <button
               onClick={() => {
                 const missing = groups
                   .filter(group => !selectedOptions[group.name])
@@ -264,7 +276,7 @@ Educational style, easy to transcribe.`;
                   return;
                 }
                 setShowPopup(true);
-              }} 
+              }}
               className="start-btn"
               style={{ width: '100%', padding: '1.25rem', fontSize: '1.2rem' }}
             >
@@ -277,10 +289,10 @@ Educational style, easy to transcribe.`;
       {/* Modern Popups */}
       {(showPopup || errorPopup || guidePopup) && (
         <div style={{
-            position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-            backgroundColor: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(8px)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000,
-            padding: '20px'
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          backgroundColor: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(8px)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000,
+          padding: '20px'
         }}>
           {showPopup && (
             <div className="glass-card" style={{ maxWidth: '500px' }}>
@@ -291,15 +303,15 @@ Educational style, easy to transcribe.`;
                 value={filename}
                 onChange={(e) => setFilename(e.target.value)}
                 placeholder="e.g., moonlight_sonata_remix"
-                style={{ 
-                    width: '100%', 
-                    padding: '1rem', 
-                    background: 'rgba(255,255,255,0.05)', 
-                    border: '1px solid rgba(255,255,255,0.1)',
-                    borderRadius: '12px',
-                    color: 'white',
-                    fontSize: '1rem',
-                    marginBottom: '1rem'
+                style={{
+                  width: '100%',
+                  padding: '1rem',
+                  background: 'rgba(255,255,255,0.05)',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  borderRadius: '12px',
+                  color: 'white',
+                  fontSize: '1rem',
+                  marginBottom: '1rem'
                 }}
               />
               {error && <p style={{ color: '#ef4444', fontSize: '0.9rem', marginBottom: '1.5rem' }}>{error}</p>}

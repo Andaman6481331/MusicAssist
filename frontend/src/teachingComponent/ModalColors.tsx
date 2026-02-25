@@ -1,5 +1,5 @@
-import {useRef, useState} from "react";
-import {useNavigate } from "react-router-dom";
+import { useRef, useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 import ProgressLine from "./subComponent/ProgressLine";
 import ModeDisplay from "./subComponent/ModeDisplay";
@@ -90,7 +90,7 @@ const mixolydianScaleDefinition = {
 
 const ModalColors: React.FC = () => {
   const [activeTab, setActiveTab] = useState("Dorian");
-  const [guidePopup, setGuidePopUp]= useState(false);
+  const [guidePopup, setGuidePopUp] = useState(false);
 
   const [navCheckPopUp, setNavCheckPopUp] = useState(false);
   const navigate = useNavigate();
@@ -99,25 +99,36 @@ const ModalColors: React.FC = () => {
   const scrollToSection = (ref: React.RefObject<HTMLDivElement>) => {
     ref.current?.scrollIntoView({ behavior: "smooth" });
   };
-  return(
+
+  useEffect(() => {
+    if (guidePopup || navCheckPopUp) {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      document.body.classList.add("modal-open");
+    } else {
+      document.body.classList.remove("modal-open");
+    }
+    return () => document.body.classList.remove("modal-open");
+  }, [guidePopup, navCheckPopUp]);
+
+  return (
     <div className="teaching-page-container">
-      <div style={{ display:'flex', width:"100%", justifyContent:"space-between", alignItems: 'flex-start', marginBottom:"2rem", gap:'2rem' }}>
-        <div style={{ display:'flex', flexDirection: 'column', gap:'0.2rem' }}>
-          <span className="topic-tag" style={{ background:'rgba(236, 72, 153, 0.1)', color:'var(--accent-primary)', padding:'4px 12px', fontSize:'0.8rem', width:'fit-content' }}>
+      <div style={{ display: 'flex', width: "100%", justifyContent: "space-between", alignItems: 'flex-start', marginBottom: "2rem", gap: '2rem' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
+          <span className="topic-tag" style={{ background: 'rgba(236, 72, 153, 0.1)', color: 'var(--accent-primary)', padding: '4px 12px', fontSize: '0.8rem', width: 'fit-content' }}>
             Level 5
           </span>
-          <div style={{ display:'flex', alignItems: 'center', gap:'1rem' }}>
-            <h1 className="modern-title" style={{ textAlign: 'left', margin: 0,fontSize:'4rem', color: 'var(--text-main)' }}>Modal Colors</h1>
-            <button 
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <h1 className="modern-title" style={{ textAlign: 'left', margin: 0, fontSize: '4rem', color: 'var(--text-main)' }}>Modal Colors</h1>
+            <button
               onClick={() => setGuidePopUp(true)}
-              style={{ background:'rgba(255,255,255,0.05)', border:'1px solid rgba(255,255,255,0.1)', borderRadius:'50%', width:'32px', height:'32px', display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer' }}
-              >
+              style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+            >
               <img src="/icon/info.svg" alt="Info" style={{ width: '1rem', height: '1rem', filter: 'brightness(0) invert(1)' }} />
             </button>
           </div>
         </div>
-        
-        <div className="glass-card" style={{ padding:'0.5rem 1.5rem', width:'auto', maxWidth:'none', margin:0, borderRadius:'16px', background: 'var(--card-bg)', border: '1px solid var(--card-border)' }}>
+
+        <div className="glass-card" style={{ padding: '0.5rem 1.5rem', width: 'auto', maxWidth: 'none', margin: 0, borderRadius: '16px', background: 'var(--card-bg)', border: '1px solid var(--card-border)' }}>
           <ProgressLine
             firstLevel="Dorian"
             secondLevel="Mixolydian"
@@ -127,104 +138,104 @@ const ModalColors: React.FC = () => {
       </div>
 
       <div className="nav-elim-bottom2" ref={contentRef}>
-            <label className="nbtn" htmlFor="t">
-              <input type="radio" id="t" name="nav" onChange={() => setActiveTab("Dorian")} checked={activeTab === "Dorian"}/>
-              <span>Dorian</span>
-            </label>
-            <label className="nbtn" htmlFor="s">
-              <input type="radio" id="s" name="nav" onChange={() => setActiveTab("Mixolydian")} checked={activeTab === "Mixolydian"}/>
-              <span>Mixolydian</span>
-            </label>
-            <label className="nbtn" htmlFor="p">
-              <input type="radio" id="p" name="nav" onChange={() => setActiveTab("Progressions")} checked={activeTab === "Progressions"}/>
-              <span>Pattern</span>
-            </label>
+        <label className="nbtn" htmlFor="t">
+          <input type="radio" id="t" name="nav" onChange={() => setActiveTab("Dorian")} checked={activeTab === "Dorian"} />
+          <span>Dorian</span>
+        </label>
+        <label className="nbtn" htmlFor="s">
+          <input type="radio" id="s" name="nav" onChange={() => setActiveTab("Mixolydian")} checked={activeTab === "Mixolydian"} />
+          <span>Mixolydian</span>
+        </label>
+        <label className="nbtn" htmlFor="p">
+          <input type="radio" id="p" name="nav" onChange={() => setActiveTab("Progressions")} checked={activeTab === "Progressions"} />
+          <span>Pattern</span>
+        </label>
+      </div>
+
+      {activeTab === "Dorian" &&
+        <div className="card-container elimtop" style={{ margin: 0, padding: "2rem 5rem" }}>
+          <ScaleDisplay
+            scaleType="dorian"
+            scaleDefinition={dorianScaleDefinition}
+            themeKey="galaxyVivid"
+          />
+          <div className="line" />
+          <div style={{ display: "flex", textAlign: "center", justifyContent: "flex-end" }}>
+            <button
+              onClick={() => { setActiveTab("Mixolydian"); scrollToSection(contentRef) }}
+              className="playbtn"
+              style={{ width: "10rem", borderRadius: "5rem", background: 'linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%)', color: 'white', border: 'none' }}
+            >
+              Next {">"}
+            </button>
           </div>
+        </div>}
 
-          {activeTab === "Dorian" && 
-          <div className="card-container elimtop" style={{margin:0, padding:"2rem 5rem"}}>
-            <ScaleDisplay
-              scaleType="dorian"
-              scaleDefinition={dorianScaleDefinition}
-              themeKey="galaxyVivid"
-            />
-            <div className="line"/>
-            <div style={{ display:"flex",textAlign: "center" , justifyContent: "flex-end"}}>
-              <button 
-                onClick={() => {setActiveTab("Mixolydian"); scrollToSection(contentRef)}} 
-                className="playbtn" 
-                style={{width:"10rem", borderRadius:"5rem", background: 'linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%)', color: 'white', border: 'none'}}
-              >
-                Next {">"}
-              </button>
-            </div>
-          </div>}
-
-          {activeTab === "Mixolydian" && 
-          <div className="card-container elimtop" style={{margin:0, padding:"2rem 5rem"}}>
-            <ScaleDisplay
-              scaleType="mixolydian"
-              scaleDefinition={mixolydianScaleDefinition}
-              themeKey="galaxyVivid"
-            />
-            <div className="line"/>
-            <div style={{ display:"flex",textAlign: "center" , justifyContent: "space-between"}}>
-              <button onClick={() => {setActiveTab("Dorian"); scrollToSection(contentRef)}} className="playbtn" style={{width:"10rem", borderRadius:"5rem", background: 'rgba(255,255,255,0.1)', color: 'white', border: '1px solid rgba(255,255,255,0.2)'}}>{"<"} Back</button>
-              <button 
-                onClick={() => {setActiveTab("Progressions"); scrollToSection(contentRef)}} 
-                className="playbtn" 
-                style={{width:"10rem", borderRadius:"5rem", background: 'linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%)', color: 'white', border: 'none'}}
-              >
-                Next {">"}
-              </button>
-            </div>
-          </div>}
-
-          {activeTab === "Progressions" && 
-          <div className="card-container elimtop" style={{margin:0, padding:"2rem 5rem"}}>
-            <ModeDisplay 
-              modeDefinition={advancedModeDefinition}
-              themeKey="galaxyVivid"
-            />
-            <div className="line"/>
-            <div style={{ display:"flex",textAlign: "center" , justifyContent: "space-between"}}>
-              <button onClick={() => {setActiveTab("Mixolydian"); scrollToSection(contentRef)}} className="playbtn" style={{width:"10rem", borderRadius:"5rem", background: 'rgba(255,255,255,0.1)', color: 'white', border: '1px solid rgba(255,255,255,0.2)'}}>Mixolydian</button>
-              <button 
-                className="playbtn" 
-                style={{width:"10rem", borderRadius:"5rem", background: 'linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%)', color: 'white', border: 'none'}} 
-                onClick={() => {setNavCheckPopUp(true)}}
-              >
-                Test
-              </button>
-            </div>
-          </div>}
-
-
-        {guidePopup &&(
-          <div className="popup-overlay">
-            <div className="popup-box">
-              <h1>Guide</h1>
-              <p >
-                In this level, you learn how <span style={{fontWeight:"bolder"}}>modes change the color of music</span>, even when the notes are very similar.
-Think of modes as <span style={{fontWeight:"bolder"}}>different moods</span> created by small note changes, not new scales you must memorize.</p>
-              <div className="popup-buttons">
-                <button onClick={() => setGuidePopUp(false)}>Got it!</button>
-              </div>
-            </div>
+      {activeTab === "Mixolydian" &&
+        <div className="card-container elimtop" style={{ margin: 0, padding: "2rem 5rem" }}>
+          <ScaleDisplay
+            scaleType="mixolydian"
+            scaleDefinition={mixolydianScaleDefinition}
+            themeKey="galaxyVivid"
+          />
+          <div className="line" />
+          <div style={{ display: "flex", textAlign: "center", justifyContent: "space-between" }}>
+            <button onClick={() => { setActiveTab("Dorian"); scrollToSection(contentRef) }} className="playbtn" style={{ width: "10rem", borderRadius: "5rem", background: 'rgba(255,255,255,0.1)', color: 'white', border: '1px solid rgba(255,255,255,0.2)' }}>{"<"} Back</button>
+            <button
+              onClick={() => { setActiveTab("Progressions"); scrollToSection(contentRef) }}
+              className="playbtn"
+              style={{ width: "10rem", borderRadius: "5rem", background: 'linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%)', color: 'white', border: 'none' }}
+            >
+              Next {">"}
+            </button>
           </div>
-        )}
-        {navCheckPopUp &&(
-          <div className="popup-overlay">
-            <div className="popup-box">
-              <h1>Moving to Test</h1>
-              <p>Once you move you will not be able to return to the lesson, are you ready?</p>
-              <div className="popup-buttons">
-                <button onClick={() => setNavCheckPopUp(false)}>Study a bit more</button>
-                <button onClick={() => navigate("/test/1")}>Lets start the test!</button>
-              </div>
+        </div>}
+
+      {activeTab === "Progressions" &&
+        <div className="card-container elimtop" style={{ margin: 0, padding: "2rem 5rem" }}>
+          <ModeDisplay
+            modeDefinition={advancedModeDefinition}
+            themeKey="galaxyVivid"
+          />
+          <div className="line" />
+          <div style={{ display: "flex", textAlign: "center", justifyContent: "space-between" }}>
+            <button onClick={() => { setActiveTab("Mixolydian"); scrollToSection(contentRef) }} className="playbtn" style={{ width: "10rem", borderRadius: "5rem", background: 'rgba(255,255,255,0.1)', color: 'white', border: '1px solid rgba(255,255,255,0.2)' }}>Mixolydian</button>
+            <button
+              className="playbtn"
+              style={{ width: "10rem", borderRadius: "5rem", background: 'linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%)', color: 'white', border: 'none' }}
+              onClick={() => { setNavCheckPopUp(true) }}
+            >
+              Test
+            </button>
+          </div>
+        </div>}
+
+
+      {guidePopup && (
+        <div className="popup-overlay">
+          <div className="popup-box">
+            <h1>Guide</h1>
+            <p >
+              In this level, you learn how <span style={{ fontWeight: "bolder" }}>modes change the color of music</span>, even when the notes are very similar.
+              Think of modes as <span style={{ fontWeight: "bolder" }}>different moods</span> created by small note changes, not new scales you must memorize.</p>
+            <div className="popup-buttons">
+              <button onClick={() => setGuidePopUp(false)}>Got it!</button>
             </div>
           </div>
-        )}
+        </div>
+      )}
+      {navCheckPopUp && (
+        <div className="popup-overlay">
+          <div className="popup-box">
+            <h1>Moving to Test</h1>
+            <p>Once you move you will not be able to return to the lesson, are you ready?</p>
+            <div className="popup-buttons">
+              <button onClick={() => setNavCheckPopUp(false)}>Study a bit more</button>
+              <button onClick={() => navigate("/test/1")}>Lets start the test!</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

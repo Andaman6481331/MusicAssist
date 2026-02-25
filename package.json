@@ -5,7 +5,10 @@
     "scripts": {
         "dev": "concurrently \"npm run dev --prefix frontend\" \"cd backend && .\\.venv\\Scripts\\python -m uvicorn server:app --host 0.0.0.0 --port 8000\"",
         "dev-frontend": "npm run dev --prefix frontend",
-        "dev-backend": "cd backend && .\\.venv\\Scripts\\python -m uvicorn server:app --host 0.0.0.0 --port 8000 --reload"
+        "dev-backend": "cd backend && .\\.venv\\Scripts\\python -m uvicorn server:app --host 0.0.0.0 --port 8000 --reload",
+        "dev:linux": "concurrently \"npm run dev --prefix frontend\" \"cd backend && ./.venv/bin/python -m uvicorn server:app --host 0.0.0.0 --port 8000\"",
+        "dev-frontend:linux": "npm run dev --prefix frontend",
+        "dev-backend:linux": "cd backend && ./.venv/bin/python -m uvicorn server:app --host 0.0.0.0 --port 8000 --reload"
     },
     "devDependencies": {
         "concurrently": "^8.2.2"

@@ -87,41 +87,41 @@ const App = () => {
   const { isGlobalEnabled } = useGlobalBoolean();
 
   useEffect(() => {
-      if (samplerRef.current) return; // Prevent double load
+    if (samplerRef.current) return; // Prevent double load
 
-      const limiter = new Tone.Limiter(-1).toDestination();
+    const limiter = new Tone.Limiter(-1).toDestination();
 
-        const reverb = new Tone.Reverb({
-          decay: 4,
-          wet: 0.35,     // 35% reverb is good for piano
-        }).connect(limiter);
+    const reverb = new Tone.Reverb({
+      decay: 4,
+      wet: 0.35,     // 35% reverb is good for piano
+    }).connect(limiter);
 
-      const gain = new Tone.Gain(0).connect(reverb); // Gain node before limiter
-      gainRef.current = gain;
+    const gain = new Tone.Gain(0).connect(reverb); // Gain node before limiter
+    gainRef.current = gain;
 
-      const s = new Tone.Sampler({
-        urls: sampleUrls,
-        onload: () => {
-          console.log("Global Sampler loaded successfully");
-          setIsSamplerLoaded(true);
-        },
-        onerror: (error) => {
-          console.error("Critical error loading global sampler:", error);
-          // Set to loaded anyway so the app isn't stuck, but with error state
-          setIsSamplerLoaded(true);
-        },
-        release: 2,
-      }).connect(gain);
+    const s = new Tone.Sampler({
+      urls: sampleUrls,
+      onload: () => {
+        console.log("Global Sampler loaded successfully");
+        setIsSamplerLoaded(true);
+      },
+      onerror: (error) => {
+        console.error("Critical error loading global sampler:", error);
+        // Set to loaded anyway so the app isn't stuck, but with error state
+        setIsSamplerLoaded(true);
+      },
+      release: 2,
+    }).connect(gain);
 
-      gain.gain.linearRampToValueAtTime(1, Tone.now() + 0.1); // 50ms fade-in
-      s.volume.value = -8;  //lower volume to reduce noise
+    gain.gain.linearRampToValueAtTime(1, Tone.now() + 0.1); // 50ms fade-in
+    s.volume.value = -8;  //lower volume to reduce noise
 
-      samplerRef.current = s;
+    samplerRef.current = s;
 
-      return () => {
-        // Cleanup if necessary, though global ref stays for lifespan
-      };
-    }, []);
+    return () => {
+      // Cleanup if necessary, though global ref stays for lifespan
+    };
+  }, []);
 
   // Scroll to top on page change with a smooth "slide" effect
   useEffect(() => {
@@ -135,28 +135,28 @@ const App = () => {
     <ThemeProvider>
       <div>
         {/* <RippleEffect /> */}
-        <SamplerContext.Provider value={{samplerRef,gainRef}}>
+        <SamplerContext.Provider value={{ samplerRef, gainRef }}>
           {!isSamplerLoaded ? (
             <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
               <h2>Loading samples...</h2>
             </div>
-          ) : (<div style={{display: "flex", flexDirection: "column"}}>
+          ) : (<div style={{ display: "flex", flexDirection: "column" }}>
             <header className="navbar">
-              <Link to="/" style={{outline:"0", display:"flex"}}>
-                <div style={{height:"40px", margin:"50px 20px 0 20px"}}>
-                    <img src="/harmonic_logo(1).svg" alt="logo" style={{
-                        height: "100%",
-                        width: "100%",
-                        objectFit: "contain",
-                        display: "block"
-                        }}/>
-                </div>
-                <h1 className="title">Harmonic</h1>
+              <Link to="/" style={{ outline: "0", display: "flex" }}>
+                {/* <div style={{ height: "40px", margin: "20px 20px 0 20px" }}>
+                  <img src="/harmonic_logo(1).svg" alt="logo" style={{
+                    height: "100%",
+                    width: "100%",
+                    objectFit: "contain",
+                    display: "block"
+                  }} />
+                </div> */}
+                <h1 className="title" style={{ marginLeft: "20px" }}>Harmonic</h1>
               </Link>
               <div className="right-nav">
                 {
-                  !isGlobalEnabled ?(<div></div>):
-                  (<Link className="title" to="/generate-prompt">Generating</Link>)
+                  !isGlobalEnabled ? (<div></div>) :
+                    (<Link className="title" to="/generate-prompt">Generating</Link>)
                 }
                 <Link className="title" to="/tools">Tools</Link>
                 {/* <Link className="title" to="/theory">Self-Study</Link> */}
@@ -165,59 +165,59 @@ const App = () => {
                 <AuthControls />
               </div>
             </header>
-            <main style={{flex: 1}}>
+            <main style={{ flex: 1 }}>
               <div key={location.pathname} className="page-transition-wrapper">
                 <Outlet />
               </div>
               <LoadingBar />
-            {/* Modern Footer */}
-            <footer style={{ 
-              background: 'var(--bg-primary)', 
-              backdropFilter: 'blur(12px)',
-              borderTop: '1px solid var(--card-border)',
-              padding: '3rem 2rem 0.5rem 2rem',
-              color: 'var(--text-dim)'
-            }}>
-              <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '3rem' }}>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                    <img src="/harmonic_logo(1).svg" alt="logo" style={{ height: '32px' }} />
-                    <span style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--text-main)', letterSpacing: '-0.02em' }}>Harmonic</span>
+              {/* Modern Footer */}
+              <footer style={{
+                background: 'var(--bg-primary)',
+                backdropFilter: 'blur(12px)',
+                borderTop: '1px solid var(--card-border)',
+                padding: '3rem 2rem 0.5rem 2rem',
+                color: 'var(--text-dim)'
+              }}>
+                <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '3rem' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                      <img src="/harmonic_logo(1).svg" alt="logo" style={{ height: '40px' }} />
+                      <span style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--text-main)', letterSpacing: '-0.02em' }}>Harmonic</span>
+                    </div>
+                    <p style={{ fontSize: '0.9rem', lineHeight: 1.6 }}>Empowering musicians through AI-driven music theory and practice tools.</p>
                   </div>
-                  <p style={{ fontSize: '0.9rem', lineHeight: 1.6 }}>Empowering musicians through AI-driven music theory and practice tools.</p>
-                </div>
-                
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
-                  <h4 style={{ color: 'var(--text-main)', fontWeight: 700, margin: 0 }}>Platform</h4>
-                  <Link to="/lessons" style={{ color: 'inherit', fontSize: '0.9rem' }}>Academy</Link>
-                  <Link to="/generate-prompt" style={{ color: 'inherit', fontSize: '0.9rem' }}>Music AI</Link>
-                  <Link to="/tools" style={{ color: 'inherit', fontSize: '0.9rem' }}>Interactive Tools</Link>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
+                    <h4 style={{ color: 'var(--text-main)', fontWeight: 700, margin: 0 }}>Platform</h4>
+                    <Link to="/lessons" style={{ color: 'inherit', fontSize: '0.9rem' }}>Academy</Link>
+                    <Link to="/generate-prompt" style={{ color: 'inherit', fontSize: '0.9rem' }}>Music AI</Link>
+                    <Link to="/tools" style={{ color: 'inherit', fontSize: '0.9rem' }}>Interactive Tools</Link>
+                  </div>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
+                    <h4 style={{ color: 'var(--text-main)', fontWeight: 700, margin: 0 }}>Company</h4>
+                    <a href="#" style={{ color: 'inherit', fontSize: '0.9rem' }}>About Us</a>
+                    <a href="#" style={{ color: 'inherit', fontSize: '0.9rem' }}>Privacy Policy</a>
+                    <a href="#" style={{ color: 'inherit', fontSize: '0.9rem' }}>Terms of Service</a>
+                  </div>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
+                    <h4 style={{ color: 'var(--text-main)', fontWeight: 700, margin: 0 }}>Connect</h4>
+                    <a href="https://github.com/herbyherb/MusicAssist" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', fontSize: '0.9rem' }}>GitHub</a>
+                    <a href="#" style={{ color: 'inherit', fontSize: '0.9rem' }}>Discord</a>
+                    <a href="#" style={{ color: 'inherit', fontSize: '0.9rem' }}>Twitter</a>
+                  </div>
                 </div>
 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
-                  <h4 style={{ color: 'var(--text-main)', fontWeight: 700, margin: 0 }}>Company</h4>
-                  <a href="#" style={{ color: 'inherit', fontSize: '0.9rem' }}>About Us</a>
-                  <a href="#" style={{ color: 'inherit', fontSize: '0.9rem' }}>Privacy Policy</a>
-                  <a href="#" style={{ color: 'inherit', fontSize: '0.9rem' }}>Terms of Service</a>
+                <div style={{ maxWidth: '1200px', margin: '1rem auto 0', paddingTop: '0.5rem', borderTop: '1px solid var(--card-border)', textAlign: 'center', fontSize: '0.85rem' }}>
+                  <p>© {new Date().getFullYear()} Harmonic. All rights reserved. Created with 💙 for musicians.</p>
                 </div>
-
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
-                  <h4 style={{ color: 'var(--text-main)', fontWeight: 700, margin: 0 }}>Connect</h4>
-                  <a href="https://github.com/herbyherb/MusicAssist" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', fontSize: '0.9rem' }}>GitHub</a>
-                  <a href="#" style={{ color: 'inherit', fontSize: '0.9rem' }}>Discord</a>
-                  <a href="#" style={{ color: 'inherit', fontSize: '0.9rem' }}>Twitter</a>
-                </div>
-              </div>
-              
-              <div style={{ maxWidth: '1200px', margin: '1rem auto 0', paddingTop: '0.5rem', borderTop: '1px solid var(--card-border)', textAlign: 'center', fontSize: '0.85rem' }}>
-                <p>© {new Date().getFullYear()} Harmonic. All rights reserved. Created with 💙 for musicians.</p>
-              </div>
-            </footer>
+              </footer>
             </main>
           </div>
           )}
         </SamplerContext.Provider>
-    </div>
+      </div>
     </ThemeProvider>
   );
 };
