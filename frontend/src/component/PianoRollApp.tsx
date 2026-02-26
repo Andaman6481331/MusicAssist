@@ -53,7 +53,7 @@ const PianoRollApp: React.FC<PianoRollAppProps> = ({
   const [totalTime, setTotalTime] = useState<number>(8);
   const [isPlaying, setIsPlaying] = useState(false);
   const [pausedTime, setPausedTime] = useState(0);
-
+  const [isPedalOn, setIsPedalOn] = useState(false);
   const scrollRef = useRef<SVGGElement>(null);
   const animationRef = useRef<number | null>(null);
   const startTimeRef = useRef<number | null>(null);
@@ -105,7 +105,10 @@ const PianoRollApp: React.FC<PianoRollAppProps> = ({
               notes: data.notes,
             });
           } catch (err: any) {
-            console.error("Error saving JSON record:", err);
+            // FILENAME_ALREADY_EXISTS is expected when re-opening a saved file — ignore it
+            if (err?.message !== "FILENAME_ALREADY_EXISTS") {
+              console.error("Error saving JSON record:", err);
+            }
           }
         }
 
@@ -121,16 +124,32 @@ const PianoRollApp: React.FC<PianoRollAppProps> = ({
     load();
   }, [fileName, user]);
 
-  const pixelsPerBeat = svgHeight / 8;
-  const pixelsPerSecond = (tempo / 60) * pixelsPerBeat;
-  const total_svg_height = totalTime * pixelsPerSecond;
+  // ── Scroll Speed and Height Calibration
+  // pixelsPerSecond: 120 means 1 second = 120px height. 
+  const pixelsPerSecond = 120;
+
+  // ── Sync Sampler release, Gain, and Reverb with Pedal state
+  useEffect(() => {
+    if (sampler?.samplerRef.current && sampler?.gainRef.current && sampler?.reverbRef.current) {
+      // 1. Set long release for notes
+      sampler.samplerRef.current.release = isPedalOn ? 20 : 2;
+
+      // 2. Make it "louder" - boost gain by 20% when pedal is down
+      // Use ramp to avoid clicking
+      sampler.gainRef.current.gain.rampTo(isPedalOn ? 1.5 : 1.0, 0.1);
+
+      // 3. Make it more "realistic" - boost reverb wetness to simulate resonance
+      // Regular wet is 0.35, Pedal wet is 0.55
+      sampler.reverbRef.current.wet.rampTo(isPedalOn ? 0.7 : 0.35, 0.1);
+    }
+  }, [isPedalOn, sampler]);
 
   const animate = (now: number) => {
-    const visualOffsetStart = -svgHeight / 5;
     if (!startTimeRef.current) return;
 
     const elapsed = (now - startTimeRef.current) / 1000;
-    const offset = visualOffsetStart + elapsed * pixelsPerSecond;
+    // Offset logic: At elapsed time T, a note at note.time T should be at svgHeight.
+    const offset = elapsed * pixelsPerSecond;
     setPausedTime(Math.min(elapsed, totalTime) * 1000);
 
     if (scrollRef.current) {
@@ -138,20 +157,23 @@ const PianoRollApp: React.FC<PianoRollAppProps> = ({
     }
 
     const keysToAdd: string[] = [];
-    const threshold = 5; // Slightly increased for smoother triggering
+    const threshold = pixelsPerSecond / 60; // Dynamic threshold based on frame rate (mostly ~2px)
 
     notes.forEach((note) => {
-      const y = svgHeight - (note.time / totalTime) * total_svg_height;
-      const visualYBottom = y + offset;
+      const yBase = svgHeight - (note.time * pixelsPerSecond);
+      const visualYBottom = yBase + offset;
 
       if (Math.abs(visualYBottom - svgHeight) <= threshold && !playedKeysRef.current.has(note.name)) {
         const normalized = note.name;
         keysToAdd.push(normalized);
 
         if (sampler?.samplerRef.current) {
+          // If pedal is on, we "hold" the note by using a much longer duration
+          const effectiveDuration = isPedalOn ? Math.max(note.duration, 4) : note.duration;
+          
           sampler.samplerRef.current.triggerAttackRelease(
             normalized,
-            note.duration,
+            effectiveDuration,
             undefined,
             note.velocity
           );
@@ -169,7 +191,7 @@ const PianoRollApp: React.FC<PianoRollAppProps> = ({
       triggerUpdate();
     }
 
-    const paddingTime = (svgHeight / 5) / pixelsPerSecond;
+    const paddingTime = svgHeight / pixelsPerSecond;
     if (elapsed < totalTime + paddingTime + 1) { // Added +1s extra safety
       animationRef.current = requestAnimationFrame(animate);
     } else {
@@ -199,8 +221,7 @@ const PianoRollApp: React.FC<PianoRollAppProps> = ({
     setPausedTime(0);
     playedKeysRef.current.clear();
     if (scrollRef.current) {
-      const visualOffsetStart = -svgHeight / 5;
-      scrollRef.current.setAttribute("transform", `translate(0, ${visualOffsetStart})`);
+      scrollRef.current.setAttribute("transform", `translate(0, 0)`);
     }
     if (isPlaying) {
       if (animationRef.current !== null) cancelAnimationFrame(animationRef.current);
@@ -218,7 +239,7 @@ const PianoRollApp: React.FC<PianoRollAppProps> = ({
     setPausedTime(clampedTime);
     startTimeRef.current = performance.now() - clampedTime;
     if (scrollRef.current) {
-      const offset = -svgHeight / 5 + (clampedTime / 1000) * pixelsPerSecond;
+      const offset = (clampedTime / 1000) * pixelsPerSecond;
       scrollRef.current.setAttribute("transform", `translate(0, ${offset})`);
     }
     triggerUpdate();
@@ -268,45 +289,84 @@ const PianoRollApp: React.FC<PianoRollAppProps> = ({
       <div className="svg-container" style={{ width: svgWidth, height: svgHeight }}>
         <svg width={svgWidth} height={svgHeight}>
           <defs>
-            <linearGradient id="noteGradientLH" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stopColor="var(--accent-secondary)" />
+            {/* White Key Gradients */}
+            <linearGradient id="gradLHWhite" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stopColor="#a855f7" />
               <stop offset="100%" stopColor="#7e22ce" />
             </linearGradient>
-            <linearGradient id="noteGradientRH" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stopColor="var(--accent-primary)" />
-              <stop offset="100%" stopColor="#1d4ed8" />
+            <linearGradient id="gradRHWhite" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stopColor="#3b82f6" />
+              <stop offset="100%" stopColor="#2563eb" />
+            </linearGradient>
+
+            {/* Black Key Gradients (Sleeker/Darker) */}
+            <linearGradient id="gradLHBlack" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stopColor="#7e22ce" />
+              <stop offset="100%" stopColor="#581c87" />
+            </linearGradient>
+            <linearGradient id="gradRHBlack" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stopColor="#2563eb" />
+              <stop offset="100%" stopColor="#1e3a8a" />
             </linearGradient>
           </defs>
-          <g ref={scrollRef} transform={`translate(0, -${svgHeight})`}>
+
+          {/* Background Grid: Vertical lines between B and C (Octave dividers) */}
+          <g className="octave-dividers">
+            {octaves.map((octave) => (
+              <line
+                key={octave}
+                x1={octave * whiteKeyWidth * 7}
+                y1={0}
+                x2={octave * whiteKeyWidth * 7}
+                y2={svgHeight}
+                stroke="rgba(255,255,255,0.08)"
+                strokeWidth={1}
+                strokeDasharray="4,4"
+              />
+            ))}
+          </g>
+
+          <g ref={scrollRef} transform="translate(0, 0)">
             {notes.map((note, index) => {
               const noteBase = note.name.replace(/[0-9]/g, '');
               const octaveStr = note.name.replace(/[^0-9]/g, '');
               const octave = parseInt(octaveStr);
               const baseX = keyPositionMap[noteBase] || 0;
               const x = baseX + (octave - 1) * whiteKeyWidth * 7;
-              const y = svgHeight - (note.time / totalTime) * total_svg_height;
+              
+              // Trigger line is at svgHeight. 
+              // A note with time=0 should be exactly at svgHeight initially.
+              const yBase = svgHeight - (note.time * pixelsPerSecond);
               const heightPx = note.duration * pixelsPerSecond;
-              const yAdjusted = y - heightPx;
+              const isBlack = note.name.includes("#");
               const isLH = note.hand?.includes("LH");
+
+              // Select gradient based on hand AND key type
+              let fill = "url(#gradRHWhite)";
+              if (isLH) {
+                fill = isBlack ? "url(#gradLHBlack)" : "url(#gradLHWhite)";
+              } else {
+                fill = isBlack ? "url(#gradRHBlack)" : "url(#gradRHWhite)";
+              }
 
               return (
                 <g key={index} className="note-group">
                   <rect
                     className="note-rect"
                     x={x}
-                    y={yAdjusted}
-                    width={note.name.includes("#") ? whiteKeyWidth * 0.7 : whiteKeyWidth}
+                    y={yBase - heightPx} 
+                    width={isBlack ? whiteKeyWidth * 0.7 : whiteKeyWidth}
                     height={heightPx}
-                    rx={4}
-                    fill={isLH ? "url(#noteGradientLH)" : "url(#noteGradientRH)"}
+                    rx={!isBlack ? 4 : 2}
+                    fill={fill}
                     stroke="rgba(0,0,0,0.3)"
                     strokeWidth={1}
                   />
-                  {showNote && heightPx > 20 && (
+                  {showNote && heightPx > 25 && (
                     <text
                       className="note-text"
                       x={x + (note.name.includes("#") ? whiteKeyWidth * 0.35 : whiteKeyWidth / 2)}
-                      y={yAdjusted + heightPx / 2}
+                      y={yBase - heightPx / 2}
                       fill="white"
                       fontSize={10}
                       textAnchor="middle"
@@ -388,6 +448,16 @@ const PianoRollApp: React.FC<PianoRollAppProps> = ({
           
           <button className="control-btn" onClick={restartMidi} title="Restart">
             <img src="/icon/reload.svg" alt="Reload" />
+          </button>
+
+          <button 
+            className={`control-btn ${isPedalOn ? 'pedal-active' : ''}`} 
+            onClick={() => setIsPedalOn(!isPedalOn)} 
+            title="Sustain Pedal (Hold Notes)"
+            style={{ position: 'relative' }}
+          >
+            <img src="/icon/pedal.svg" alt="Pedal" style={{ opacity: isPedalOn ? 1 : 0.6 }} />
+            {isPedalOn && <span className="pedal-dot"></span>}
           </button>
 
           <button className="control-btn play-btn" onClick={isPlaying ? pausePlayback : playMidi}>

@@ -225,3 +225,26 @@
   width: 28px;
   height: 28px;
 }
+.control-btn.pedal-active {
+  background: rgba(59, 130, 246, 0.2);
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
+  animation: pulse-pedal 2s infinite;
+}
+
+.pedal-dot {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 6px;
+  height: 6px;
+  background: #3b82f6;
+  border-radius: 50%;
+  box-shadow: 0 0 5px #3b82f6;
+}
+
+@keyframes pulse-pedal {
+  0% { box-shadow: 0 0 10px rgba(59, 130, 246, 0.3); }
+  50% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.5); }
+  100% { box-shadow: 0 0 10px rgba(59, 130, 246, 0.3); }
+}

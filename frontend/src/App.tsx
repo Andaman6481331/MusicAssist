@@ -71,7 +71,8 @@ const sampleUrls: Record<string, string> = {
 
 export const SamplerContext = createContext<{
   samplerRef: React.MutableRefObject<Tone.Sampler | null>,
-  gainRef: React.MutableRefObject<Tone.Gain | null>
+  gainRef: React.MutableRefObject<Tone.Gain | null>,
+  reverbRef: React.MutableRefObject<Tone.Reverb | null>
 } | null>(null);
 
 export const PlaybackControlContext = createContext<{
@@ -83,6 +84,7 @@ const App = () => {
   const samplerRef = useRef<Tone.Sampler | null>(null);
   const location = useLocation();
   const gainRef = useRef<Tone.Gain | null>(null);
+  const reverbRef = useRef<Tone.Reverb | null>(null);
   const [isSamplerLoaded, setIsSamplerLoaded] = React.useState(false);
   const { isGlobalEnabled } = useGlobalBoolean();
 
@@ -95,6 +97,7 @@ const App = () => {
       decay: 4,
       wet: 0.35,     // 35% reverb is good for piano
     }).connect(limiter);
+    reverbRef.current = reverb;
 
     const gain = new Tone.Gain(0).connect(reverb); // Gain node before limiter
     gainRef.current = gain;
@@ -135,7 +138,7 @@ const App = () => {
     <ThemeProvider>
       <div>
         {/* <RippleEffect /> */}
-        <SamplerContext.Provider value={{ samplerRef, gainRef }}>
+        <SamplerContext.Provider value={{ samplerRef, gainRef, reverbRef }}>
           {!isSamplerLoaded ? (
             <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
               <h2>Loading samples...</h2>

@@ -19,7 +19,11 @@ from dotenv import load_dotenv
 # Load .env (REPLICATE_API_TOKEN)
 load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), ".env"))
 
-from utils.music_utils import analyze_with_pretty_midi, serialize_note, ConvertWavToMidi, ConvertWavToMidiDamRsn, wav_to_json_data
+from utils.music_utils import (
+    analyze_with_pretty_midi, serialize_note,
+    ConvertWavToMidi, ConvertWavToMidiDamRsn,
+    wav_to_json_data, estimate_key_from_audio,
+)
 
 app = FastAPI()
 
@@ -166,15 +170,24 @@ async def midi_to_json(
 
     def process_midi():
         try:
-            # 3. Analyze MIDI
-            notes, tempo_bpm, total_time = analyze_with_pretty_midi(input_path)
-            
+            # 3. Analyze MIDI (no source audio available for MIDI-only uploads,
+            #    so tempo defaults to MIDI set_tempo or 120 BPM)
+            notes, tempo_bpm, total_time = analyze_with_pretty_midi(
+                input_path, audio_path=None
+            )
+
+            note_density = round(len(notes) / total_time, 2) if total_time > 0 else 0.0
+
             result_data = {
-                "status": "ok",
-                "tempo_bpm": tempo_bpm,
-                "total_time": total_time,
-                "notes": [serialize_note(n) for n in notes],
-                "midi_filename": os.path.basename(input_path)
+                "status":        "ok",
+                "audio_source":  "midi",
+                "tempo_bpm":     tempo_bpm,
+                "total_time":    total_time,
+                "key_signature": "Unknown",  # no audio = no chroma analysis
+                "note_count":    len(notes),
+                "note_density":  note_density,
+                "notes":         [serialize_note(n) for n in notes],
+                "midi_filename": os.path.basename(input_path),
             }
 
             # 4. Save final JSON for frontend
@@ -184,7 +197,7 @@ async def midi_to_json(
 
             with open(output_json_path, 'w') as f:
                 json.dump(result_data, f, indent=4)
-            
+
             print(f"[INFO] JSON saved: {output_json_path}")
             return result_data
         except Exception as e:

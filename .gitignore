@@ -25,12 +25,17 @@ dist-ssr
 .venv/
 backend/.venv/
 
-# Python cache files
-__pycache__/
+# Python junk
+**/__pycache__/
 *.py[cod]
-*.pyo
+*$py.class
 *.pyc
-backend/__pycache__/server.cpython-39.pyc
-/backend/generated_wav
+.pytest_cache/
+.python-version
+backend/generated_wav/
+*midi_temp*
 
 toDoList.txt
+backend/__pycache__/server.cpython-311.pyc
+/backend/__pycache__
+backend/__pycache__/server.cpython-311.pyc

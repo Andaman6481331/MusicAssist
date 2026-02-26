@@ -4,14 +4,50 @@ import { useLoading } from "./LoadingContext";
 import { addGenerationRecord } from "./data/generations";
 import { subscribeAuth } from "./auth";
 
+// ---------------------------------------------------------------------------
+// Prompt builder
+// ---------------------------------------------------------------------------
+
+/**
+ * Build a tightly-constrained MusicGen prompt from the user's selections.
+ * Every clause targets real playability:
+ *  - Difficulty controls chord style and note density
+ *  - Genre sets the musical feel + target BPM
+ *  - Key sets the harmonic centre
+ *  - Playability constraints cap simultaneous notes and register spread
+ */
+function buildPrompt(
+  difficulty: string,
+  genre: string,
+  key: string,
+  _duration: number
+): string {
+  const bpmMap: Record<string, number> = {
+    pop: 100, jazz: 90, classical: 75, rock: 110, blues: 80, bossa: 88,
+  };
+  const bpm = Math.min(bpmMap[genre] ?? 95, difficulty === "beginner" ? 85 : 110);
+
+  const levelLabel =
+    difficulty === "beginner" ? "easy beginner" :
+    difficulty === "advanced"  ? "advanced"      : "intermediate";
+
+  // One short, descriptive sentence — give MusicGen room to be creative
+  return `Solo piano, ${genre} style, key of ${key}, ${bpm} BPM, ${levelLabel} difficulty. Clean note separation, dry recording, no reverb.`;
+}
+
+// ---------------------------------------------------------------------------
+// Component
+// ---------------------------------------------------------------------------
+
 const PracticePage: React.FC = () => {
+  // --- selection state (keyed by group name) ---
   const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>({});
-  const [showPopup, setShowPopup] = useState(false);
+  const [showPopup,  setShowPopup]  = useState(false);
   const [errorPopup, setErrorPopup] = useState(false);
   const [guidePopup, setGuidePopUp] = useState(false);
-  const [filename, setFilename] = useState('Untitled');
-  const [error, setError] = useState('');
-  const [inputMiss, setInputMiss] = useState("");
+  const [filename,  setFilename]   = useState("Untitled");
+  const [error,     setError]      = useState("");
+  const [inputMiss, setInputMiss]  = useState("");
 
   const { setLoading, setPercent, setMessage, setGeneratedFilename, setShowCompletion } = useLoading();
   const [userId, setUserId] = useState<string | null>(null);
@@ -21,162 +57,160 @@ const PracticePage: React.FC = () => {
     return () => unsub();
   }, []);
 
+  // ---------------------------------------------------------------------------
+  // Option groups
+  // ---------------------------------------------------------------------------
   const groups = [
     {
-      name: "Difficulties",
+      name: "Difficulty",
+      icon: "🎓",
+      description: "Controls note density and hand spread",
       options: [
-        { value: "Mostly block chords and single-note melody.", label: "Beginner" },
-        { value: "Steady block chords with simple melody.", label: "Intermediate" },
-        { value: "Complex broken chords with active melody.", label: "Advanced" },
+        {
+          value: "beginner",
+          label: "Beginner",
+          hint: "Single melody + bass, max 2 notes at once",
+          icon: "🌱",
+        },
+        {
+          value: "intermediate",
+          label: "Intermediate",
+          hint: "Melody + block chords, max 4 notes, one octave span",
+          icon: "🎹",
+        },
+        {
+          value: "advanced",
+          label: "Advanced",
+          hint: "Broken arpeggios, up to 6 notes, max tenth stretch",
+          icon: "🌟",
+        },
       ],
     },
     {
       name: "Genre",
+      icon: "🎵",
+      description: "Sets the musical style and feel",
       options: [
-        {
-          value: "Upbeat contemporary pop piano piece, catchy melody, bright chords, modern harmony, 120 BPM, clean studio sound, emotional but uplifting",
-          label: "Pop"
-        },
-        {
-          value: "Smooth jazz piano piece, rich extended chords, swing feel, expressive dynamics, warm tone, improvisational style, 90 BPM",
-          label: "Jazz"
-        },
-        {
-          value: "Romantic classical piano composition, expressive dynamics, lyrical melody, rich harmonic progression, inspired by 19th century style, 80 BPM",
-          label: "Classical"
-        },
-        {
-          value: "Energetic rock-style piano piece, strong rhythmic drive, powerful chord progressions, dramatic dynamics, 110 BPM",
-          label: "Rock"
-        },
-        {
-          value: "Blues piano piece in 12-bar structure, soulful melody, expressive bends and grace notes, swing groove, emotional and raw, 85 BPM",
-          label: "Blues"
-        }
-      ]
-    },
-    {
-      name: "Key",
-      options: [
-        { value: "C", label: "C" },
-        { value: "C sharp", label: "C#" },
-        { value: "D", label: "D" },
-        { value: "D sharp", label: "D#" },
-        { value: "E", label: "E" },
-        { value: "F", label: "F" },
-        { value: "F sharp", label: "F#" },
-        { value: "G", label: "G" },
-        { value: "G sharp", label: "G#" },
-        { value: "A", label: "A" },
-        { value: "A sharp", label: "A#" },
-        { value: "B", label: "B" },
+        { value: "pop",       label: "Pop",       icon: "🎤", hint: "100 BPM, catchy melody, bright chords" },
+        { value: "jazz",      label: "Jazz",      icon: "🎷", hint: "90 BPM, swing feel, extended chords" },
+        { value: "classical", label: "Classical", icon: "🎻", hint: "75 BPM, lyrical, rich harmony" },
+        { value: "rock",      label: "Rock",      icon: "🎸", hint: "110 BPM, strong rhythm, powerful chords" },
+        { value: "blues",     label: "Blues",     icon: "🌙", hint: "80 BPM, 12-bar, pentatonic melody" },
+        { value: "bossa",     label: "Bossa Nova", icon: "🌴", hint: "88 BPM, syncopated, warm jazz chords" },
       ],
     },
     {
-      name: "Duration(s)",
+      name: "Key",
+      icon: "🔑",
+      description: "Harmonic centre of the piece",
       options: [
-        { value: "30", label: "30s" },
-        { value: "60", label: "60s" },
-        { value: "90", label: "90s" },
+        { value: "C major",        label: "C",  hint: "No sharps or flats" },
+        { value: "G major",        label: "G",  hint: "1 sharp" },
+        { value: "F major",        label: "F",  hint: "1 flat" },
+        { value: "D major",        label: "D",  hint: "2 sharps" },
+        { value: "A major",        label: "A",  hint: "3 sharps" },
+        { value: "A minor",        label: "Am", hint: "Relative minor of C" },
+        { value: "E minor",        label: "Em", hint: "Relative minor of G" },
+        { value: "D minor",        label: "Dm", hint: "Relative minor of F" },
+      ],
+    },
+    {
+      name: "Duration",
+      icon: "⏱️",
+      description: "Length of the generated piece",
+      options: [
+        { value: "15", label: "15 s", hint: "Quick sketch" },
+        { value: "30", label: "30 s", hint: "Short piece" },
+        { value: "60", label: "60 s", hint: "Full piece" },
       ],
     },
   ];
 
+  // ---------------------------------------------------------------------------
+  // Derived prompt preview (shown to the user in the confirm popup)
+  // ---------------------------------------------------------------------------
+  const previewPrompt = (() => {
+    const d = selectedOptions["Difficulty"];
+    const g = selectedOptions["Genre"];
+    const k = selectedOptions["Key"];
+    const dur = Number(selectedOptions["Duration"] ?? 30);
+    if (!d || !g || !k) return null;
+    return buildPrompt(d, g, k, dur);
+  })();
+
+  // ---------------------------------------------------------------------------
+  // Generation handler
+  // ---------------------------------------------------------------------------
   const handleFinalGenerate = async () => {
     if (!filename.trim()) {
       setError("Please enter a filename.");
       return;
     }
 
-    // ============================================
-    // FIX: Check generation status FIRST
-    // ============================================
+    // Check generation status
     try {
-      const statusRes = await fetch('http://localhost:8000/generation-status');
+      const statusRes  = await fetch("http://localhost:8000/generation-status");
       const statusData = await statusRes.json();
-
       if (statusData.is_generating) {
         setError("A generation is already in progress. Please wait.");
         return;
       }
-    } catch (err) {
-      console.error("Error checking generation status:", err);
-      setError("Error checking generation status.");
+    } catch {
+      setError("Could not reach the server. Is the backend running?");
       return;
     }
 
-    // ============================================
-    // FIX: The backend now handles filename checking during generation
-    // We still check here for immediate user feedback
-    // ============================================
+    // Check filename conflict
     try {
-      const res = await fetch(`http://localhost:8000/check-filename?name=${encodeURIComponent(filename)}`);
+      const res  = await fetch(`http://localhost:8000/check-filename?name=${encodeURIComponent(filename)}`);
       const data = await res.json();
       if (data.exists) {
-        setError("Filename already exists! Please choose a different name.");
+        setError("Filename already exists — please choose a different name.");
         return;
       }
-    } catch (err) {
-      console.error("Error checking filename:", err);
+    } catch {
       setError("Error checking filename.");
       return;
     }
 
-    const values = Object.values(selectedOptions);
-    if (values.length < 4) {
-      alert("Please select all options before generating!");
+    const missing = groups.filter((g) => !selectedOptions[g.name]).map((g) => g.name);
+    if (missing.length > 0) {
+      setInputMiss(missing.join(", "));
+      setErrorPopup(true);
       return;
     }
 
-    setError('');
+    const difficulty = selectedOptions["Difficulty"];
+    const genre      = selectedOptions["Genre"];
+    const key        = selectedOptions["Key"];
+    const duration   = Number(selectedOptions["Duration"] ?? 30);
+
+    const textprompt = buildPrompt(difficulty, genre, key, duration);
+    console.log("[PROMPT]", textprompt);
+    localStorage.setItem("mididuration", String(duration));
+
+    setError("");
     setShowPopup(false);
     setLoading(true);
 
-    const basePrompt = `Solo acoustic piano only. No other instruments.
-Slow to moderate tempo (60–85 BPM).
-Very clear note separation.
-No sustain pedal.
-Short note durations with clean attacks and clear endings.
-Simple rhythm.
-Minimal overlapping notes.
-No fast runs, no ornamentation.
-Dry studio recording sound, no reverb.
-Educational style, easy to transcribe.`;
-
-    const difficulty = selectedOptions["Difficulties"];
-    const genre = selectedOptions["Genre"];
-    const key = selectedOptions["Key"];
-
-    const textprompt = `${basePrompt}\nGenre: ${genre}, Key: ${key}, Difficulty: ${difficulty}.`;
-    const mididuration = selectedOptions["Duration(s)"];
-
-    console.log("Prompt:", textprompt);
-    localStorage.setItem("mididuration", String(mididuration));
-
     try {
       const response = await fetch(
-        `http://localhost:8000/generate?prompt=${encodeURIComponent(textprompt)}&filename=${encodeURIComponent(filename)}&mididuration=${mididuration}`
+        `http://localhost:8000/generate?prompt=${encodeURIComponent(textprompt)}&filename=${encodeURIComponent(filename)}&mididuration=${duration}`
       );
-
       const data = await response.json();
 
-      // ============================================
-      // FIX: Handle backend errors properly (409 = conflict, 500 = server error)
-      // ============================================
       if (!response.ok) {
         if (response.status === 409) {
-          // Conflict - either filename exists or generation in progress
-          setError(data.error || "Conflict occurred during generation");
+          setError(data.error ?? "Conflict — filename exists or generation in progress.");
           setPercent(0);
           setLoading(false);
           return;
         }
-        throw new Error(data.error || "Generation failed");
+        throw new Error(data.error ?? "Generation failed");
       }
 
       if (data.error) {
-        console.error("Backend error:", data.error);
-        console.error("Traceback:", data.traceback);
+        console.error("Backend error:", data.error, data.traceback);
         setError(data.error);
         setPercent(0);
         setLoading(false);
@@ -189,10 +223,10 @@ Educational style, easy to transcribe.`;
         try {
           await addGenerationRecord(userId, {
             filename,
-            difficulty: selectedOptions["Difficulties"],
-            genre: selectedOptions["Genre"],
-            key: selectedOptions["Key"],
-            durationSec: Number(selectedOptions["Duration(s)"] || 0),
+            difficulty,
+            genre,
+            key,
+            durationSec: duration,
             prompt: textprompt,
             favorite: false,
           });
@@ -214,133 +248,278 @@ Educational style, easy to transcribe.`;
     }
   };
 
+  // ---------------------------------------------------------------------------
+  // Render helpers
+  // ---------------------------------------------------------------------------
+  const select = (groupName: string, value: string) =>
+    setSelectedOptions((prev) => ({ ...prev, [groupName]: value }));
+
+  const allSelected = groups.every((g) => selectedOptions[g.name]);
+
+  // ---------------------------------------------------------------------------
+  // Render
+  // ---------------------------------------------------------------------------
   return (
-    <div className="modern-container" style={{ padding: '4rem 2rem' }}>
-      <div className="glass-card" style={{ maxWidth: '900px', margin: '0 auto' }}>
-        {/* Page Header */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+    <div className="modern-container" style={{ padding: "4rem 2rem" }}>
+      <div className="glass-card" style={{ maxWidth: "900px", margin: "0 auto" }}>
+
+        {/* ── Header ── */}
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "2rem" }}>
           <div>
-            <h1 className="modern-title" style={{ textAlign: 'left', margin: 0 }}>Piano Architect</h1>
-            <p style={{ color: 'var(--text-dim)', fontSize: '1.1rem', marginTop: '0.5rem' }}>Design your custom AI accompaniment</p>
+            <h1 className="modern-title" style={{ textAlign: "left", margin: 0 }}>
+              Piano Architect
+            </h1>
+            <p style={{ color: "var(--text-dim)", fontSize: "1.05rem", marginTop: "0.4rem" }}>
+              Design a playable AI piano piece — all selections guaranteed within 10-finger reach
+            </p>
           </div>
           <button
             className="back-btn"
-            style={{ padding: '0.75rem 1.25rem', fontSize: '0.9rem' }}
+            style={{ padding: "0.75rem 1.25rem", fontSize: "0.9rem", whiteSpace: "nowrap" }}
             onClick={() => setGuidePopUp(true)}
           >
             📖 How it Works
           </button>
         </div>
 
-        {/* Main Content */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-          {groups.map((group, groupIdx) => (
-            <div key={groupIdx}>
-              <h3 style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--text-main)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{group.name}</h3>
-              <div className="modern-radio-group">
-                {group.options.map((option, optionIdx) => (
-                  <label
-                    key={optionIdx}
-                    className={`modern-radio-label ${selectedOptions[group.name] === option.value ? 'active' : ''}`}
-                  >
-                    <input
-                      value={option.value}
-                      name={group.name}
-                      type="radio"
-                      className="modern-radio-input"
-                      checked={selectedOptions[group.name] === option.value}
-                      onChange={(e) => {
-                        setSelectedOptions(prev => ({
-                          ...prev,
-                          [group.name]: e.target.value,
-                        }));
+        {/* ── Option Groups ── */}
+        <div style={{ display: "flex", flexDirection: "column", gap: "2rem" }}>
+          {groups.map((group) => (
+            <div key={group.name}>
+              {/* Group header */}
+              <div style={{ marginBottom: "0.75rem" }}>
+                <span style={{ fontSize: "1rem", fontWeight: 700, color: "var(--text-main)" }}>
+                  {group.icon} {group.name}
+                </span>
+                <span style={{ marginLeft: "0.75rem", fontSize: "0.85rem", color: "var(--text-dim)" }}>
+                  {group.description}
+                </span>
+              </div>
+
+              {/* Radio pills */}
+              <div
+                className="modern-radio-group"
+                style={{ flexWrap: "wrap", gap: "0.6rem" }}
+              >
+                {group.options.map((option) => {
+                  const isSelected = selectedOptions[group.name] === option.value;
+                  return (
+                    <label
+                      key={option.value}
+                      title={option.hint}
+                      className={`modern-radio-label ${isSelected ? "active" : ""}`}
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "flex-start",
+                        cursor: "pointer",
+                        padding: "0.6rem 1rem",
+                        gap: "0.2rem",
+                        minWidth: "90px",
                       }}
-                    />
-                    {option.label}
-                  </label>
-                ))}
+                    >
+                      <input
+                        value={option.value}
+                        name={group.name}
+                        type="radio"
+                        className="modern-radio-input"
+                        checked={isSelected}
+                        onChange={() => select(group.name, option.value)}
+                      />
+                      <span style={{ fontWeight: 600, fontSize: "0.95rem" }}>
+                        {"icon" in option ? `${(option as { icon: string }).icon} ` : ""}{option.label}
+                      </span>
+                      <span style={{ fontSize: "0.72rem", color: "var(--text-dim)", lineHeight: 1.3 }}>
+                        {option.hint}
+                      </span>
+                    </label>
+                  );
+                })}
               </div>
             </div>
           ))}
 
-          <div style={{ marginTop: '1rem', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '2.5rem' }}>
+          {/* ── Generate button ── */}
+          <div style={{ marginTop: "0.5rem", borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: "2rem" }}>
+            {!allSelected && (
+              <p style={{ fontSize: "0.85rem", color: "var(--text-dim)", marginBottom: "0.75rem", textAlign: "center" }}>
+                Select all options above to continue
+              </p>
+            )}
             <button
               onClick={() => {
                 const missing = groups
-                  .filter(group => !selectedOptions[group.name])
-                  .map(group => group.name);
-
+                  .filter((g) => !selectedOptions[g.name])
+                  .map((g) => g.name);
                 if (missing.length > 0) {
                   setInputMiss(missing.join(", "));
                   setErrorPopup(true);
                   return;
                 }
+                setError("");
                 setShowPopup(true);
               }}
               className="start-btn"
-              style={{ width: '100%', padding: '1.25rem', fontSize: '1.2rem' }}
+              style={{
+                width: "100%",
+                padding: "1.2rem",
+                fontSize: "1.1rem",
+                opacity: allSelected ? 1 : 0.5,
+                cursor: allSelected ? "pointer" : "not-allowed",
+              }}
             >
-              ✨ Initialize AI Generation
+              ✨ Compose with AI
             </button>
           </div>
         </div>
       </div>
 
-      {/* Modern Popups */}
+      {/* ══════════════════════════════════
+          Popups
+      ══════════════════════════════════ */}
       {(showPopup || errorPopup || guidePopup) && (
-        <div style={{
-          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-          backgroundColor: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(8px)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000,
-          padding: '20px'
-        }}>
+        <div
+          style={{
+            position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
+            backgroundColor: "rgba(0,0,0,0.8)", backdropFilter: "blur(8px)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            zIndex: 1000, padding: "20px",
+          }}
+        >
+          {/* ── Confirm & name popup ── */}
           {showPopup && (
-            <div className="glass-card" style={{ maxWidth: '500px' }}>
-              <h2 className="modern-title" style={{ fontSize: '2rem', marginBottom: '1rem' }}>Finalize Composition</h2>
-              <p style={{ color: 'var(--text-dim)', marginBottom: '1.5rem' }}>Give your masterpiece a unique name:</p>
+            <div className="glass-card" style={{ maxWidth: "540px", width: "100%" }}>
+              <h2 className="modern-title" style={{ fontSize: "1.8rem", marginBottom: "0.5rem" }}>
+                Name Your Piece
+              </h2>
+              <p style={{ color: "var(--text-dim)", marginBottom: "1.25rem", fontSize: "0.95rem" }}>
+                Give your composition a unique filename — it will be saved to your collection.
+              </p>
+
               <input
                 type="text"
                 value={filename}
                 onChange={(e) => setFilename(e.target.value)}
-                placeholder="e.g., moonlight_sonata_remix"
+                placeholder="e.g., midnight_waltz"
                 style={{
-                  width: '100%',
-                  padding: '1rem',
-                  background: 'rgba(255,255,255,0.05)',
-                  border: '1px solid rgba(255,255,255,0.1)',
-                  borderRadius: '12px',
-                  color: 'white',
-                  fontSize: '1rem',
-                  marginBottom: '1rem'
+                  width: "100%",
+                  padding: "1rem",
+                  background: "rgba(255,255,255,0.05)",
+                  border: "1px solid rgba(255,255,255,0.12)",
+                  borderRadius: "12px",
+                  color: "white",
+                  fontSize: "1rem",
+                  marginBottom: "1rem",
+                  boxSizing: "border-box",
                 }}
               />
-              {error && <p style={{ color: '#ef4444', fontSize: '0.9rem', marginBottom: '1.5rem' }}>{error}</p>}
-              <div style={{ display: 'flex', gap: '1rem' }}>
-                <button className="start-btn" style={{ flex: 1 }} onClick={handleFinalGenerate}>Generate</button>
-                <button className="back-btn" style={{ flex: 1 }} onClick={() => setShowPopup(false)}>Cancel</button>
+
+              {/* Compact prompt preview */}
+              {previewPrompt && (
+                <details style={{ marginBottom: "1rem" }}>
+                  <summary
+                    style={{
+                      color: "var(--text-dim)", fontSize: "0.82rem",
+                      cursor: "pointer", userSelect: "none",
+                    }}
+                  >
+                    🔍 Preview AI prompt
+                  </summary>
+                  <p
+                    style={{
+                      marginTop: "0.5rem", padding: "0.75rem",
+                      background: "rgba(255,255,255,0.04)",
+                      borderRadius: "8px", fontSize: "0.78rem",
+                      color: "var(--text-dim)", lineHeight: 1.6,
+                      whiteSpace: "pre-wrap",
+                    }}
+                  >
+                    {previewPrompt}
+                  </p>
+                </details>
+              )}
+
+              {/* Selected params summary */}
+              <div
+                style={{
+                  display: "flex", gap: "0.5rem", flexWrap: "wrap",
+                  marginBottom: "1.25rem",
+                }}
+              >
+                {Object.entries(selectedOptions).map(([k, v]) => (
+                  <span
+                    key={k}
+                    style={{
+                      background: "rgba(68,137,249,0.15)",
+                      border: "1px solid rgba(68,137,249,0.3)",
+                      borderRadius: "20px", padding: "0.3rem 0.75rem",
+                      fontSize: "0.78rem", color: "var(--text-main)",
+                    }}
+                  >
+                    {k}: <strong>{v}</strong>
+                  </span>
+                ))}
+              </div>
+
+              {error && (
+                <p style={{ color: "#ef4444", fontSize: "0.88rem", marginBottom: "1rem" }}>
+                  ⚠️ {error}
+                </p>
+              )}
+
+              <div style={{ display: "flex", gap: "0.75rem" }}>
+                <button className="start-btn"  style={{ flex: 1 }} onClick={handleFinalGenerate}>
+                  🎹 Generate
+                </button>
+                <button className="back-btn"   style={{ flex: 1 }} onClick={() => setShowPopup(false)}>
+                  Cancel
+                </button>
               </div>
             </div>
           )}
 
+          {/* ── Validation error popup ── */}
           {errorPopup && (
-            <div className="glass-card" style={{ maxWidth: '450px' }}>
-              <h2 className="modern-title" style={{ fontSize: '2rem', color: '#f87171' }}>Incomplete Setup</h2>
-              <p style={{ color: 'var(--text-dim)', marginBottom: '2rem', lineHeight: 1.6 }}>Please ensure you've selected a choice for: <strong style={{ color: 'var(--text-main)' }}>{inputMiss}</strong></p>
-              <button className="start-btn" style={{ width: '100%' }} onClick={() => setErrorPopup(false)}>Got it</button>
+            <div className="glass-card" style={{ maxWidth: "420px", width: "100%" }}>
+              <h2 className="modern-title" style={{ fontSize: "1.6rem", color: "#f87171" }}>
+                Almost there!
+              </h2>
+              <p style={{ color: "var(--text-dim)", marginBottom: "2rem", lineHeight: 1.6 }}>
+                Please select a choice for:{" "}
+                <strong style={{ color: "var(--text-main)" }}>{inputMiss}</strong>
+              </p>
+              <button className="start-btn" style={{ width: "100%" }} onClick={() => setErrorPopup(false)}>
+                Got it
+              </button>
             </div>
           )}
 
-
-
+          {/* ── How it Works popup ── */}
           {guidePopup && (
-            <div className="glass-card" style={{ maxWidth: '500px' }}>
-              <h2 className="modern-title" style={{ fontSize: '2rem' }}>How it Works</h2>
-              <div style={{ color: 'var(--text-dim)', lineHeight: '1.8', marginBottom: '2rem' }}>
-                <p>1. Select your preferred <strong>Difficulty, Genre, Key,</strong> and <strong>Duration</strong>.</p>
-                <p>2. Our AI engine will compose a unique piece based on these parameters.</p>
-                <p>3. Once generated, you can play along with the track in our interactive piano visualizer.</p>
+            <div className="glass-card" style={{ maxWidth: "500px", width: "100%" }}>
+              <h2 className="modern-title" style={{ fontSize: "1.8rem", marginBottom: "1.25rem" }}>
+                How it Works
+              </h2>
+              <div style={{ color: "var(--text-dim)", lineHeight: "1.9", marginBottom: "2rem" }}>
+                <p>
+                  <strong style={{ color: "var(--text-main)" }}>1. Pick your settings</strong><br />
+                  Choose <em>Difficulty</em>, <em>Genre</em>, <em>Key</em>, and <em>Duration</em>.
+                  Each setting directly shapes the music the AI creates.
+                </p>
+                <p>
+                  <strong style={{ color: "var(--text-main)" }}>2. Playability is guaranteed</strong><br />
+                  Every generated piece is constrained to notes reachable by two human hands —
+                  no chord span wider than a tenth, and no more than 10 simultaneous notes.
+                </p>
+                <p>
+                  <strong style={{ color: "var(--text-main)" }}>3. Listen & visualize</strong><br />
+                  After generation, the piece appears in your interactive piano roll where you
+                  can play along, slow it down, or export it.
+                </p>
               </div>
-              <button className="start-btn" style={{ width: '100%' }} onClick={() => setGuidePopUp(false)}>Understood</button>
+              <button className="start-btn" style={{ width: "100%" }} onClick={() => setGuidePopUp(false)}>
+                Let's go! 🎹
+              </button>
             </div>
           )}
         </div>
