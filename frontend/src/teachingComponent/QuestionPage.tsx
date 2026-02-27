@@ -2,7 +2,10 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import questions from "./subComponent/QuestionList.json";
 import { subscribeAuth } from "../auth";
-import { updateUserProgress } from "../data/lessonProgression";
+import {
+  updateUserProgress,
+  recordQuizAttempt,
+} from "../data/lessonProgression";
 import PianoRollAnswer from "./subComponent/PianoRollAnswer";
 import { useTheme } from "../ThemeContext";
 import "../App.css";
@@ -44,7 +47,22 @@ const QuestionPage: React.FC = () => {
     const [answers, setAnswers] = useState<(number | string[] | null)[]>(Array(totalQuestions).fill(null));
     const [pianoRollAnswers, setPianoRollAnswers] = useState<string[][]>(Array(totalQuestions).fill(null).map(() => []));
 
-    const handleFinish = () => setIsFinished(true);
+    const handleFinish = async () => {
+        setIsFinished(true);
+
+        if (!userId) return;
+
+        try {
+            await recordQuizAttempt(
+                userId,
+                levelNumber,
+                score,
+                totalQuestions
+            );
+        } catch (error) {
+            console.error("Failed to record quiz attempt:", error);
+        }
+    };
 
     const calculateScore = () => {
         return answers.reduce((acc: number, curr, idx) => {

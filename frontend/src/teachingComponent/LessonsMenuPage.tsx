@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { subscribeAuth } from "../auth";
-import { getUserProgress } from "../data/lessonProgression";
+import { getLessonBestScores, getUserProgress } from "../data/lessonProgression";
 
 const LessonMenuPage: React.FC = () =>{
     const [guidePopup, setGuidePopUp] = useState(false);
@@ -35,14 +35,20 @@ const LessonMenuPage: React.FC = () =>{
                         : `Passed lesson ${progress + 1} (should unlock lesson ${progress + 2})`
                 });
                 setHighestLevelPassed(progress);
+
+                // Load best quiz scores (persisted in Firestore)
+                const best = await getLessonBestScores(user.uid);
+                setLessonBestScores(best);
             } catch (error) {
                 console.error("Error loading user progress:", error);
                 setHighestLevelPassed(-1);
+                setLessonBestScores({});
             }
         } else {
             // Not logged in - no progression
             console.log("[Lessons Page] User not logged in, no progression");
             setHighestLevelPassed(-1);
+            setLessonBestScores({});
         }
     };
 
