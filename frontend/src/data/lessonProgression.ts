@@ -1,9 +1,14 @@
 import { getDbSafe } from "../auth/firebase";
 import {
+  collection,
+  addDoc,
   doc,
   getDoc,
+  getDocs,
   setDoc,
   serverTimestamp,
+  query,
+  where,
   type Firestore,
 } from "firebase/firestore";
 
@@ -13,8 +18,22 @@ export type UserProgress = {
   updatedAt?: any;
 };
 
+export type QuizAttempt = {
+  userId: string;
+  levelNumber: number;
+  score: number;
+  totalQuestions: number;
+  scorePercent?: number;
+  passed: boolean;
+  createdAt?: any;
+};
+
 function getUserProgressDoc(db: Firestore, userId: string) {
   return doc(db, "users", userId, "progress", "lessonProgression");
+}
+
+function getUserAttemptsCollection(db: Firestore, userId: string) {
+  return collection(db, "users", userId, "progress");
 }
 
 /**
@@ -100,4 +119,83 @@ export async function updateUserProgress(
     throw new Error(`Failed to update user progress: ${error?.message || error} (Code: ${error?.code || 'unknown'})`);
   }
 }
+
+/**
+ * Record a single quiz attempt for a user.
+ * Stored as a new document in the same "progress" subcollection so current Firestore rules still apply.
+ */
+export async function recordQuizAttempt(
+  userId: string,
+  levelNumber: number,
+  score: number,
+  totalQuestions: number
+): Promise<void> {
+  const db = getDbSafe();
+  if (!db) {
+    throw new Error("Firestore not configured. Set VITE_FIREBASE_* env vars.");
+  }
+
+  try {
+    const attemptsCol = getUserAttemptsCollection(db, userId);
+    const passed = score >= totalQuestions / 2;
+    const scorePercent = totalQuestions > 0 ? Math.round((score / totalQuestions) * 100) : 0;
+
+    await addDoc(attemptsCol, {
+      userId,
+      levelNumber,
+      score,
+      totalQuestions,
+      scorePercent,
+      passed,
+      createdAt: serverTimestamp(),
+      type: "quizAttempt",
+    } satisfies QuizAttempt & { type: string });
+  } catch (error: any) {
+    console.error("Error recording quiz attempt:", error);
+    throw new Error(
+      `Failed to record quiz attempt: ${error?.message || error}`
+    );
+  }
+}
+
+/**
+ * Load best (highest %) quiz score per lesson for a user.
+ * Returns an object keyed by lesson index (0-based), matching `LessonsMenuPage` indexes.
+ */
+export async function getLessonBestScores(
+  userId: string
+): Promise<Record<number, number>> {
+  const db = getDbSafe();
+  if (!db) {
+    console.warn("Firestore not configured. Returning empty best-scores map.");
+    return {};
+  }
+
+  try {
+    const attemptsCol = getUserAttemptsCollection(db, userId);
+    const q = query(attemptsCol, where("type", "==", "quizAttempt"));
+    const snap = await getDocs(q);
+
+    const best: Record<number, number> = {};
+    snap.forEach((d) => {
+      const data = d.data() as any;
+      const levelNumber = Number(data?.levelNumber);
+      if (!Number.isFinite(levelNumber) || levelNumber <= 0) return;
+
+      const lessonIndex = levelNumber - 1;
+      const scorePercent =
+        Number.isFinite(Number(data?.scorePercent))
+          ? Number(data.scorePercent)
+          : Math.round((Number(data?.score || 0) / Math.max(1, Number(data?.totalQuestions || 1))) * 100);
+
+      best[lessonIndex] = Math.max(best[lessonIndex] ?? 0, scorePercent);
+    });
+
+    return best;
+  } catch (error) {
+    console.error("Error loading lesson best scores:", error);
+    return {};
+  }
+}
+
 

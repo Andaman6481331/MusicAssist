@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import "./based.css";
 import { useLoading } from "./LoadingContext";
 import { addGenerationRecord } from "./data/generations";
+import { saveJsonRecord } from "./data/jsonGenerations"; //SaveJsonRecord
 import { subscribeAuth } from "./auth";
 
 // ---------------------------------------------------------------------------
@@ -232,6 +233,26 @@ const PracticePage: React.FC = () => {
           });
         } catch (e) {
           console.error("Failed saving record:", e);
+        }
+      }
+
+      // Save generated JSON into Firestore
+      if (userId) {
+        try {
+          await saveJsonRecord(
+            userId,
+            filename,      // generationId
+            filename,      // displayName
+            {
+              tempo_bpm: data.tempo_bpm,
+              total_time: data.total_time,
+              notes: data.notes,
+            }
+          );
+
+          console.log("JSON notes saved to Firestore");
+        } catch (err) {
+          console.error("Error saving JSON:", err);
         }
       }
 
