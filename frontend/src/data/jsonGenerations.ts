@@ -54,8 +54,12 @@ export async function saveJsonRecord(
     notes: NoteItem[];
   }
 ) {
+  console.log(`[FIRESTORE] Attempting to save record for user ${userId}, generation ${generationId}`);
   const db = getDbSafe();
-  if (!db) return;
+  if (!db) {
+    console.error("[FIRESTORE] Database not initialized. Check your Firebase configuration.");
+    throw new Error("FIRESTORE_NOT_CONFIGURED");
+  }
 
   const ref = getJsonDocRef(db, userId, generationId);
 
@@ -68,13 +72,19 @@ export async function saveJsonRecord(
     }
   }
 
-  await setDoc(ref, {
-    displayName,
-    tempo_bpm: jsonData.tempo_bpm,
-    total_time: jsonData.total_time,
-    notes: jsonData.notes,
-    createdAt: serverTimestamp(),
-  });
+  try {
+    await setDoc(ref, {
+      displayName,
+      tempo_bpm: jsonData.tempo_bpm,
+      total_time: jsonData.total_time,
+      notes: jsonData.notes,
+      createdAt: serverTimestamp(),
+    });
+    console.log("[FIRESTORE] Save successful");
+  } catch (e) {
+    console.error("[FIRESTORE] Error during setDoc:", e);
+    throw e;
+  }
 
   return generationId;
 }

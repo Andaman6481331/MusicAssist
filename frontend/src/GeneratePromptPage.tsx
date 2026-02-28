@@ -253,6 +253,8 @@ const PracticePage: React.FC = () => {
           console.log("JSON notes saved to Firestore");
         } catch (err) {
           console.error("Error saving JSON:", err);
+          // Don't fail the whole process, but notify the user
+          setError("Music generated but failed to save to cloud storage. You can still play it this session.");
         }
       }
 

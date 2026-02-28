@@ -262,23 +262,52 @@ async def generate_music(prompt: str, filename: str, mididuration: str):
             # Step 1 — Replicate MusicGen API call
             # ------------------------------------------------------------------
             print("[REPLICATE] Calling MusicGen API...")
-            output = replicate.run(
-                "meta/musicgen:671ac645ce5e552cc63a54a2bbff63fcf798043055d2dac5fc9e36a837eedcfb",
-                input={
-                    "prompt": prompt,
-                    "duration": int(mididuration),
-                    "model_version": "stereo-large",
-                    "output_format": "mp3",
-                    "normalization_strategy": "peak",
-                }
-            )
-            print("[REPLICATE] Generation complete. Downloading MP3...")
+            try:
+                output = replicate.run(
+                    "meta/musicgen:671ac645ce5e552cc63a54a2bbff63fcf798043055d2dac5fc9e36a837eedcfb",
+                    input={
+                        "prompt": prompt,
+                        "duration": int(mididuration),
+                        "model_version": "stereo-large",
+                        "output_format": "mp3",
+                        "normalization_strategy": "peak",
+                    }
+                )
+            except Exception as e:
+                print(f"[ERROR] Replicate direct call failed: {e}")
+                # Check for common connection errors and provide more help
+                if "getaddrinfo failed" in str(e):
+                    return {
+                        "error": "Backend could not reach Replicate API (DNS error). Please check your internet connection or proxy settings.",
+                        "traceback": traceback.format_exc()
+                    }
+                raise e
+
+            print("[REPLICATE] Generation complete. Downloading output...")
 
             # ------------------------------------------------------------------
-            # Step 2 — Download MP3 from Replicate URL → save to Collection
+            # Step 2 — Download result from Replicate URL or File object
             # ------------------------------------------------------------------
             os.makedirs(save_dir, exist_ok=True)
-            audio_bytes = output.read()
+            
+            # Handle different output types from Replicate API
+            audio_bytes = None
+            if hasattr(output, "read"):
+                # It's a file-like object
+                audio_bytes = output.read()
+            elif isinstance(output, str) and output.startswith("http"):
+                # It's a URL string
+                resp = http_requests.get(output)
+                resp.raise_for_status()
+                audio_bytes = resp.content
+            elif isinstance(output, list) and len(output) > 0 and isinstance(output[0], str):
+                # It's a list of URLs
+                resp = http_requests.get(output[0])
+                resp.raise_for_status()
+                audio_bytes = resp.content
+            else:
+                raise Exception(f"Unexpected output format from Replicate: {type(output)}")
+
             with open(mp3_path, "wb") as f:
                 f.write(audio_bytes)
             print(f"[INFO] MP3 saved: {mp3_path}")

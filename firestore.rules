@@ -15,6 +15,11 @@ service cloud.firestore {
       match /progress/{progressId} {
         allow read, write: if request.auth != null && request.auth.uid == userId;
       }
+
+      // Allow access to jsonGenerations subcollection (for full music data)
+      match /jsonGenerations/{genId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
     }
   }
 }
