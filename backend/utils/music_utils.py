@@ -5,6 +5,7 @@ import librosa
 import librosa.beat
 import soundfile as sf
 import numpy as np
+import scipy.signal
 from basic_pitch.inference import predict, Model
 from basic_pitch import ICASSP_2022_MODEL_PATH
 
@@ -36,14 +37,25 @@ def extract_tempo_via_mido(midi_path: str) -> float | None:
 
 def estimate_tempo_from_audio(audio_path: str) -> float:
     """
-    Estimate BPM from raw audio using librosa beat tracking.
+    Estimate BPM from raw audio using librosa beat tracking + PLP cross-check.
     Falls back to 120.0 on any failure.
     """
     try:
         y, sr = librosa.load(audio_path, sr=22050, mono=True, duration=60)
-        tempo, _ = librosa.beat.beat_track(y=y, sr=sr)
-        bpm = float(np.atleast_1d(tempo)[0])
         
+        # Primary: onset-strength-based tempo (more robust than beat_track for jazz)
+        onset_env = librosa.onset.onset_strength(y=y, sr=sr)
+        tempo_dynamic = librosa.feature.tempo(onset_envelope=onset_env, sr=sr)
+        bpm = float(np.atleast_1d(tempo_dynamic)[0])
+
+        # Fallback: standard beat tracker as cross-check
+        tempo_beat, _ = librosa.beat.beat_track(y=y, sr=sr, onset_envelope=onset_env)
+        bpm_beat = float(np.atleast_1d(tempo_beat)[0])
+
+        # If the two estimates are close (within 10%), average them
+        if abs(bpm - bpm_beat) / max(bpm, 1) < 0.10:
+            bpm = (bpm + bpm_beat) / 2
+
         # Guard against zero or extremely slow tempi
         if bpm <= 0:
             return 120.0
@@ -53,6 +65,7 @@ def estimate_tempo_from_audio(audio_path: str) -> float:
             bpm *= 2
         elif bpm > 240:
             bpm /= 2
+            
         return round(bpm, 1)
     except Exception:
         return 120.0
@@ -120,18 +133,15 @@ def estimate_key_from_audio(audio_path: str) -> str:
 def quantize_midi(midi_data: pretty_midi.PrettyMIDI, bpm: float, grid: int = 16) -> pretty_midi.PrettyMIDI:
     """
     Snap all note start/end times to the nearest 1/grid note grid.
-
-    Parameters
-    ----------
-    midi_data : pretty_midi.PrettyMIDI
-    bpm       : Tempo used to define the grid size
-    grid      : Subdivisions per bar (16 = 1/16th note)
     """
     if bpm <= 0:
         bpm = 120.0
         
     beat_duration = 60.0 / bpm           # seconds per beat
-    step = beat_duration / (grid / 4)    # 1/16th note in seconds (for grid=16)
+    step = beat_duration / (grid / 4)    # grid subdivision in seconds
+
+    # FIX: use a small fixed minimum instead of grid step
+    MIN_NOTE_SEC = 0.05  # 50ms minimum regardless of grid
 
     for instrument in midi_data.instruments:
         for note in instrument.notes:
@@ -139,9 +149,32 @@ def quantize_midi(midi_data: pretty_midi.PrettyMIDI, bpm: float, grid: int = 16)
             note.end   = round(note.end   / step) * step
             # Avoid zero-length notes
             if note.end <= note.start:
-                note.end = note.start + step
+                note.end = note.start + MIN_NOTE_SEC
 
     return midi_data
+
+
+# ---------------------------------------------------------------------------
+# Audio Preprocessing Helpers
+# ---------------------------------------------------------------------------
+
+def apply_bandpass_filter(y, sr, low_cut=50.0, high_cut=8000.0):
+    """
+    Remove low-frequency rumble (<50Hz) and high-frequency hiss (>8kHz).
+    Uses a zero-phase Butterworth filter.
+    """
+    try:
+        # Nyquist frequency
+        nyq = 0.5 * sr
+        low = low_cut / nyq
+        high = high_cut / nyq
+        
+        # 5th order filter
+        sos = scipy.signal.butter(5, [low, high], btype='bandpass', output='sos')
+        return scipy.signal.sosfiltfilt(sos, y)
+    except Exception as e:
+        print(f"[WARNING] Bandpass filter failed: {e}. Returning original.")
+        return y
 
 
 # ---------------------------------------------------------------------------
@@ -150,13 +183,11 @@ def quantize_midi(midi_data: pretty_midi.PrettyMIDI, bpm: float, grid: int = 16)
 def ConvertWavToMidi(
     audio_file: str, 
     save_dir: str,
-    onset_threshold: float = 0.5,     # FIX: Lowered slightly — 0.6 was missing real notes
-    frame_threshold: float = 0.3,     # FIX: Lowered slightly — 0.4 was cutting note tails
-    minimum_note_length: int = 58,    # FIX: ~100ms in frames at 22050Hz (not raw ms).
-                                      #      Was 100 (frames) = ~580ms — killed staccato notes
-    min_freq: float = 65.0,           # ~C2, fine for jazz bass
-    max_freq: float = 4200.0          # FIX: Was 2000Hz (~C7). Piano goes to C8 (~4186Hz).
-                                      #      This was silently dropping a full octave of treble
+    onset_threshold: float = 0.5,
+    frame_threshold: float = 0.3,
+    minimum_note_length: int = 58,
+    min_freq: float = 65.0,
+    max_freq: float = 4200.0
 ) -> tuple[str, int]:
     
     os.makedirs(save_dir, exist_ok=True)
@@ -165,16 +196,19 @@ def ConvertWavToMidi(
     # 1. Load Audio
     y, sr = librosa.load(audio_file, sr=22050, mono=True)
 
-    # 2. HPSS — increase margin for jazz (piano/bass overlap needs stronger separation)
-    # FIX: margin=1.0 → 2.5. At 1.0 it barely separated anything.
-    y_harm, _ = librosa.effects.hpss(y, margin=2.5)
+    # 1a. Pre-filter: Clean rumble and hiss
+    y = apply_bandpass_filter(y, sr)
+
+    # 2. HPSS — blend harmonic + partial percussive back in to preserve hammer attacks
+    y_harm, y_perc = librosa.effects.hpss(y, margin=2.5)
+    y_blended = y_harm + (y_perc * 0.25)   # 25% percussive preserves hammer attacks
 
     # 3. Normalize
-    y_harm = librosa.util.normalize(y_harm)
+    y_blended = librosa.util.normalize(y_blended)
 
     # 4. Save temp file
     temp_wav = os.path.join(save_dir, "_temp_" + os.path.basename(audio_file))
-    sf.write(temp_wav, y_harm, sr)
+    sf.write(temp_wav, y_blended, sr)
 
     try:
         _, midi_data, note_events = predict(
@@ -189,43 +223,24 @@ def ConvertWavToMidi(
             multiple_pitch_bends=False
         )
 
-        # 5. Post-Processing: Ghost note cleanup + velocity normalization
+        # 5. Post-Processing: Ghost note cleanup + Velocity Log-Compression
         total_cleaned = 0
+        TARGET_LOW, TARGET_HIGH = 40, 110
 
         for instrument in midi_data.instruments:
-            # FIX: cleaned_notes MUST be inside the instrument loop.
-            # Before, it was declared outside — notes from instrument N-1
-            # would carry over and corrupt instrument N's note list.
             cleaned_notes = []
-
             for note in instrument.notes:
                 duration_ms = (note.end - note.start) * 1000
-                # Keep note only if it's long enough and loud enough
                 if duration_ms >= 100 and note.velocity > 15:
+                    # Log compression: preserves dynamic contrast without hard-clipping quiet notes
+                    log_vel = np.log1p(note.velocity) / np.log1p(127)
+                    note.velocity = int(TARGET_LOW + log_vel * (TARGET_HIGH - TARGET_LOW))
                     cleaned_notes.append(note)
-
-            # FIX: Velocity normalization — this is why notes sound "too loud".
-            # Basic Pitch outputs raw velocities skewed toward 90–127.
-            # Remap to a musical range (40–100) using min-max scaling.
-            if cleaned_notes:
-                velocities = np.array([n.velocity for n in cleaned_notes])
-                v_min, v_max = velocities.min(), velocities.max()
-                TARGET_LOW, TARGET_HIGH = 40, 100
-
-                for note in cleaned_notes:
-                    if v_max > v_min:
-                        # Scale proportionally into target range
-                        normalized = (note.velocity - v_min) / (v_max - v_min)
-                        note.velocity = int(TARGET_LOW + normalized * (TARGET_HIGH - TARGET_LOW))
-                    else:
-                        # All notes same velocity — set to midpoint
-                        note.velocity = (TARGET_LOW + TARGET_HIGH) // 2
 
             instrument.notes = cleaned_notes
             total_cleaned += len(cleaned_notes)
 
-        # 6. Quantize — FIX: Use grid=32 for jazz to preserve microtiming/swing feel.
-        # grid=16 was quantizing swing 8ths onto a straight grid, erasing the jazz feel.
+        # 6. Quantize
         bpm_est = estimate_tempo_from_audio(audio_file)
         midi_data = quantize_midi(midi_data, bpm_est, grid=32)
 
@@ -302,16 +317,10 @@ def analyze_with_pretty_midi(
         tempo_bpm = get_tempo(midi_path, audio_path)
         return [], tempo_bpm, 0.0
 
-    # 1. Velocity Normalization
-    # Basic Pitch often produces very low velocities. We rescale to 0.1-1.0 range.
-    max_vel = max(n["velocity"] for n in all_notes) if all_notes else 100
-    if max_vel > 0:
-        for n in all_notes:
-            # Scale so max_vel becomes 1.0, but keep some floor
-            n["velocity"] = round(max(0.1, n["velocity"] / max_vel), 4)
-    else:
-        for n in all_notes:
-            n["velocity"] = 0.8
+    # 1. Velocity Division (0.0-1.0)
+    # FIX: avoid second normalization pass. Just divide by 127.
+    for n in all_notes:
+        n["velocity"] = round(n["velocity"] / 127.0, 4)
 
     # 2. Re-enabled Deduplication for Accuracy
     # Window reduced to 20ms to allow faster successive notes
@@ -347,17 +356,69 @@ def analyze_with_pretty_midi(
 
 
 # ---------------------------------------------------------------------------
-# Serialisation helper
+# Higher-level metadata helpers
 # ---------------------------------------------------------------------------
 
-def serialize_note(n: dict) -> dict:
-    """Ensure all note fields are JSON-serialisable primitives."""
+def infer_sustain_pedal(notes: list[dict], overlap_threshold: float = 0.05) -> list[dict]:
+    """
+    If two notes of the same pitch overlap by > 50ms, mark both as pedaled.
+    This hints to the frontend synthesizer to use a longer release envelope.
+    """
+    for i, note in enumerate(notes):
+        for j in range(i + 1, len(notes)):
+            other = notes[j]
+            if other["time"] > note["time"] + note["duration"]:
+                break  # Past possible overlap
+            if other["midi"] == note["midi"]:
+                overlap = (note["time"] + note["duration"]) - other["time"]
+                if overlap > overlap_threshold:
+                    note["pedal"] = True
+                    other["pedal"] = True
+    # Default pedal = False for unmarked notes
+    for note in notes:
+        note.setdefault("pedal", False)
+    return notes
+
+def group_chords(notes: list[dict], window_sec: float = 0.030) -> list[dict]:
+    """Tag notes that form chords with a shared chord_id."""
+    chord_id = 0
+    for i, note in enumerate(notes):
+        if "chord_id" in note:
+            continue
+        chord_members = [note]
+        for j in range(i + 1, len(notes)):
+            if notes[j]["time"] - note["time"] > window_sec:
+                break
+            if "chord_id" not in notes[j]:
+                chord_members.append(notes[j])
+        if len(chord_members) > 1:
+            for m in chord_members:
+                m["chord_id"] = chord_id
+            chord_id += 1
+        else:
+            note["chord_id"] = None
+    return notes
+
+def serialize_note(n: dict, beat_step_sec: float = 0.125) -> dict:
+    """Ensure all note fields are JSON-serialisable primitives with articulation."""
+    duration = float(n["duration"])
+    # Articulation inference
+    if duration < beat_step_sec * 0.6:
+        articulation = "staccato"
+    elif duration > beat_step_sec * 1.8:
+        articulation = "legato"
+    else:
+        articulation = "normal"
+
     return {
-        "name":     str(n["name"]),
-        "midi":     int(n["midi"]),
-        "time":     float(n["time"]),
-        "duration": float(n["duration"]),
-        "velocity": float(n["velocity"]),
+        "name":         str(n["name"]),
+        "midi":         int(n["midi"]),
+        "time":         float(n["time"]),
+        "duration":     duration,
+        "velocity":     float(n["velocity"]),
+        "articulation": articulation,
+        "pedal":        n.get("pedal", False),
+        "chord_id":     n.get("chord_id"),
     }
 
 
@@ -387,7 +448,11 @@ def wav_to_json_data(audio_path: str, save_dir: str, **kwargs) -> dict:
     key_sig = estimate_key_from_audio(audio_path)
     print(f"[PIPELINE] Estimated key: {key_sig}")
 
-    # Step 4 — Derived metadata
+    # Step 4 — Metadata Enrichment (Pedal, Chords)
+    notes = infer_sustain_pedal(notes)
+    notes = group_chords(notes)
+
+    # Step 5 — Derived metadata
     note_density = round(len(notes) / total_time, 2) if total_time > 0 else 0.0
 
     if not notes:
@@ -401,5 +466,5 @@ def wav_to_json_data(audio_path: str, save_dir: str, **kwargs) -> dict:
         "note_count":    len(notes),
         "note_density":  note_density,
         "midi_filename": os.path.basename(midi_path),
-        "notes":         [serialize_note(n) for n in notes],
+        "notes":         [serialize_note(n, 60.0 / (tempo_bpm * 4) if tempo_bpm > 0 else 0.125) for n in notes],
     }
