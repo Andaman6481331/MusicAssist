@@ -9,31 +9,20 @@ import { subscribeAuth } from "./auth";
 // Prompt builder
 // ---------------------------------------------------------------------------
 
+const GENRE_PROMPTS: Record<string, string> = {
+  classic: "Solo piano, pop style, key of C major, monophonic, minimalist staccato melody, single notes only, slow tempo. Isolated notes, dry recording, no reverb, no background noise, close mic, no sustain pedal, studio quality.",
+  jazz: "Solo piano, Upbeat Stride Jazz style, 140 BPM, fun and jumpy, syncopated ragtime rhythm, walking bassline, swing eighth notes, bright piano tone, dry recording, no reverb, no background noise, clear note attacks.",
+  pop: "Solo piano, Modern Pop arrangement, catchy repetitive melody, bright tone, 120 BPM, no sustain pedal, clear transients, dry studio sound, no reverb, no background noise, close mic, no sustain pedal, studio quality.",
+};
+
 /**
  * Build a tightly-constrained MusicGen prompt from the user's selections.
- * Every clause targets real playability:
- *  - Difficulty controls chord style and note density
- *  - Genre sets the musical feel + target BPM
- *  - Key sets the harmonic centre
- *  - Playability constraints cap simultaneous notes and register spread
  */
 function buildPrompt(
-  difficulty: string,
   genre: string,
-  key: string,
   _duration: number
 ): string {
-  const bpmMap: Record<string, number> = {
-    pop: 100, jazz: 90, classical: 75, rock: 110, blues: 80, bossa: 88,
-  };
-  const bpm = Math.min(bpmMap[genre] ?? 95, difficulty === "beginner" ? 85 : 110);
-
-  const levelLabel =
-    difficulty === "beginner" ? "easy beginner" :
-    difficulty === "advanced"  ? "advanced"      : "intermediate";
-
-  // One short, descriptive sentence — give MusicGen room to be creative
-  return `Solo piano, ${genre} style, key of ${key}, ${bpm} BPM, ${levelLabel} difficulty. Clean note separation, dry recording, no reverb.`;
+  return GENRE_PROMPTS[genre] || "";
 }
 
 // ---------------------------------------------------------------------------
@@ -63,56 +52,13 @@ const PracticePage: React.FC = () => {
   // ---------------------------------------------------------------------------
   const groups = [
     {
-      name: "Difficulty",
-      icon: "🎓",
-      description: "Controls note density and hand spread",
-      options: [
-        {
-          value: "beginner",
-          label: "Beginner",
-          hint: "Single melody + bass, max 2 notes at once",
-          icon: "🌱",
-        },
-        {
-          value: "intermediate",
-          label: "Intermediate",
-          hint: "Melody + block chords, max 4 notes, one octave span",
-          icon: "🎹",
-        },
-        {
-          value: "advanced",
-          label: "Advanced",
-          hint: "Broken arpeggios, up to 6 notes, max tenth stretch",
-          icon: "🌟",
-        },
-      ],
-    },
-    {
       name: "Genre",
       icon: "🎵",
       description: "Sets the musical style and feel",
       options: [
-        { value: "pop",       label: "Pop",       icon: "🎤", hint: "100 BPM, catchy melody, bright chords" },
-        { value: "jazz",      label: "Jazz",      icon: "🎷", hint: "90 BPM, swing feel, extended chords" },
-        { value: "classical", label: "Classical", icon: "🎻", hint: "75 BPM, lyrical, rich harmony" },
-        { value: "rock",      label: "Rock",      icon: "🎸", hint: "110 BPM, strong rhythm, powerful chords" },
-        { value: "blues",     label: "Blues",     icon: "🌙", hint: "80 BPM, 12-bar, pentatonic melody" },
-        { value: "bossa",     label: "Bossa Nova", icon: "🌴", hint: "88 BPM, syncopated, warm jazz chords" },
-      ],
-    },
-    {
-      name: "Key",
-      icon: "🔑",
-      description: "Harmonic centre of the piece",
-      options: [
-        { value: "C major",        label: "C",  hint: "No sharps or flats" },
-        { value: "G major",        label: "G",  hint: "1 sharp" },
-        { value: "F major",        label: "F",  hint: "1 flat" },
-        { value: "D major",        label: "D",  hint: "2 sharps" },
-        { value: "A major",        label: "A",  hint: "3 sharps" },
-        { value: "A minor",        label: "Am", hint: "Relative minor of C" },
-        { value: "E minor",        label: "Em", hint: "Relative minor of G" },
-        { value: "D minor",        label: "Dm", hint: "Relative minor of F" },
+        { value: "classic",   label: "Classic",   icon: "🎻", hint: "Simple melody, slow tempo, minimalist" },
+        { value: "pop",       label: "Pop",       icon: "🎤", hint: "Catchy melody, bright tone, 120 BPM" },
+        { value: "jazz",      label: "Jazz",      icon: "🎷", hint: "Swing rhythm, walking bassline, jazz harmony" },
       ],
     },
     {
@@ -130,14 +76,6 @@ const PracticePage: React.FC = () => {
   // ---------------------------------------------------------------------------
   // Derived prompt preview (shown to the user in the confirm popup)
   // ---------------------------------------------------------------------------
-  const previewPrompt = (() => {
-    const d = selectedOptions["Difficulty"];
-    const g = selectedOptions["Genre"];
-    const k = selectedOptions["Key"];
-    const dur = Number(selectedOptions["Duration"] ?? 30);
-    if (!d || !g || !k) return null;
-    return buildPrompt(d, g, k, dur);
-  })();
 
   // ---------------------------------------------------------------------------
   // Generation handler
@@ -181,12 +119,10 @@ const PracticePage: React.FC = () => {
       return;
     }
 
-    const difficulty = selectedOptions["Difficulty"];
     const genre      = selectedOptions["Genre"];
-    const key        = selectedOptions["Key"];
     const duration   = Number(selectedOptions["Duration"] ?? 30);
 
-    const textprompt = buildPrompt(difficulty, genre, key, duration);
+    const textprompt = buildPrompt(genre, duration);
     console.log("[PROMPT]", textprompt);
     localStorage.setItem("mididuration", String(duration));
 
@@ -224,9 +160,9 @@ const PracticePage: React.FC = () => {
         try {
           await addGenerationRecord(userId, {
             filename,
-            difficulty,
+            difficulty: "",
             genre,
-            key,
+            key: "",
             durationSec: duration,
             prompt: textprompt,
             favorite: false,
@@ -437,30 +373,6 @@ const PracticePage: React.FC = () => {
                 }}
               />
 
-              {/* Compact prompt preview */}
-              {previewPrompt && (
-                <details style={{ marginBottom: "1rem" }}>
-                  <summary
-                    style={{
-                      color: "var(--text-dim)", fontSize: "0.82rem",
-                      cursor: "pointer", userSelect: "none",
-                    }}
-                  >
-                    🔍 Preview AI prompt
-                  </summary>
-                  <p
-                    style={{
-                      marginTop: "0.5rem", padding: "0.75rem",
-                      background: "rgba(255,255,255,0.04)",
-                      borderRadius: "8px", fontSize: "0.78rem",
-                      color: "var(--text-dim)", lineHeight: 1.6,
-                      whiteSpace: "pre-wrap",
-                    }}
-                  >
-                    {previewPrompt}
-                  </p>
-                </details>
-              )}
 
               {/* Selected params summary */}
               <div
@@ -526,7 +438,7 @@ const PracticePage: React.FC = () => {
               <div style={{ color: "var(--text-dim)", lineHeight: "1.9", marginBottom: "2rem" }}>
                 <p>
                   <strong style={{ color: "var(--text-main)" }}>1. Pick your settings</strong><br />
-                  Choose <em>Difficulty</em>, <em>Genre</em>, <em>Key</em>, and <em>Duration</em>.
+                  Choose <em>Genre</em> and <em>Duration</em>.
                   Each setting directly shapes the music the AI creates.
                 </p>
                 <p>

@@ -28,7 +28,7 @@ const LoadingBar = () => {
       return;
     }
     const selectedDuration = Number(localStorage.getItem("mididuration") || 10);
-    const totalTime = selectedDuration <= 5 ? 50000 : selectedDuration <= 10 ? 100000 : 200000;
+    const totalTime = selectedDuration <= 15 ? 50000 : selectedDuration <= 30 ? 100000 : 200000;
     const step = 100 / (totalTime / 200);
 
     intervalRef.current = setInterval(() => {

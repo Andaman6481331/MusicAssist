@@ -21,7 +21,8 @@ load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), ".env"))
 
 from utils.music_utils import (
     analyze_with_pretty_midi, serialize_note,
-    ConvertWavToMidi, ConvertWavToMidiDamRsn,
+    ConvertWavToMidi, 
+    # ConvertWavToMidiDamRsn,
     wav_to_json_data, estimate_key_from_audio,
 )
 
@@ -77,11 +78,14 @@ async def generation_status():
 @app.post("/wavtojson")
 async def wav_to_json(
     file: UploadFile = File(...),
-    action: str = Form("add_anyway")
+    action: str = Form("add_anyway"),
+    onset: float = Form(0.4),
+    frame: float = Form(0.2),
+    min_len: int = Form(60)
 ):
     """
     Convert an uploaded WAV/MP3 file to MIDI and then to JSON.
-    Structure similar to /generate.
+    Allows tuning Basic Pitch accuracy via Form parameters.
     """
     print(f"wav_to_json called with: {file.filename}, action: {action}")
 
@@ -109,8 +113,14 @@ async def wav_to_json(
 
     def process_wav():
         try:
-            # 3. Use unified pipeline
-            result_data = wav_to_json_data(input_path, save_dir)
+            # 3. Use unified pipeline with optional threshold overrides
+            result_data = wav_to_json_data(
+                input_path, 
+                save_dir, 
+                onset_threshold=onset, 
+                frame_threshold=frame, 
+                minimum_note_length=min_len
+            )
 
             # 4. Save final JSON for frontend
             os.makedirs(output_dir, exist_ok=True)
@@ -217,15 +227,17 @@ class PromptRequest(BaseModel):
     prompt: str
 
 @app.get("/generate")
-async def generate_music(prompt: str, filename: str, mididuration: str):
+async def generate_music(
+    prompt: str, 
+    filename: str, 
+    mididuration: str,
+    onset: float = 0.4,
+    frame: float = 0.2,
+    min_len: int = 60
+):
     """
-    Generate music via Replicate MusicGen API.
-
-    Workflow:
-      1. Call Replicate MusicGen → download MP3
-      2. BasicPitch: MP3 → MIDI
-      3. pretty_midi: MIDI → JSON
-      4. Return JSON to frontend for piano roll display
+    Generate music via Replicate MusicGen API and convert to JSON MIDI.
+    Allows tuning conversion accuracy via query parameters.
     """
     global is_generating
 
@@ -242,10 +254,10 @@ async def generate_music(prompt: str, filename: str, mididuration: str):
 
     # Sanitise filename
     safe_filename = filename.replace(" ", "_").replace("/", "_").replace("\\", "_")
-    mp3_path = os.path.join(save_dir, f"{safe_filename}.mp3")
+    wav_path = os.path.join(save_dir, f"{safe_filename}.wav")
     mid_path = os.path.join(save_dir, f"{safe_filename}.mid")
 
-    if os.path.exists(mp3_path) or os.path.exists(mid_path):
+    if os.path.exists(wav_path) or os.path.exists(mid_path):
         return JSONResponse(
             content={
                 "error": f"Filename '{safe_filename}' already exists. Please choose a different name."
@@ -268,8 +280,11 @@ async def generate_music(prompt: str, filename: str, mididuration: str):
                     input={
                         "prompt": prompt,
                         "duration": int(mididuration),
-                        "model_version": "stereo-large",
-                        "output_format": "mp3",
+                        "model_version": "stereo-melody-large",
+                        "output_format": "wav",
+                        "temperature": 0.75,   # Lower for more stable, clear notes
+                        "top_k": 50,           # Filter out unlikely/noisy sounds
+                        "top_p": 0.9,   
                         "normalization_strategy": "peak",
                     }
                 )
@@ -308,18 +323,24 @@ async def generate_music(prompt: str, filename: str, mididuration: str):
             else:
                 raise Exception(f"Unexpected output format from Replicate: {type(output)}")
 
-            with open(mp3_path, "wb") as f:
+            with open(wav_path, "wb") as f:
                 f.write(audio_bytes)
-            print(f"[INFO] MP3 saved: {mp3_path}")
+            print(f"[INFO] WAV saved: {wav_path}")
 
             # ------------------------------------------------------------------
             # Step 3 & 4 — BasicPitch MP3→MIDI, pretty_midi MIDI→JSON
             # ------------------------------------------------------------------
-            result_data = wav_to_json_data(mp3_path, save_dir)
+            result_data = wav_to_json_data(
+                wav_path, 
+                save_dir, 
+                onset_threshold=onset, 
+                frame_threshold=frame, 
+                minimum_note_length=min_len
+            )
 
             # Save final JSON for frontend
             os.makedirs(output_dir, exist_ok=True)
-            base_name = os.path.splitext(os.path.basename(mp3_path))[0]
+            base_name = os.path.splitext(os.path.basename(wav_path))[0]
             output_json_path = os.path.join(output_dir, base_name + '.json')
 
             with open(output_json_path, 'w') as f:
@@ -346,26 +367,38 @@ async def generate_music(prompt: str, filename: str, mididuration: str):
 
 
 @app.get("/test-generate")
-async def test_generate(filename: str):
+async def test_generate(
+    filename: str,
+    onset: float = 0.4,
+    frame: float = 0.2,
+    min_len: int = 60
+):
     """
-    Test endpoint that skips Replicate and uses an existing audio file (MP3 or WAV).
+    Test endpoint with threshold overrides.
     """
-    print(f"test_generate called with existing file: {filename}")
+    print(f"test_generate called with: {filename}, onset={onset}, frame={frame}")
 
     def process_existing_audio():
         try:
             # Try MP3 first, then WAV
-            for ext in (".mp3", ".wav"):
+            # Try WAV first, then MP3
+            for ext in (".wav", ".mp3"):
                 audio_path = os.path.join(save_dir, f"{filename}{ext}")
                 if os.path.exists(audio_path):
                     break
             else:
-                return {"error": f"Audio file not found: {filename}.mp3 / {filename}.wav"}
+                return {"error": f"Audio file not found: {filename}.wav / {filename}.mp3"}
 
             print(f"Using existing audio: {audio_path}")
 
             # Unified Pipeline: MIDI conversion + Analysis + JSON creation
-            result_data = wav_to_json_data(audio_path, save_dir)
+            result_data = wav_to_json_data(
+                audio_path, 
+                save_dir, 
+                onset_threshold=onset, 
+                frame_threshold=frame, 
+                minimum_note_length=min_len
+            )
 
             # Save final JSON for frontend
             base_name = os.path.splitext(os.path.basename(audio_path))[0]

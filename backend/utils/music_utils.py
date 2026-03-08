@@ -42,8 +42,12 @@ def estimate_tempo_from_audio(audio_path: str) -> float:
     try:
         y, sr = librosa.load(audio_path, sr=22050, mono=True, duration=60)
         tempo, _ = librosa.beat.beat_track(y=y, sr=sr)
-        # librosa may return an array in newer versions
         bpm = float(np.atleast_1d(tempo)[0])
+        
+        # Guard against zero or extremely slow tempi
+        if bpm <= 0:
+            return 120.0
+
         # Clamp to a musically sensible range
         if bpm < 40:
             bpm *= 2
@@ -123,8 +127,11 @@ def quantize_midi(midi_data: pretty_midi.PrettyMIDI, bpm: float, grid: int = 16)
     bpm       : Tempo used to define the grid size
     grid      : Subdivisions per bar (16 = 1/16th note)
     """
+    if bpm <= 0:
+        bpm = 120.0
+        
     beat_duration = 60.0 / bpm           # seconds per beat
-    step = beat_duration / (grid / 4)    # 1/16th note in seconds
+    step = beat_duration / (grid / 4)    # 1/16th note in seconds (for grid=16)
 
     for instrument in midi_data.instruments:
         for note in instrument.notes:
@@ -140,91 +147,113 @@ def quantize_midi(midi_data: pretty_midi.PrettyMIDI, bpm: float, grid: int = 16)
 # ---------------------------------------------------------------------------
 # Core conversion: Audio → MIDI (Basic-Pitch)
 # ---------------------------------------------------------------------------
-
-def ConvertWavToMidi(audio_file: str, save_dir: str) -> tuple[str, int]:
-    """
-    Convert a WAV or MP3 file to MIDI using Basic-Pitch.
-
-    Improvements over original:
-    - Harmonic-percussive source separation (HPSS) strips drums/noise so
-      Basic-Pitch only sees the melodic/harmonic content.
-    - Lower, more permissive thresholds to capture softer notes.
-    - Wider frequency range (C1–C7).
-    - Post-conversion MIDI quantization to 1/16th note grid.
-
-    Returns
-    -------
-    (midi_path, note_count)
-    """
+def ConvertWavToMidi(
+    audio_file: str, 
+    save_dir: str,
+    onset_threshold: float = 0.5,     # FIX: Lowered slightly — 0.6 was missing real notes
+    frame_threshold: float = 0.3,     # FIX: Lowered slightly — 0.4 was cutting note tails
+    minimum_note_length: int = 58,    # FIX: ~100ms in frames at 22050Hz (not raw ms).
+                                      #      Was 100 (frames) = ~580ms — killed staccato notes
+    min_freq: float = 65.0,           # ~C2, fine for jazz bass
+    max_freq: float = 4200.0          # FIX: Was 2000Hz (~C7). Piano goes to C8 (~4186Hz).
+                                      #      This was silently dropping a full octave of treble
+) -> tuple[str, int]:
+    
     os.makedirs(save_dir, exist_ok=True)
+    print(f"[CONVERT] Loading: {audio_file}")
 
-    print(f"[CONVERT] Loading audio: {audio_file}")
-    # Load at 22050 Hz mono (librosa decodes MP3 transparently)
+    # 1. Load Audio
     y, sr = librosa.load(audio_file, sr=22050, mono=True)
 
-    # 1. Harmonic-percussive source separation — keep only pitched content
-    print("[CONVERT] Running HPSS (harmonic-percussive source separation)...")
-    y_harm, _ = librosa.effects.hpss(y, margin=3.0)
+    # 2. HPSS — increase margin for jazz (piano/bass overlap needs stronger separation)
+    # FIX: margin=1.0 → 2.5. At 1.0 it barely separated anything.
+    y_harm, _ = librosa.effects.hpss(y, margin=2.5)
 
-    # 2. Normalise
-    peak = np.max(np.abs(y_harm))
-    if peak > 0:
-        y_harm = y_harm / peak
+    # 3. Normalize
+    y_harm = librosa.util.normalize(y_harm)
 
-    # 3. Pre-emphasis to boost note attack transients
-    y_harm = librosa.effects.preemphasis(y_harm, coef=0.97)
-
-    # 4. Trim leading/trailing silence
-    y_harm, _ = librosa.effects.trim(y_harm, top_db=30)
-
-    # 5. Write preprocessed audio to temp file for Basic-Pitch
-    processed_path = os.path.join(save_dir, "_bp_input_" + os.path.basename(audio_file))
-    # Always write as WAV regardless of input format
-    processed_path_wav = os.path.splitext(processed_path)[0] + ".wav"
-    sf.write(processed_path_wav, y_harm, sr)
+    # 4. Save temp file
+    temp_wav = os.path.join(save_dir, "_temp_" + os.path.basename(audio_file))
+    sf.write(temp_wav, y_harm, sr)
 
     try:
-        print("[CONVERT] Running Basic-Pitch inference...")
         _, midi_data, note_events = predict(
-            audio_path=processed_path_wav,
+            audio_path=temp_wav,
             model_or_model_path=model,
-            onset_threshold=0.5,          # was 0.7 — lower = more notes captured
-            frame_threshold=0.3,          # was 0.5
-            minimum_note_length=80,       # ms; was 120 — capture shorter notes
-            minimum_frequency=32.7,       # C1 (was 55 Hz / A1)
-            maximum_frequency=2093.0,     # C7
-            melodia_trick=True,           # smoothing pass to remove spurious short notes
-            multiple_pitch_bends=False,
+            onset_threshold=onset_threshold,
+            frame_threshold=frame_threshold,
+            minimum_note_length=minimum_note_length,
+            minimum_frequency=min_freq,
+            maximum_frequency=max_freq,
+            melodia_trick=True,
+            multiple_pitch_bends=False
         )
 
-        # 6. Quantize notes to 1/16th grid using estimated tempo
-        bpm_est = estimate_tempo_from_audio(audio_file)
-        print(f"[CONVERT] Quantizing to 1/16 grid @ {bpm_est:.1f} BPM...")
-        midi_data = quantize_midi(midi_data, bpm_est)
+        # 5. Post-Processing: Ghost note cleanup + velocity normalization
+        total_cleaned = 0
 
-        # 7. Save MIDI
+        for instrument in midi_data.instruments:
+            # FIX: cleaned_notes MUST be inside the instrument loop.
+            # Before, it was declared outside — notes from instrument N-1
+            # would carry over and corrupt instrument N's note list.
+            cleaned_notes = []
+
+            for note in instrument.notes:
+                duration_ms = (note.end - note.start) * 1000
+                # Keep note only if it's long enough and loud enough
+                if duration_ms >= 100 and note.velocity > 15:
+                    cleaned_notes.append(note)
+
+            # FIX: Velocity normalization — this is why notes sound "too loud".
+            # Basic Pitch outputs raw velocities skewed toward 90–127.
+            # Remap to a musical range (40–100) using min-max scaling.
+            if cleaned_notes:
+                velocities = np.array([n.velocity for n in cleaned_notes])
+                v_min, v_max = velocities.min(), velocities.max()
+                TARGET_LOW, TARGET_HIGH = 40, 100
+
+                for note in cleaned_notes:
+                    if v_max > v_min:
+                        # Scale proportionally into target range
+                        normalized = (note.velocity - v_min) / (v_max - v_min)
+                        note.velocity = int(TARGET_LOW + normalized * (TARGET_HIGH - TARGET_LOW))
+                    else:
+                        # All notes same velocity — set to midpoint
+                        note.velocity = (TARGET_LOW + TARGET_HIGH) // 2
+
+            instrument.notes = cleaned_notes
+            total_cleaned += len(cleaned_notes)
+
+        # 6. Quantize — FIX: Use grid=32 for jazz to preserve microtiming/swing feel.
+        # grid=16 was quantizing swing 8ths onto a straight grid, erasing the jazz feel.
+        bpm_est = estimate_tempo_from_audio(audio_file)
+        midi_data = quantize_midi(midi_data, bpm_est, grid=32)
+
         stem = os.path.splitext(os.path.basename(audio_file))[0]
         output_midi_path = os.path.join(save_dir, stem + ".mid")
         midi_data.write(output_midi_path)
-        print(f"[CONVERT] MIDI saved: {output_midi_path} ({len(note_events)} notes)")
 
-        return output_midi_path, len(note_events)
+        return output_midi_path, total_cleaned
 
     finally:
-        if os.path.exists(processed_path_wav):
-            os.remove(processed_path_wav)
+        if os.path.exists(temp_wav):
+            os.remove(temp_wav)
 
 
-# Legacy alias kept for backward-compatibility with server.py import
-def ConvertWavToMidiDamRsn(wav_file: str, save_dir: str,
-                            note_sensitivity: float = 0.5,
-                            split_sensitivity: float = 0.3,
-                            min_note_duration_ms: float = 80) -> tuple[str, int]:
-    """
-    Thin wrapper kept for backward-compatibility.
-    Delegates to the improved ConvertWavToMidi.
-    """
-    return ConvertWavToMidi(wav_file, save_dir)
+# def ConvertWavToMidiDamRsn(wav_file: str, save_dir: str,
+#                             note_sensitivity: float = 0.4,
+#                             split_sensitivity: float = 0.2,
+#                             min_note_duration_ms: int = 60) -> tuple[str, int]:
+#     """
+#     Legacy wrapper delegating to high-sensitivity ConvertWavToMidi.
+#     """
+#     return ConvertWavToMidi(
+#         wav_file, 
+#         save_dir, 
+#         onset_threshold=note_sensitivity, 
+#         frame_threshold=split_sensitivity, 
+#         minimum_note_length=min_note_duration_ms
+#     )
 
 
 # ---------------------------------------------------------------------------
@@ -241,14 +270,20 @@ def analyze_with_pretty_midi(
     Parse a MIDI file and return (notes, tempo_bpm, total_time).
 
     Improvements:
-    - Accepts optional audio_path for librosa tempo fallback.
-    - Deduplication uses a tighter tolerance window.
-    - Returns velocity already normalised to 0–1.
+    - Normalizes velocities so the track has a consistent dynamic range (loudest note = 1.0).
+    - Improved deduplication: removes notes of same pitch that start within 20ms of each other.
+    - Handles multiple tracks by merging them.
     """
-    midi_data = pretty_midi.PrettyMIDI(midi_path)
+    try:
+        midi_data = pretty_midi.PrettyMIDI(midi_path)
+    except Exception as e:
+        print(f"[ERROR] Could not parse MIDI {midi_path}: {e}")
+        return [], 120.0, 0.0
+
     end_sec = start_sec + duration_sec
     all_notes: list[dict] = []
 
+    # Collect all notes from all non-drum instruments
     for instrument in midi_data.instruments:
         if instrument.is_drum:
             continue
@@ -260,21 +295,47 @@ def analyze_with_pretty_midi(
                     "midi":     int(n.pitch),
                     "time":     round(float(n.start), 4),
                     "duration": round(float(n.end - n.start), 4),
-                    "velocity": round(n.velocity / 127.0, 4),
+                    "velocity": float(n.velocity),
                 })
 
-    # Deduplication: same pitch within 5 ms as the same note
-    deduped: list[dict] = []
-    seen: set[tuple] = set()
-    for note in all_notes:
-        key = (note["midi"], round(note["time"] / 0.005))  # 5 ms buckets
-        if key not in seen:
-            deduped.append(note)
-            seen.add(key)
+    if not all_notes:
+        tempo_bpm = get_tempo(midi_path, audio_path)
+        return [], tempo_bpm, 0.0
 
+    # 1. Velocity Normalization
+    # Basic Pitch often produces very low velocities. We rescale to 0.1-1.0 range.
+    max_vel = max(n["velocity"] for n in all_notes) if all_notes else 100
+    if max_vel > 0:
+        for n in all_notes:
+            # Scale so max_vel becomes 1.0, but keep some floor
+            n["velocity"] = round(max(0.1, n["velocity"] / max_vel), 4)
+    else:
+        for n in all_notes:
+            n["velocity"] = 0.8
+
+    # 2. Re-enabled Deduplication for Accuracy
+    # Window reduced to 20ms to allow faster successive notes
+    all_notes.sort(key=lambda x: (x["time"], x["midi"]))
+    
+    deduped: list[dict] = []
+    last_note_for_pitch = {} 
+
+    for note in all_notes:
+        pitch = note["midi"]
+        start_time = note["time"]
+        
+        # 20ms window for high accuracy
+        if pitch in last_note_for_pitch:
+            if abs(start_time - last_note_for_pitch[pitch]) < 0.020:
+                continue
+        
+        deduped.append(note)
+        last_note_for_pitch[pitch] = start_time
+
+    # Final sort by time
     deduped.sort(key=lambda x: x["time"])
 
-    # Tempo — MIDI first, then audio beat tracking
+    # 3. Tempo — MIDI first, then audio beat tracking
     tempo_bpm = get_tempo(midi_path, audio_path)
 
     total_time = (
@@ -304,7 +365,7 @@ def serialize_note(n: dict) -> dict:
 # Unified pipeline: Audio → MIDI → JSON dict
 # ---------------------------------------------------------------------------
 
-def wav_to_json_data(audio_path: str, save_dir: str) -> dict:
+def wav_to_json_data(audio_path: str, save_dir: str, **kwargs) -> dict:
     """
     Full pipeline: WAV or MP3 → MIDI (Basic-Pitch) → analysis dict.
 
@@ -313,7 +374,7 @@ def wav_to_json_data(audio_path: str, save_dir: str) -> dict:
     print(f"[PIPELINE] Starting for: {audio_path}")
 
     # Step 1 — Audio → MIDI
-    midi_path, note_count = ConvertWavToMidi(audio_path, save_dir)
+    midi_path, note_count = ConvertWavToMidi(audio_path, save_dir, **kwargs)
     print(f"[PIPELINE] MIDI conversion done. Raw note events: {note_count}")
 
     # Step 2 — MIDI → note list + tempo
