@@ -39,3 +39,8 @@ toDoList.txt
 backend/__pycache__/server.cpython-311.pyc
 /backend/__pycache__
 backend/__pycache__/server.cpython-311.pyc
+
+# Environment Variables
+.env
+.env.*
+.env.local
