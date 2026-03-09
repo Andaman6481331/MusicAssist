@@ -31,16 +31,28 @@ app = FastAPI()
 # Allow CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],  # Allow your frontend URL
+    allow_origins=["*"],  
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-save_dir = "../Collection"  # .Wav & .MIDI from generator
-os.makedirs(save_dir, exist_ok=True)
 
-output_dir = '../frontend/public/JsonOutputs'   # JsonOutput folder
+# save_dir = "../Collection"  .Wav & .MIDI from generator
+# os.makedirs(save_dir, exist_ok=True)
+
+# output_dir = '../frontend/public/JsonOutputs'   # JsonOutput folder
+
+# Ready for Render
+# Get the folder where this server.py file lives
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# Save files right here inside the backend folder
+save_dir = os.path.join(BASE_DIR, "Collection")
+output_dir = os.path.join(BASE_DIR, "JsonOutputs")
+
+os.makedirs(save_dir, exist_ok=True)
+os.makedirs(output_dir, exist_ok=True)
 
 # ============================================
 # Generation lock to prevent multiple simultaneous generations
