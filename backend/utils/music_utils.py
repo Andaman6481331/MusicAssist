@@ -11,6 +11,8 @@ from basic_pitch import ICASSP_2022_MODEL_PATH
 
 # ---------------------------------------------------------------------------
 # Load Basic-Pitch model once at import time (avoids repeated disk I/O)
+# The CoreML backend is auto-selected on macOS; TFLite is used on Linux.
+# coremltools must NOT be in requirements.txt for Linux deploys (Render).
 # ---------------------------------------------------------------------------
 model = Model(ICASSP_2022_MODEL_PATH)
 
