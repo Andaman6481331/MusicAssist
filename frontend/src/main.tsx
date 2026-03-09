@@ -31,11 +31,12 @@ import ModalColors from "./teachingComponent/ModalColors.tsx";
 const Root = () => {
   const samplerRef = useRef<Tone.Sampler | null>(null);
   const gainRef = useRef<Tone.Gain | null>(null);
+  const reverbRef = useRef<Tone.Reverb | null>(null);
  
   return (
     <GlobalBooleanProvider>
       <LoadingProvider>
-      <SamplerContext.Provider value={{ samplerRef, gainRef }}>
+      <SamplerContext.Provider value={{ samplerRef, gainRef, reverbRef }}>
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<App />}>
