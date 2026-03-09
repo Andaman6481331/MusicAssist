@@ -88,7 +88,7 @@ const PracticePage: React.FC = () => {
 
     // Check generation status
     try {
-      const statusRes  = await fetch("http://localhost:8000/generation-status");
+      const statusRes  = await fetch("https://musicassist.onrender.com/generation-status");
       const statusData = await statusRes.json();
       if (statusData.is_generating) {
         setError("A generation is already in progress. Please wait.");
@@ -101,7 +101,7 @@ const PracticePage: React.FC = () => {
 
     // Check filename conflict
     try {
-      const res  = await fetch(`http://localhost:8000/check-filename?name=${encodeURIComponent(filename)}`);
+      const res  = await fetch(`https://musicassist.onrender.com/check-filename?name=${encodeURIComponent(filename)}`);
       const data = await res.json();
       if (data.exists) {
         setError("Filename already exists — please choose a different name.");
@@ -132,7 +132,7 @@ const PracticePage: React.FC = () => {
 
     try {
       const response = await fetch(
-        `http://localhost:8000/generate?prompt=${encodeURIComponent(textprompt)}&filename=${encodeURIComponent(filename)}&mididuration=${duration}`
+        `https://musicassist.onrender.com/generate?prompt=${encodeURIComponent(textprompt)}&filename=${encodeURIComponent(filename)}&mididuration=${duration}`
       );
       const data = await response.json();
 
