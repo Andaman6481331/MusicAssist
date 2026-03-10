@@ -86,6 +86,21 @@ const PianoRollApp: React.FC<PianoRollAppProps> = ({
   useEffect(() => {
     const load = async () => {
       try {
+        // ----- Strategy 1: Load from Firestore (works in production) -----
+        if (user) {
+          const { getJsonRecord } = await import("../data/jsonGenerations");
+          const record = await getJsonRecord(user.uid, fileName);
+          if (record && record.notes && record.notes.length > 0) {
+            console.log("[PianoRoll] Loaded notes from Firestore");
+            setNotes(record.notes);
+            setTempo(record.tempo_bpm);
+            setTotalTime(record.total_time);
+            return; // Done — no need to fetch a file
+          }
+        }
+
+        // ----- Strategy 2: Fetch from /JsonOutputs/ (local dev fallback) -----
+        console.log("[PianoRoll] Firestore miss — trying /JsonOutputs/ file...");
         const res = await fetch(`/JsonOutputs/${fileName}.json`);
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
@@ -97,6 +112,7 @@ const PianoRollApp: React.FC<PianoRollAppProps> = ({
           throw new Error("Invalid JSON");
         }
 
+        // Persist to Firestore so future loads use Strategy 1
         if (user) {
           try {
             await saveJsonRecord(user.uid, fileName, fileName, {
@@ -105,7 +121,6 @@ const PianoRollApp: React.FC<PianoRollAppProps> = ({
               notes: data.notes,
             });
           } catch (err: any) {
-            // FILENAME_ALREADY_EXISTS is expected when re-opening a saved file — ignore it
             if (err?.message !== "FILENAME_ALREADY_EXISTS") {
               console.error("Error saving JSON record:", err);
             }
