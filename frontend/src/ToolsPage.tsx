@@ -1,6 +1,8 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./based.css";
+import { subscribeAuth } from "./auth";
+import { saveJsonRecord } from "./data/jsonGenerations";
 
 const ToolsPage: React.FC = () => {
   const [selectedSong, setSelectedSong] = useState<string>("");
@@ -15,6 +17,12 @@ const ToolsPage: React.FC = () => {
   const [convertPopup, setConvertPopup] = useState(false); // For duplicate file warning
   const [convertError, setConvertError] = useState("");
   const navigate = useNavigate();
+  const [userId, setUserId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const unsub = subscribeAuth((user) => setUserId(user?.uid ?? null));
+    return () => unsub();
+  }, []);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const convertInputRef = useRef<HTMLInputElement>(null);
@@ -25,16 +33,56 @@ const ToolsPage: React.FC = () => {
     }
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      const nameWithoutExt = file.name.replace(/\.[^/.]+$/, "");
-      setUploadState("uploading");
-      setSelectedSong(`${nameWithoutExt}`);
-      // Simulate a brief processing time before showing action buttons
-      setTimeout(() => {
+    if (!file) return;
+
+    const nameWithoutExt = file.name.replace(/\.[^/.]+$/, "");
+    const ext = file.name.split('.').pop()?.toLowerCase();
+    
+    setUploadState("uploading");
+    setSelectedSong(nameWithoutExt);
+
+    if (ext === "json") {
+      // Handle local JSON file
+      const reader = new FileReader();
+      reader.onload = async (event) => {
+        try {
+          const content = event.target?.result as string;
+          const data = JSON.parse(content);
+          
+          if (userId && data.notes) {
+            await saveJsonRecord(userId, nameWithoutExt, nameWithoutExt, {
+              tempo_bpm: data.tempo_bpm || 120,
+              total_time: data.total_time || 0,
+              notes: data.notes,
+            });
+            console.log("[Visualizer] JSON saved to Firestore");
+          }
+          setUploadState("done");
+        } catch (err) {
+          console.error("Failed to parse or save JSON:", err);
+          setConvertError("Invalid JSON file or save failed.");
+          setUploadState("idle");
+        }
+      };
+      reader.onerror = () => {
+        setConvertError("Failed to read file.");
+        setUploadState("idle");
+      };
+      reader.readAsText(file);
+    } else if (ext === "wav" || ext === "mid" || ext === "midi") {
+      // Use the existing upload/convert logic
+      try {
+        // We reuse the uploadFile logic but update the Visualizer state
+        await uploadFile(file, "add_anyway");
         setUploadState("done");
-      }, 500);
+      } catch (err) {
+        setUploadState("idle");
+      }
+    } else {
+      setConvertError("Unsupported file type. Use .json, .wav, or .mid");
+      setUploadState("idle");
     }
   };
 
@@ -57,7 +105,7 @@ const ToolsPage: React.FC = () => {
     if (!file) return;
     try {
       // Step 1: Check if file exists
-      const checkRes = await fetch(`http://localhost:8000/check-filename?name=${file.name}`);
+      const checkRes = await fetch(`https://musicassist.onrender.com/check-filename?name=${file.name}`);
       const checkData = await checkRes.json();
 
       if (checkData.exists) {
@@ -85,18 +133,37 @@ const ToolsPage: React.FC = () => {
     try {
       let res;
       if (ext === "wav") {
-        res = await fetch("http://localhost:8000/wavtojson", {
+        res = await fetch("https://musicassist.onrender.com/wavtojson", {
           method: "POST",
           body: formData,
         });
       } else {
-        res = await fetch("http://localhost:8000/miditojson", {
+        res = await fetch("https://musicassist.onrender.com/miditojson", {
           method: "POST",
           body: formData,
         });
       }
 
       if (!res.ok) throw new Error("Upload failed");
+
+      const data = await res.json();
+
+      // Save to Firestore so PianoRollApp can load it
+      if (userId && data.notes) {
+        const name = file.name.replace(/\.[^/.]+$/, "");
+        try {
+          await saveJsonRecord(userId, name, name, {
+            tempo_bpm: data.tempo_bpm,
+            total_time: data.total_time,
+            notes: data.notes,
+          });
+          console.log("[Converter] JSON saved to Firestore");
+        } catch (err: any) {
+          if (err?.message !== "FILENAME_ALREADY_EXISTS") {
+            console.error("Error saving to Firestore:", err);
+          }
+        }
+      }
 
       // Success
       setConvertState("done");
