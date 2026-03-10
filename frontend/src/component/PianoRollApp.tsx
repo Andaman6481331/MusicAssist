@@ -86,7 +86,8 @@ const PianoRollApp: React.FC<PianoRollAppProps> = ({
   useEffect(() => {
     const load = async () => {
       try {
-        const res = await fetch(`/JsonOutputs/${fileName}.json`);
+        // const res = await fetch(`/JsonOutputs/${fileName}.json`);
+        const res = await fetch(`https://musicassist.onrender.com/JsonOutputs/${fileName}.json`);
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
         const text = await res.text();
