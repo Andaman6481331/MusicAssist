@@ -4,38 +4,18 @@ Harmonic is an AI-powered music assistant designed to empower musicians through 
 
 ---
 
-## 🚀 Key Features & Showcase
+## 🚀 Key Features
 
-### 🌟 1. The Dashboard (Landing Page)
-Set the tone instantly with a visually stunning, responsive landing page offering quick access to all of Harmonic's powerful features.
-<video src="frontend/src/assets/display/landing.mp4" autoplay loop muted playsinline width="100%"></video>
+*We keep our README lightweight for fast loading. Want to see our interactive UI, AI generation, and audio processing in action?*
 
-### 🔐 2. Secure Authentication
-A smooth, secure login and sign-up flow, protecting your generated tracks and custom data.
-<video src="frontend/src/assets/display/login.mp4" autoplay loop muted playsinline width="100%"></video>
+### 🎬 [👉 CLICK HERE TO VIEW THE FULL VIDEO SHOWCASE 👈](./SHOWCASE.md)
 
-### 🤖 3. AI Music Generation
-Create original, high-quality music simply from text prompts or choices, powered by seamless backend integration with Replicate's **MusicGen** API.
-<video src="frontend/src/assets/display/generating.mp4" autoplay loop muted playsinline width="100%"></video>
-
-### 🎹 4. Interactive Piano Roll
-An interactive, real-time piano roll that visualizes and plays back musical compositions utilizing **Tone.js** and React state management for fluid animations.
-<video src="frontend/src/assets/display/pianoroll.mp4" autoplay loop muted playsinline width="100%"></video>
-
-### 🎼 5. Audio Processing & Analysis (WAV/MP3 to MIDI/JSON)
-Convert raw audio recordings directly into structured MIDI/JSON data for deep musical analysis. Showcasing complex backend audio processing capabilities via **FastAPI** and **BasicPitch**.
-<video src="frontend/src/assets/display/tools.mp4" autoplay loop muted playsinline width="100%"></video>
-
-### 🎓 6. Music Theory Academy
-Structured, interactive lessons designed to teach music theory effectively. From basic chords to advanced progressions, learn comprehensively through dynamic React UI components.
-<p align="center">
-  <video src="frontend/src/assets/display/lesson1.mp4" autoplay loop muted playsinline width="49%"></video>
-  <video src="frontend/src/assets/display/lesson2.mp4" autoplay loop muted playsinline width="49%"></video>
-</p>
-
-### 🎨 7. Theme Customization & Music Vault (My List)
-A customizable, vibrant global UI paired with a **Music Vault** allowing users to seamlessly select, remove, and search through their generated or uploaded files, retaining state globally via React Context.
-<video src="frontend/src/assets/display/color_list.mp4" autoplay loop muted playsinline width="100%"></video>
+- **AI Music Generation**: Create original music from user choices using Replicate's MusicGen API.
+- **WAV/MP3 to MIDI/JSON**: Convert audio recordings into structured musical data for analysis.
+- **Interactive Piano Roll**: Visualize and play back musical compositions in real-time.
+- **Music Theory Academy**: Structured lessons and interactive tools for learning music theory.
+- **Sample Playback**: High-quality piano samples powered by Tone.js.
+- **Global Theme System**: Fully customizable UI with multiple vibrant themes.
 
 ---
 
