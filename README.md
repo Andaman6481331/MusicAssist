@@ -4,14 +4,38 @@ Harmonic is an AI-powered music assistant designed to empower musicians through 
 
 ---
 
-## 🚀 Key Features
+## 🚀 Key Features & Showcase
 
-- **AI Music Generation**: Create original music from user choices using Replicate's MusicGen.
-- **WAV/MP3 to MIDI/JSON**: Convert audio recordings into structured musical data for analysis.
-- **Interactive Piano Roll**: Visualize and play back musical compositions in real-time.
-- **Music Theory Academy**: Structured lessons and interactive tools for learning music theory.
-- **Sample Playback**: High-quality piano samples powered by Tone.js.
-- **Global Theme System**: Fully customizable UI with multiple vibrant themes.
+### 🌟 1. The Dashboard (Landing Page)
+Set the tone instantly with a visually stunning, responsive landing page offering quick access to all of Harmonic's powerful features.
+<img src="frontend/src/assets/display/landing.gif" alt="Landing Page" width="100%">
+
+### 🔐 2. Secure Authentication
+A smooth, secure login and sign-up flow, protecting your generated tracks and custom data.
+<img src="frontend/src/assets/display/login.gif" alt="Login and Sign In" width="100%">
+
+### 🤖 3. AI Music Generation
+Create original, high-quality music simply from text prompts or choices, powered by seamless backend integration with Replicate's **MusicGen** API.
+<img src="frontend/src/assets/display/generating.gif" alt="AI Music Generation" width="100%">
+
+### 🎹 4. Interactive Piano Roll
+An interactive, real-time piano roll that visualizes and plays back musical compositions utilizing **Tone.js** and React state management for fluid animations.
+<img src="frontend/src/assets/display/pianoroll.gif" alt="Interactive Piano Roll" width="100%">
+
+### 🎼 5. Audio Processing & Analysis (WAV/MP3 to MIDI/JSON)
+Convert raw audio recordings directly into structured MIDI/JSON data for deep musical analysis. Showcasing complex backend audio processing capabilities via **FastAPI** and **BasicPitch**.
+<img src="frontend/src/assets/display/tools.gif" alt="Audio Tools & Conversion" width="100%">
+
+### 🎓 6. Music Theory Academy
+Structured, interactive lessons designed to teach music theory effectively. From basic chords to advanced progressions, learn comprehensively through dynamic React UI components.
+<p align="center">
+  <img src="frontend/src/assets/display/lesson1.gif" alt="Music Theory Lesson 1" width="49%">
+  <img src="frontend/src/assets/display/lesson2.gif" alt="Music Theory Lesson 2" width="49%">
+</p>
+
+### 🎨 7. Theme Customization & Music Vault (My List)
+A customizable, vibrant global UI paired with a **Music Vault** allowing users to seamlessly select, remove, and search through their generated or uploaded files, retaining state globally via React Context.
+<img src="frontend/src/assets/display/color_list.gif" alt="Theme customization and file management" width="100%">
 
 ---
 
