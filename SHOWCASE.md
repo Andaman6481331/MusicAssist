@@ -28,24 +28,24 @@ https://github.com/user-attachments/assets/8a9553e1-9916-469f-b336-2a64fa84dcbc
 ### 🎹 4. Interactive Piano Roll
 An interactive, real-time piano roll that visualizes and plays back musical compositions utilizing **Tone.js** and React state management for fluid animations.
 
-https://github.com/user-attachments/assets/4893f853-970f-4d93-a8c2-74f2e5209cdf
+https://github.com/user-attachments/assets/2fa908b8-e4d2-4c48-8aee-7d8c22865cee
 
 ---
 
 ### 🎼 5. Audio Processing & Analysis (WAV/MP3 to MIDI/JSON)
 Convert raw audio recordings directly into structured MIDI/JSON data for deep musical analysis. Showcasing complex backend audio processing capabilities via **FastAPI** and **BasicPitch**.
 
-https://github.com/user-attachments/assets/b68be542-1ef0-400c-99b9-daec64fac294
+https://github.com/user-attachments/assets/c349316b-9fc2-49cd-8104-8328c714955d
 
 ---
 
 ### 🎓 6. Music Theory Academy
 Structured, interactive lessons designed to teach music theory effectively. From basic chords to advanced progressions, learn comprehensively through dynamic React UI components.
 
-https://github.com/user-attachments/assets/c349316b-9fc2-49cd-8104-8328c714955d
+https://github.com/user-attachments/assets/b68be542-1ef0-400c-99b9-daec64fac294
 
 
-https://github.com/user-attachments/assets/2fa908b8-e4d2-4c48-8aee-7d8c22865cee
+https://github.com/user-attachments/assets/4893f853-970f-4d93-a8c2-74f2e5209cdf
 
 ---
 
@@ -53,6 +53,7 @@ https://github.com/user-attachments/assets/2fa908b8-e4d2-4c48-8aee-7d8c22865cee
 A customizable, vibrant global UI paired with a **Music Vault** allowing users to seamlessly select, remove, and search through their generated or uploaded files, retaining state globally via React Context.
 
 https://github.com/user-attachments/assets/740e5aba-fefb-445c-8950-b7d6e888fb52
+
 ---
 
 [🔙 Back to Main README](./README.md)
