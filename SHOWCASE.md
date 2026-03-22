@@ -21,7 +21,7 @@ https://github.com/user-attachments/assets/bddc974f-9326-49b8-88e6-7571d3c64b2f
 ### 🤖 3. AI Music Generation
 Create original, high-quality music simply from text prompts or choices, powered by seamless backend integration with Replicate's **MusicGen** API.
 
-https://github.com/user-attachments/assets/740e5aba-fefb-445c-8950-b7d6e888fb52
+https://github.com/user-attachments/assets/8a9553e1-9916-469f-b336-2a64fa84dcbc
 
 ---
 
@@ -43,6 +43,8 @@ https://github.com/user-attachments/assets/b68be542-1ef0-400c-99b9-daec64fac294
 Structured, interactive lessons designed to teach music theory effectively. From basic chords to advanced progressions, learn comprehensively through dynamic React UI components.
 
 https://github.com/user-attachments/assets/c349316b-9fc2-49cd-8104-8328c714955d
+
+
 https://github.com/user-attachments/assets/2fa908b8-e4d2-4c48-8aee-7d8c22865cee
 
 ---
@@ -50,8 +52,7 @@ https://github.com/user-attachments/assets/2fa908b8-e4d2-4c48-8aee-7d8c22865cee
 ### 🎨 7. Theme Customization & Music Vault (My List)
 A customizable, vibrant global UI paired with a **Music Vault** allowing users to seamlessly select, remove, and search through their generated or uploaded files, retaining state globally via React Context.
 
-https://github.com/user-attachments/assets/8a9553e1-9916-469f-b336-2a64fa84dcbc
-
+https://github.com/user-attachments/assets/740e5aba-fefb-445c-8950-b7d6e888fb52
 ---
 
 [🔙 Back to Main README](./README.md)
